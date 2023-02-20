@@ -3,9 +3,9 @@ import time
 import inspect
 import functools
 
-function_calls_counter = Counter('counter', 'query??', ['function', 'module'])
-function_calls_histogram = Histogram('histogram', 'query??', ['function', 'module'])
-function_calls_gauge = Gauge('gauge', 'query??', ['function', 'module'])
+function_calls_counter = Counter('function_calls_count', 'query??', ['function', 'module'])
+function_calls_histogram = Histogram('function_calls_duration', 'query??', ['function', 'module'])
+function_calls_gauge = Gauge('function_calls_concurrent', 'query??', ['function', 'module'])
 
 def function_calls_count(func):
     @functools.wraps(func)
