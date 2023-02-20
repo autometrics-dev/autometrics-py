@@ -12,11 +12,8 @@ def function_calls_count(func):
     def wrapper(*args, **kwargs):
         func_name = func.__name__
         module_name = inspect.getmodule(func).__name__
-        # start_time = time.time()
         function_calls_counter.labels(func_name, module_name).inc()
         result = func(*args, **kwargs)
-        # duration = time.time() - start_time
-        # prom_histogram.labels(func_name, module_name).observe(duration)
         return result
     return wrapper
 
