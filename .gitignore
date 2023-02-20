@@ -1,6 +1,7 @@
 #custom
 test.py
 data/
+autometrics/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
