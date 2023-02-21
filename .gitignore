@@ -2,6 +2,8 @@
 test.py
 data/
 autometrics/
+test2.py
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
