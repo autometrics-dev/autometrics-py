@@ -15,7 +15,7 @@ def autometrics(func):
             result = func(*args, **kwargs)
             prom_counter.labels(func_name, module_name, 'ok').inc()
         except Exception as e:
-            result = "exception caught"
+            result = "Exception caught"
             prom_counter.labels(func_name, module_name, 'error').inc()
         duration = time.time() - start_time
         prom_histogram.labels(func_name, module_name).observe(duration)
