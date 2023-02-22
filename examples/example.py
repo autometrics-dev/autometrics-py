@@ -21,8 +21,6 @@ class Operations:
         except:
             return "num2 cannot be 0"
 
-
-
 # def example():
 #     start_time = time.time()
 #     print('This is an example function')
