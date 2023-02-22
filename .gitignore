@@ -1,9 +1,8 @@
 #custom
-test.py
 data/
 autometrics/
-test2.py
 .vscode/
+my_testing/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -2,16 +2,17 @@ from prometheus_client import start_http_server
 from autometrics import autometrics
 import time
 
-@autometrics
 class Operations:
     def __init__(self, **args):
         self.args = args
 
+    @autometrics
     def add(self, num1, num2):
         self.num1 = num1
         self.num2 = num2
         return self.num1 + self.num2
 
+    @autometrics
     def div_handled(self, num1, num2):
         self.num1 = num1
         self.num2 = num2
