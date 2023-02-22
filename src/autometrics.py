@@ -1,7 +1,7 @@
 from prometheus_client import Counter, Histogram, Gauge
 import time
 import inspect
-import sys
+import os
 
 prom_counter = Counter('function_calls_count', 'query??', ['function', 'module', 'result'])
 prom_histogram = Histogram('function_calls_duration', 'query??', ['function', 'module'])
@@ -10,7 +10,8 @@ prom_histogram = Histogram('function_calls_duration', 'query??', ['function', 'm
 def autometrics(func):
     def wrapper(*args, **kwargs):
         func_name = func.__name__
-        module_name = inspect.getsourcefile(func)
+        module_name_path = inspect.getsourcefile(func)
+        module_name = os.path.relpath(func_name, start=module_name_path)
         start_time = time.time()
         try:
             result = func(*args, **kwargs)
