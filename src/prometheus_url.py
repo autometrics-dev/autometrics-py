@@ -3,19 +3,19 @@ import os
 from dotenv import load_dotenv
 
 class Generator():
-   def __init__(self, functionName):
+   def __init__(self, functionName, moduleName):
        load_dotenv()
        self.functionName = functionName
+       self.moduleName = moduleName
        self.baseUrl = os.getenv('PROMETHEUS_URL')
        if (self.baseUrl is None):
            self.baseUrl = 'http://localhost:9090/'
 
 
    def createURLs(self):
-
-        requestRateQuery =f'sum by (function, module) (rate (function_calls_count_total{{function="{self.functionName}"}}[5m]))'
-        latencyQuery= f'sum by (le, function, module) (rate(function_calls_duration_bucket{{function="{self.functionName}"}}[5m]))'
-        errorRatioQuery = f'sum by (function, module) (rate (function_calls_count{{function="{self.functionName}", result="error"}}[5m])) / {requestRateQuery}'
+        requestRateQuery =f'sum by (function, module) (rate (function_calls_count_total{{function="{self.functionName}",module="{self.moduleName}"}}[5m]))'
+        latencyQuery= f'sum by (le, function, module) (rate(function_calls_duration_bucket{{function="{self.functionName}",module="{self.moduleName}"}}[5m]))'
+        errorRatioQuery = f'sum by (function, module) (rate (function_calls_count{{function="{self.functionName}",module="{self.moduleName}", result="error"}}[5m])) / {requestRateQuery}'
 
         queries = [requestRateQuery,latencyQuery, errorRatioQuery]
         names =["requestRateURL", "latencyURL", "errorRatioURL"]

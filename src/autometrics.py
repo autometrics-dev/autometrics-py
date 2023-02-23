@@ -1,7 +1,7 @@
 from prometheus_client import Counter, Histogram, Gauge
 import time
 import inspect
-import prometheus_url
+from prometheus_url import Generator
 import builtins
 import os
 
@@ -10,10 +10,8 @@ prom_histogram = Histogram('function_calls_duration', 'query??', ['function', 'm
 # prom_guage = Gauge('function_calls_concurrent', 'query??', ['function', 'module']) # we are not doing gauge atm
 
 def autometrics(func):
-    func_name = func.__name__
-
     def wrapper(*args, **kwargs):
-
+        func_name = func.__name__
         filepart = get_filename_as_module(func)
         if args:
             class_name = args[0].__class__.__qualname__
@@ -32,10 +30,10 @@ def autometrics(func):
             prom_counter.labels(func_name, module_name, 'error').inc()
         duration = time.time() - start_time
         prom_histogram.labels(func_name, module_name).observe(duration)
+        g = Generator(func_name, module_name)
+        urls = g.createURLs()
+        wrapper.__doc__ = f'{func.__doc__}, Prometheus URLs {urls}'
         return result
-    g = prometheus_url.Generator(func_name)
-    urls = g.createURLs()
-    wrapper.__doc__ = f'{func.__doc__}, Prometheus URLs {urls}'
     return wrapper
 
 def check_if_builtin_type():
