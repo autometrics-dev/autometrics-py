@@ -10,9 +10,10 @@ prom_histogram = Histogram('function_calls_duration', 'query??', ['function', 'm
 # prom_guage = Gauge('function_calls_concurrent', 'query??', ['function', 'module']) # we are not doing gauge atm
 
 def autometrics(func):
+    func_name = func.__name__
+
     def wrapper(*args, **kwargs):
         '''Wrapper docs'''
-        func_name = func.__name__
         filepart = get_filename_as_module(func)
         if args:
             class_name = args[0].__class__.__qualname__
@@ -32,9 +33,8 @@ def autometrics(func):
         duration = time.time() - start_time
         prom_histogram.labels(func_name, module_name).observe(duration)
         return result
-    g = prometheus_url.Generator(func.__name__)
+    g = prometheus_url.Generator(func_name)
     urls = g.createURLs()
-
     wrapper.__doc__ = f'{func.__doc__}, Prometheus URLs {urls}'
     return wrapper
 
