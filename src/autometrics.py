@@ -13,7 +13,7 @@ def autometrics(func):
     func_name = func.__name__
 
     def wrapper(*args, **kwargs):
-        '''Wrapper docs'''
+
         filepart = get_filename_as_module(func)
         if args:
             class_name = args[0].__class__.__qualname__
