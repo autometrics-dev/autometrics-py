@@ -9,8 +9,8 @@ prom_histogram = Histogram('function_calls_duration', 'query??', ['function', 'm
 # prom_guage = Gauge('function_calls_concurrent', 'query??', ['function', 'module']) # we are not doing gauge atm
 
 def autometrics(func):
+    func_name = func.__name__
     def wrapper(*args, **kwargs):
-        func_name = func.__name__
         filepart = get_filename_as_module(func)
         if args:
             class_name = args[0].__class__.__qualname__
