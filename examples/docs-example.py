@@ -1,7 +1,8 @@
 from prometheus_client import start_http_server
 import time
 import autometrics
-import prometheus_url
+import os
+from dotenv import load_dotenv
 
 @autometrics.autometrics
 def hello():
@@ -9,4 +10,3 @@ def hello():
    print("Hello")
 
 help(hello)
-

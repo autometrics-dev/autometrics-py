@@ -1,9 +1,14 @@
 import urllib.parse
+import os
+from dotenv import load_dotenv
 
 class Generator():
    def __init__(self, functionName):
+       load_dotenv()
        self.functionName = functionName
-       self.baseUrl = 'http://localhost:9090/'
+       self.baseUrl = os.getenv('PROMETHEUS_URL')
+       if (self.baseUrl is None):
+           self.baseUrl = 'http://localhost:9090/'
 
 
    def createURLs(self):
@@ -22,16 +27,9 @@ class Generator():
               queries.remove(query)
               break
         return urls
-           #return urls
         
-
-
 
    def createPrometheusUrl(self, query):
         urlEncode = urllib.parse.quote(query)
         url =f'{self.baseUrl}graph?g0.expr={urlEncode}&g0.tab=0'
         return url
-    
-g = Generator("test")
-urls = g.createURLs()
-print(urls)
