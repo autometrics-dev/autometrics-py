@@ -2,7 +2,7 @@ from prometheus_client import start_http_server
 from autometrics import autometrics
 import time
 
-class Operations:
+class Operations():
     def __init__(self, **args):
         self.args = args
 
@@ -25,14 +25,21 @@ class Operations:
 @autometrics
 def div_unhandled(num1,num2):
     result = num1 / num2
-    return result   
+    return result 
+
+@autometrics
+def text_print():
+    return "hello"
 
 ops = Operations()
 start_http_server(8080)
 while True:
-    print(ops.div_handled(2, 0))
-    time.sleep(1)
-    print(ops.add(1, 2))
+    ops.div_handled(2, 0)
+    ops.add(1, 2)
+    ops.div_handled(2, 1)
+    div_unhandled(2, 0)
+    text_print()
+    ops.add(1, 2)
     time.sleep(2)
-    print(div_unhandled(2, 0))
+    div_unhandled(2, 0)
     print("server can still run")
