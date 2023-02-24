@@ -29,9 +29,10 @@ def autometrics(func):
         duration = time.time() - start_time
         prom_histogram.labels(func_name, module_name).observe(duration)
         return result
-    g = Generator(func_name, module_name)
-    urls = g.createURLs()
-    wrapper.__doc__ = f'{func.__doc__}, Prometheus URLs {urls}'
+    if func.__doc__ is not None:
+        wrapper.__doc__ = f"{func.__doc__}\n{write_docs(func_name, module_name)}"
+    else:
+        wrapper.__doc__ = write_docs(func_name, module_name)
     return wrapper
 
 def get_filename_as_module(func):
@@ -39,3 +40,9 @@ def get_filename_as_module(func):
     filename = os.path.basename(fullpath)
     module_part = os.path.splitext(filename)[0]
     return module_part
+
+def write_docs(func_name, module_name):
+    g = Generator(func_name, module_name)
+    urls = g.createURLs()
+    docs = f"Prometheus URLs {urls}"
+    return docs
