@@ -15,7 +15,7 @@ def autometrics(func):
     if fullname == func_name:
         module_name = filename
     else:
-        classname = func.__qualname__.split('.')[0]
+        classname = func.__qualname__.rsplit('.', 1)[0]
         module_name = f"{filename}.{classname}"
     def wrapper(*args, **kwargs):
         func_name = func.__name__
