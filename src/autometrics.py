@@ -1,8 +1,7 @@
 from prometheus_client import Counter, Histogram, Gauge
 import time
 import inspect
-import prometheus_url
-import builtins
+from prometheus_url import Generator
 import os
 
 prom_counter = Counter('function_calls_count', 'query??', ['function', 'module', 'result'])
@@ -11,18 +10,15 @@ prom_histogram = Histogram('function_calls_duration', 'query??', ['function', 'm
 
 def autometrics(func):
     func_name = func.__name__
-
+    fullname = func.__qualname__
+    filename = get_filename_as_module(func)
+    if fullname == func_name:
+        module_name = filename
+    else:
+        classname = func.__qualname__.rsplit('.', 1)[0]
+        module_name = f"{filename}.{classname}"
     def wrapper(*args, **kwargs):
-
-        filepart = get_filename_as_module(func)
-        if args:
-            class_name = args[0].__class__.__qualname__
-            if class_name in check_if_builtin_type():
-                module_name = filepart
-            else:
-                module_name = f"{filepart}.{class_name}"
-        else:
-            module_name = filepart
+        func_name = func.__name__
         start_time = time.time()
         try:
             result = func(*args, **kwargs)
@@ -33,21 +29,20 @@ def autometrics(func):
         duration = time.time() - start_time
         prom_histogram.labels(func_name, module_name).observe(duration)
         return result
-    g = prometheus_url.Generator(func_name)
-    urls = g.createURLs()
-    wrapper.__doc__ = f'{func.__doc__}, Prometheus URLs {urls}'
+    if func.__doc__ is not None:
+        wrapper.__doc__ = f"{func.__doc__}\n{write_docs(func_name, module_name)}"
+    else:
+        wrapper.__doc__ = write_docs(func_name, module_name)
     return wrapper
-
-def check_if_builtin_type():
-    builtin_type = []
-    for name in dir(builtins):
-        fullname = getattr(builtins, name)
-        if isinstance(fullname, type):
-            builtin_type.append(name)
-    return builtin_type
 
 def get_filename_as_module(func):
     fullpath = inspect.getsourcefile(func)
     filename = os.path.basename(fullpath)
     module_part = os.path.splitext(filename)[0]
     return module_part
+
+def write_docs(func_name, module_name):
+    g = Generator(func_name, module_name)
+    urls = g.createURLs()
+    docs = f"Prometheus URLs {urls}"
+    return docs
