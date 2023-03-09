@@ -1,5 +1,5 @@
 from prometheus_client import start_http_server
-from autometrics import autometrics
+from autometrics.autometrics import autometrics
 import time
 
 class Operations():

@@ -1,7 +1,7 @@
 import time
-import autometrics
+from autometrics.autometrics import autometrics
 
-@autometrics.autometrics
+@autometrics
 def hello():
    '''A function that prints hello'''
    print("Hello")
