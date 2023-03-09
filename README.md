@@ -24,7 +24,7 @@ Autometrics for Python provides a decorator that can create [Prometheus](https:/
 
 - Requirement: a running [prometheus instance](https://prometheus.io/download/) 
 - include a .env file with your prometheus endpoint ```PROMETHEUS_URL = your endpoint```, if not defined the default endpoint will be ```http://localhost:9090/```
-- ```pip install autometrics-py```
+- ```pip install autometrics```
 - Import the library in your code and use the decorator for any function:
 ```
 from autometrics import autometrics
