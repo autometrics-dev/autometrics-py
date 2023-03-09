@@ -13,7 +13,7 @@ Autometrics for Python provides a decorator that can create [Prometheus](https:/
   most useful metrics
 - 💡 Writes Prometheus queries so you can understand the data generated without
   knowing PromQL
-- 🔗 Create links to live Prometheus charts directly into each functions docstrings and into a markdown file
+- 🔗 Create links to live Prometheus charts directly into each functions docstrings (with tooltips coming soon!)
 - 📊 (Coming Soon!) Grafana dashboard showing the performance of all
   instrumented functions
 - 🚨 (Coming Soon!) Generates Prometheus alerting rules using SLO best practices
@@ -35,6 +35,6 @@ def sayHello:
 
 ```
 
-- By executing your code a ```queries.md``` file will be created in the same location as your executed python file including all the links and prometheus queries
+- If you like to access the queries for your decoraded functions you can run ```help(yourfunction)``` or ```print(function.__docstring__)```
 
-- If you like to access the queries before executing the code you can run ```help(yourfunction)``` or ```print(function.__docstring__)```
+- Unfortunately it is not possible to have the queries in the tooltips due to the [static Analyzer](https://github.com/davidhalter/jedi/issues/1921). We are currently figuring out to build a VS Code PlugIn to make it work. 
