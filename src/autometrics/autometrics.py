@@ -1,7 +1,7 @@
 from prometheus_client import Counter, Histogram, Gauge
 import time
 import inspect
-from prometheus_url import Generator
+from .prometheus_url import Generator
 import os
 
 prom_counter = Counter('function_calls_count', 'query??', ['function', 'module', 'result'])
@@ -44,5 +44,7 @@ def get_filename_as_module(func):
 def write_docs(func_name, module_name):
     g = Generator(func_name, module_name)
     urls = g.createURLs()
-    docs = f"Prometheus URLs {urls}"
+    docs = f"Prometheus Query URLs : \n"
+    for key, value in urls.items():
+        docs = f"{docs}{key} : {value} \n\n"
     return docs

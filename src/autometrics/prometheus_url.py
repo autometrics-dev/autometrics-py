@@ -18,7 +18,7 @@ class Generator():
         errorRatioQuery = f'sum by (function, module) (rate (function_calls_count{{function="{self.functionName}",module="{self.moduleName}", result="error"}}[5m])) / {requestRateQuery}'
 
         queries = [requestRateQuery,latencyQuery, errorRatioQuery]
-        names =["requestRateURL", "latencyURL", "errorRatioURL"]
+        names =["Request rate URL", "Latency URL", "Error Ratio URL"]
         urls = {}
         for n in names:
            for query in queries:
