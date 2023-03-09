@@ -1,6 +1,6 @@
 # autometrics-py
 
-A Pyhton decorator that makes it easy to understand the error rate, response time, and production usage of any function in your code. Jump straight from your IDE to live Prometheus charts for each HTTP/RPC handler, database method, or other piece of application logic.
+A Python decorator that makes it easy to understand the error rate, response time, and production usage of any function in your code. Jump straight from your IDE to live Prometheus charts for each HTTP/RPC handler, database method, or other piece of application logic.
 
 Autometrics for Python provides a decorator that can create [Prometheus](https://prometheus.io/) metrics for your functions and class methods throughout your code base, as well as a function that will write corresponding Prometheus queries for you in a Markdown file.
 
@@ -35,6 +35,6 @@ def sayHello:
 
 ```
 
-- If you like to access the queries for your decoraded functions you can run ```help(yourfunction)``` or ```print(function.__docstring__)```
+- If you like to access the queries for your decoraded functions you can run ```help(yourfunction)``` or ```print(function.__doc__)```
 
 - Unfortunately it is not possible to have the queries in the tooltips due to the [static Analyzer](https://github.com/davidhalter/jedi/issues/1921). We are currently figuring out to build a VS Code PlugIn to make it work. 
