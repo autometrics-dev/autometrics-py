@@ -2,7 +2,7 @@
 
 A Pyhton decorator that makes it easy to understand the error rate, response time, and production usage of any function in your code. Jump straight from your IDE to live Prometheus charts for each HTTP/RPC handler, database method, or other piece of application logic.
 
-Autometrics for Pyhton provides a decorator that can create [Prometheus](https://prometheus.io/) metrics for your functions and class methods throughout your code base, as well as a function that will write corresponding Prometheus queries for you in a Markdown file.
+Autometrics for Python provides a decorator that can create [Prometheus](https://prometheus.io/) metrics for your functions and class methods throughout your code base, as well as a function that will write corresponding Prometheus queries for you in a Markdown file.
 
 [See Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for more details on the ideas behind autometrics
 
