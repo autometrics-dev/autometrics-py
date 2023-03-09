@@ -44,7 +44,8 @@ def get_filename_as_module(func):
 def write_docs(func_name, module_name):
     g = Generator(func_name, module_name)
     urls = g.createURLs()
-    docs = f"Prometheus Query URLs : \n"
+    docs = f"Prometheus Query URLs for Function - {func_name} and Module - {module_name}: \n\n"
     for key, value in urls.items():
         docs = f"{docs}{key} : {value} \n\n"
+    docs = f"{docs}-------------------------------------------\n"
     return docs

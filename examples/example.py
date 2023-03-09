@@ -32,6 +32,10 @@ def text_print():
     return "hello"
 
 ops = Operations()
+
+print(ops.add.__doc__)
+print(div_unhandled.__doc__)
+
 start_http_server(8080)
 while True:
     ops.div_handled(2, 0)
@@ -42,4 +46,4 @@ while True:
     ops.add(1, 2)
     time.sleep(2)
     div_unhandled(2, 0)
-    print("server can still run")
+    
