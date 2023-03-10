@@ -35,6 +35,6 @@ def sayHello:
 
 ```
 
-- If you like to access the queries for your decoraded functions you can run ```help(yourfunction)``` or ```print(function.__doc__)```
+- If you like to access the queries for your decoraded functions you can run ```help(yourfunction)``` or ```print(yourfunction.__doc__)```
 
 - Unfortunately it is not possible to have the queries in the tooltips due to the [static Analyzer](https://github.com/davidhalter/jedi/issues/1921). We are currently figuring out to build a VS Code PlugIn to make it work. 
