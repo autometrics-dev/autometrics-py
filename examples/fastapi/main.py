@@ -1,13 +1,20 @@
 from typing import Union
 
 from fastapi import FastAPI
-from autometrics.autometrics import autometrics
 
+from autometrics.autometrics import autometrics
+from prometheus_client import generate_latest, CollectorRegistry
+metrics_reg = CollectorRegistry()
 
 app = FastAPI()
 
-@autometrics
+
+@app.get('/metrics')
+def get_metrics():
+    return generate_latest(metrics_reg)
+
 @app.get("/")
+@autometrics
 def read_root():
     return {"Hello": "World"}
 
@@ -20,4 +27,4 @@ def read_item(item_id: int, q: Union[str, None] = None):
 def generate_random_trafic():
     print("Something")
 
-help(read_root)
+help(read_item)
