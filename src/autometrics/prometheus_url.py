@@ -15,7 +15,7 @@ class Generator():
    def createURLs(self):
         requestRateQuery =f'sum by (function, module) (rate (function_calls_count_total{{function="{self.functionName}",module="{self.moduleName}"}}[5m]))'
         latencyQuery= f'sum by (le, function, module) (rate(function_calls_duration_bucket{{function="{self.functionName}",module="{self.moduleName}"}}[5m]))'
-        errorRatioQuery = f'sum by (function, module) (rate (function_calls_count{{function="{self.functionName}",module="{self.moduleName}", result="error"}}[5m])) / {requestRateQuery}'
+        errorRatioQuery = f'sum by (function, module) (rate (function_calls_count_total{{function="{self.functionName}",module="{self.moduleName}", result="error"}}[5m])) / {requestRateQuery}'
 
         queries = [requestRateQuery,latencyQuery, errorRatioQuery]
         names =["Request rate URL", "Latency URL", "Error Ratio URL"]
