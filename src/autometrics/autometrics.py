@@ -3,6 +3,7 @@ import time
 import inspect
 from .prometheus_url import Generator
 import os
+from functools import wraps
 
 prom_counter = Counter('function_calls_count', 'query??', ['function', 'module', 'result'])
 prom_histogram = Histogram('function_calls_duration', 'query??', ['function', 'module'])
@@ -17,6 +18,7 @@ def autometrics(func):
     else:
         classname = func.__qualname__.rsplit('.', 1)[0]
         module_name = f"{filename}.{classname}"
+    @wraps(func)
     def wrapper(*args, **kwargs):
         func_name = func.__name__
         start_time = time.time()

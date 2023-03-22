@@ -6,7 +6,6 @@ setup(
     packages=find_packages(),
     install_requires=[
         'prometheus_client',
-        'prometheus_api_client',
         'python-dotenv'
     ]
 )
