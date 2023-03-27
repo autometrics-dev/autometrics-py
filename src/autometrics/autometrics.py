@@ -5,7 +5,7 @@ from .prometheus_url import Generator
 import os
 from functools import wraps
 
-prom_counter = Counter('function_calls_count', 'query??', ['function', 'module', 'result'])
+prom_counter = Counter('function_calls_count', 'query??', ['function', 'module', 'result', 'caller'])
 prom_histogram = Histogram('function_calls_duration', 'query??', ['function', 'module'])
 # prom_guage = Gauge('function_calls_concurrent', 'query??', ['function', 'module']) # we are not doing gauge atm
 
@@ -22,12 +22,13 @@ def autometrics(func):
     def wrapper(*args, **kwargs):
         func_name = func.__name__
         start_time = time.time()
+        caller = get_caller_function(func)
         try:
             result = func(*args, **kwargs)
-            prom_counter.labels(func_name, module_name, 'ok').inc()
+            prom_counter.labels(func_name, module_name, 'ok', caller).inc()
         except Exception as e:
             result = e.__class__.__name__
-            prom_counter.labels(func_name, module_name, 'error').inc()
+            prom_counter.labels(func_name, module_name, 'error', caller).inc()
         duration = time.time() - start_time
         prom_histogram.labels(func_name, module_name).observe(duration)
         return result
@@ -51,3 +52,8 @@ def write_docs(func_name, module_name):
         docs = f"{docs}{key} : {value} \n\n"
     docs = f"{docs}-------------------------------------------\n"
     return docs
+
+def get_caller_function(func):
+    caller_frame = inspect.stack()[2]
+    caller_function_name = caller_frame[3]
+    return caller_function_name
