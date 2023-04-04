@@ -1,9 +1,5 @@
-# This workflow will be triggered by a GitHub pull-request.
-# It compiles the code to a release binary, create a Docker image containing
-# the binary, and uploads the Docker image to our registry using the branch as
-# the registry tag.
 ---
-name: Build development image
+name: Lint
 
 on:
   pull_request:
@@ -11,14 +7,15 @@ on:
   push:
     branches: ["main"]
 
-env:
-  CARGO_TERM_COLOR: always
-  FORCE_COLOR: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip" # caching pip dependencies
+      - run: pip install -r requirements.txt
       - uses: psf/black@stable
       - uses: jakebailey/pyright-action@v1
