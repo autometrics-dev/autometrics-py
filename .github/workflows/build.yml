@@ -1,0 +1,24 @@
+# This workflow will be triggered by a GitHub pull-request.
+# It compiles the code to a release binary, create a Docker image containing
+# the binary, and uploads the Docker image to our registry using the branch as
+# the registry tag.
+---
+name: Build development image
+
+on:
+  pull_request:
+    branches: ["*"]
+  push:
+    branches: ["main"]
+
+env:
+  CARGO_TERM_COLOR: always
+  FORCE_COLOR: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: psf/black@stable
+      - uses: jakebailey/pyright-action@v1
