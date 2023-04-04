@@ -14,6 +14,7 @@ prom_histogram = Histogram("function_calls_duration", "query??", ["function", "m
 
 R = TypeVar("R")
 
+
 def autometrics(func: Callable) -> Callable:
     func_name = func.__name__
     fullname = func.__qualname__
@@ -48,7 +49,7 @@ def autometrics(func: Callable) -> Callable:
 
 def get_filename_as_module(func: Callable) -> str:
     fullpath = inspect.getsourcefile(func)
-    if (fullpath == None): 
+    if fullpath == None:
         return ""
     filename = os.path.basename(fullpath)
     module_part = os.path.splitext(filename)[0]

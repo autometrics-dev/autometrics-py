@@ -2,7 +2,8 @@ from prometheus_client import start_http_server
 from autometrics.autometrics import autometrics
 import time
 
-class Operations():
+
+class Operations:
     def __init__(self, **args):
         self.args = args
 
@@ -17,19 +18,22 @@ class Operations():
         self.num1 = num1
         self.num2 = num2
         try:
-            result = self.num1/self.num2
+            result = self.num1 / self.num2
         except Exception as e:
             result = e.__class__.__name__
         return result
 
+
 @autometrics
-def div_unhandled(num1,num2):
+def div_unhandled(num1, num2):
     result = num1 / num2
-    return result 
+    return result
+
 
 @autometrics
 def text_print():
     return "hello"
+
 
 ops = Operations()
 
@@ -46,4 +50,3 @@ while True:
     ops.add(1, 2)
     time.sleep(2)
     div_unhandled(2, 0)
-    
