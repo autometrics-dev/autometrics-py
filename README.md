@@ -24,13 +24,14 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 
 ## Using autometrics-py
 
-- Requirement: a running [prometheus instance](https://prometheus.io/download/)
-- include a .env file with your prometheus endpoint `PROMETHEUS_URL = your endpoint`, if not defined the default endpoint will be `http://localhost:9090/`
+- Set up a [Prometheus instance](https://prometheus.io/download/)
+- Configure prometheus to scrape your application ([check our instructions if you need help](https://github.com/autometrics-dev#5-configuring-prometheus))
+- Include a .env file with your prometheus endpoint `PROMETHEUS_URL=your endpoint`. If this is not defined, the default endpoint will be `http://localhost:9090/`
 - `pip install autometrics`
 - Import the library in your code and use the decorator for any function:
 
-```
-from autometrics import autometrics
+```py
+from autometrics.autometrics import autometrics
 
 @autometrics
 def sayHello:
