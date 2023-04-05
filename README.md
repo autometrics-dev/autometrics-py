@@ -6,7 +6,6 @@ Autometrics for Python provides a decorator that can create [Prometheus](https:/
 
 [See Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for more details on the ideas behind autometrics
 
-
 ## Features
 
 - ✨ `autometrics` decorator instruments any function or class method to track the
@@ -22,10 +21,11 @@ Autometrics for Python provides a decorator that can create [Prometheus](https:/
 
 ## Using autometrics-py
 
-- Requirement: a running [prometheus instance](https://prometheus.io/download/) 
-- include a .env file with your prometheus endpoint ```PROMETHEUS_URL = your endpoint```, if not defined the default endpoint will be ```http://localhost:9090/```
-- ```pip install autometrics```
+- Requirement: a running [prometheus instance](https://prometheus.io/download/)
+- include a .env file with your prometheus endpoint `PROMETHEUS_URL = your endpoint`, if not defined the default endpoint will be `http://localhost:9090/`
+- `pip install autometrics`
 - Import the library in your code and use the decorator for any function:
+
 ```
 from autometrics import autometrics
 
@@ -35,6 +35,10 @@ def sayHello:
 
 ```
 
-- If you like to access the queries for your decoraded functions you can run ```help(yourfunction)``` or ```print(yourfunction.__doc__)```
+- If you like to access the queries for your decoraded functions you can run `help(yourfunction)` or `print(yourfunction.__doc__)`
 
-- Unfortunately it is not possible to have the queries in the tooltips due to the [static Analyzer](https://github.com/davidhalter/jedi/issues/1921). We are currently figuring out to build a VS Code PlugIn to make it work. 
+- Unfortunately it is not possible to have the queries in the tooltips due to the [static Analyzer](https://github.com/davidhalter/jedi/issues/1921). We are currently figuring out to build a VS Code PlugIn to make it work.
+
+## Development of the package
+
+Code in this repository is formatted using [black](https://black.readthedocs.io/en/stable/) and contains type definitions (which are linted by [pyright](https://microsoft.github.io/pyright/))
