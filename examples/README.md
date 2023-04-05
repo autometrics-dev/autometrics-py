@@ -1,8 +1,8 @@
 # autometrics-py examples
 
-You should be able to run each example by running `python examples/<example>.py` from the root of the repo.
+You should be able to run each example by executing `python examples/<example>.py` from the root of the repo.
 
-You can change the base url for Prometheus links via the `PROMETHEUS_URL` environment variable. For example:
+You can change the base url for Prometheus links via the `PROMETHEUS_URL` environment variable. So, if your local Prometheus were on a non-default port, like 9091, you would run:
 
 ```sh
 PROMETHEUS_URL=http://localhost:9091/ python examples/example.py
@@ -18,23 +18,15 @@ We simply decorate a function, then print its docstring to the console using the
 
 ## `example.py`
 
-This script demonstrates the basic usage of the `autometrics` decorator. When you run `python examples/example.py`, it will output links to metrics in your configured prometheus instance. You can change the base url for prometheus links via the `PROMETHEUS_URL` environment variable
+This script demonstrates the basic usage of the `autometrics` decorator. When you run `python examples/example.py`, it will output links to metrics in your configured prometheus instance.
 
-```sh
-PROMETHEUS_URL=http://localhost:9091/ python examples/example.py
-```
+You can read the script for comments on how it works, but the basic idea is that we have a division function (`div_unhandled`) that occasionally divides by zero and does not catch its errors. We can see its error rate in prometheus via the links in its doc string.
 
-This Python script defines a class called "Operations" that has too methods: "add", "div_handled". These methods perform addition and division operations, respectively, and include code to handle potential errors.
+Note that the script starts an HTTP server on port 8080 using the Prometheus client library, which exposes metrics to prometheus (via a `/metrics` endpoint).
 
-There is also a top-level function named "div_unhandled", which performs division without handling any errors.
+Then, it enters into an infinite loop (with a 2 second sleep period), calling methods repeatedly with different input parameters. This should start generating data that you can explore in Prometheus. Just follow the links that are printed to the console!
 
-To test out autometrics, we start an HTTP server on port 8080 using the Prometheus client library, which exposes our metrics to prometheus (via a `/metrics` endpoint).
-
-Then, we enter an infinite loop (with a 2 second sleep period), calling the "div_handled", "add", and "div_unhandled" methods repeatedly with different input parameters.
-
-This should start generating data that you can explore in prometheus. Just follow the links that are printed to the console!
-
-Don't forget to configure prometheus to scrape the metrics endpoint!
+Don't forget to configure Prometheus to scrape the metrics endpoint. Here's an example `prometheus.yaml` file:
 
 ```yaml
 # Example prometheus.yaml
@@ -47,3 +39,11 @@ scrape_configs:
     # longer but for testing, you want the data to show up quickly
     scrape_interval: 500ms
 ```
+
+## `caller-example.py`
+
+Autometrics also tracks a label, `caller`, which is the name of the function that called the decorated function. The `caller-example.py` script shows how to use that label. It uses the same structure as the `example.py` script, but it prints a PromQL query that you can use to explore the caller data yourself.
+
+## `fastapi-example.py`
+
+> TODO
