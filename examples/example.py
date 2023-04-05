@@ -3,11 +3,12 @@ from autometrics.autometrics import autometrics
 import time
 import random
 
-# Defines a class called `Operations`` that has two methods: 
+
+# Defines a class called `Operations`` that has two methods:
 #   1. `add` - Perform addition
 #   2. `div_handled` - Perform division and handle errors
 #
-class Operations():
+class Operations:
     def __init__(self, **args):
         self.args = args
 
@@ -26,6 +27,7 @@ class Operations():
         except Exception as e:
             result = e.__class__.__name__
         return result
+
 
 # Perform division without handling errors
 @autometrics
