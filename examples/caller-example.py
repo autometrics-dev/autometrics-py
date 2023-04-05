@@ -1,5 +1,6 @@
 print("hello")
 from prometheus_client import start_http_server
+from autometrics.autometrics import autometrics
 
 
 @autometrics

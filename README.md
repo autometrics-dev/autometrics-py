@@ -2,9 +2,12 @@
 
 A Python decorator that makes it easy to understand the error rate, response time, and production usage of any function in your code. Jump straight from your IDE to live Prometheus charts for each HTTP/RPC handler, database method, or other piece of application logic.
 
-Autometrics for Python provides a decorator that can create [Prometheus](https://prometheus.io/) metrics for your functions and class methods throughout your code base, as well as a function that will write corresponding Prometheus queries for you in a Markdown file.
+Autometrics for Python provides:
 
-[See Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for more details on the ideas behind autometrics
+1. A decorator that can create [Prometheus](https://prometheus.io/) metrics for your functions and class methods throughout your code base.
+2. A helper function that will write corresponding Prometheus queries for you in a Markdown file.
+
+See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for more details on the ideas behind autometrics.
 
 ## Features
 
@@ -35,9 +38,11 @@ def sayHello:
 
 ```
 
-- If you like to access the queries for your decoraded functions you can run `help(yourfunction)` or `print(yourfunction.__doc__)`
+- To access the PromQL queries for your decorated functions, run `help(yourfunction)` or `print(yourfunction.__doc__)`.
 
-- Unfortunately it is not possible to have the queries in the tooltips due to the [static Analyzer](https://github.com/davidhalter/jedi/issues/1921). We are currently figuring out to build a VS Code PlugIn to make it work.
+- To show tooltips over decorated functions in VSCode, with links to Prometheus queries, try installing [the VSCode extension](https://marketplace.visualstudio.com/items?itemName=Fiberplane.autometrics).
+
+> Note that we cannot support tooltips without a VSCode extension due to behavior of the [static analyzer](https://github.com/davidhalter/jedi/issues/1921) used in VSCode.
 
 ## Development of the package
 
