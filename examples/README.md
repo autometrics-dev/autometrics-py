@@ -10,6 +10,20 @@ PROMETHEUS_URL=http://localhost:9091/ python examples/example.py
 
 Read more below about each example, and what kind of features they demonstrate.
 
+Also, for the examples that expose a `/metrics` endpoint, you will need to configure Prometheus to scrape that endpoint. There is an example `prometheus.yaml` file in the root of this project, but here is the relevant part:
+
+```yaml
+# Example prometheus.yaml
+scrape_configs:
+  - job_name: "python-autometrics-example"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["localhost:8080"]
+    # For a real deployment, you would want the scrape interval to be
+    # longer but for testing, you want the data to show up quickly
+    scrape_interval: 500ms
+```
+
 ## `docs-example.py`
 
 This script shows how the autometrics decorator augments the docstring for a python function.
@@ -26,52 +40,16 @@ Note that the script starts an HTTP server on port 8080 using the Prometheus cli
 
 Then, it enters into an infinite loop (with a 2 second sleep period), calling methods repeatedly with different input parameters. This should start generating data that you can explore in Prometheus. Just follow the links that are printed to the console!
 
-Don't forget to configure Prometheus itself to scrape the metrics endpoint. Here's an example `prometheus.yaml` file:
-
-```yaml
-# Example prometheus.yaml
-scrape_configs:
-  - job_name: "python-autometrics-example"
-    metrics_path: /metrics
-    static_configs:
-      - targets: ["localhost:8080"]
-    # For a real deployment, you would want the scrape interval to be
-    # longer but for testing, you want the data to show up quickly
-    scrape_interval: 500ms
-```
+> Don't forget to configure Prometheus itself to scrape the metrics endpoint. Refer to the example `prometheus.yaml` file in the root of this project on how to set this up.
 
 ## `caller-example.py`
 
 Autometrics also tracks a label, `caller`, which is the name of the function that called the decorated function. The `caller-example.py` script shows how to use that label. It uses the same structure as the `example.py` script, but it prints a PromQL query that you can use to explore the caller data yourself.
 
-Don't forget to configure Prometheus itself to scrape the metrics endpoint. Here's an example `prometheus.yaml` file:
-
-```yaml
-# Example prometheus.yaml
-scrape_configs:
-  - job_name: "python-autometrics-example"
-    metrics_path: /metrics
-    static_configs:
-      - targets: ["localhost:8080"]
-    # For a real deployment, you would want the scrape interval to be
-    # longer but for testing, you want the data to show up quickly
-    scrape_interval: 500ms
-```
+> Don't forget to configure Prometheus itself to scrape the metrics endpoint. Refer to the example `prometheus.yaml` file in the root of this project on how to set this up.
 
 ## `fastapi-example.py`
 
 This is an example that shows you how to use autometrics to get metrics on http handlers with FastAPI. In this case, we're setting up the API ourselves, which means we need to expose a `/metrics` endpoint manually.
 
-Don't forget to configure Prometheus itself to scrape the metrics endpoint. Here's an example `prometheus.yaml` file:
-
-```yaml
-# Example prometheus.yaml
-scrape_configs:
-  - job_name: "python-autometrics-example"
-    metrics_path: /metrics
-    static_configs:
-      - targets: ["localhost:8080"]
-    # For a real deployment, you would want the scrape interval to be
-    # longer but for testing, you want the data to show up quickly
-    scrape_interval: 500ms
-```
+> Don't forget to configure Prometheus itself to scrape the metrics endpoint. Refer to the example `prometheus.yaml` file in the root of this project on how to set this up.
