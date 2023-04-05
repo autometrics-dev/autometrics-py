@@ -5,12 +5,14 @@ from prometheus_client import generate_latest
 
 app = FastAPI()
 
-
+# Set up a metrics endpoint for Prometheus to scrape
+# `generate_lates` returns the latest metrics data in the Prometheus text format
 @app.get("/metrics")
 def metrics():
     return Response(generate_latest())
 
 
+# Set up the root endpoint of the API
 @app.get("/")
 @autometrics
 def read_root():
