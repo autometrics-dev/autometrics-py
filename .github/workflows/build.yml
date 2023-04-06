@@ -7,15 +7,23 @@ on:
   push:
     branches: ["main"]
 
+env:
+  POETRY_VIRTUALENVS_CREATE: true
+  POETRY_VIRTUALENVS_IN_PROJECT: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pipx install poetry
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-          cache: "pip" # caching pip dependencies
-      - run: pip install -r requirements.txt
+          cache: "poetry"
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root --with dev
       - uses: psf/black@stable
-      - uses: jakebailey/pyright-action@v1
+      - name: Run pyright
+        run: poetry run pyright

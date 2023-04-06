@@ -41,4 +41,13 @@ def sayHello:
 
 ## Development of the package
 
+This package uses [poetry](https://python-poetry.org) as a package manager, with all dependencies separated into three groups:
+ - root level dependencies, required
+ - `dev`, everything that is needed for development or in ci
+ - `examples`, dependencies of everything in `examples/` directory
+
+By default, poetry will only install required dependencies, if you want to run examples, install using this command:
+
+`poetry install --with examples`
+
 Code in this repository is formatted using [black](https://black.readthedocs.io/en/stable/) and contains type definitions (which are linted by [pyright](https://microsoft.github.io/pyright/))
