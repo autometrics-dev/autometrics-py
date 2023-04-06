@@ -4,13 +4,17 @@ from dotenv import load_dotenv
 
 
 class Generator:
-    def __init__(self, functionName, moduleName):
+    def __init__(self, functionName, moduleName, baseUrl=None):
         load_dotenv()
         self.functionName = functionName
         self.moduleName = moduleName
-        self.baseUrl = os.getenv("PROMETHEUS_URL")
+        self.baseUrl = baseUrl or os.getenv("PROMETHEUS_URL")
         if self.baseUrl is None:
-            self.baseUrl = "http://localhost:9090/"
+            self.baseUrl = "http://localhost:9090"
+        elif self.baseUrl[-1] == "/":
+            self.baseUrl = self.baseUrl[
+                :-1
+            ]  # Remove the trailing slash if there is one
 
     def createURLs(self):
         requestRateQuery = f'sum by (function, module) (rate (function_calls_count_total{{function="{self.functionName}",module="{self.moduleName}"}}[5m]))'
@@ -30,5 +34,5 @@ class Generator:
 
     def createPrometheusUrl(self, query):
         urlEncode = urllib.parse.quote(query)
-        url = f"{self.baseUrl}graph?g0.expr={urlEncode}&g0.tab=0"
+        url = f"{self.baseUrl}/graph?g0.expr={urlEncode}&g0.tab=0"
         return url
