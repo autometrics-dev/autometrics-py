@@ -8,7 +8,7 @@ class Generator:
         load_dotenv()
         self.functionName = functionName
         self.moduleName = moduleName
-        self.baseUrl = baseUrl if baseUrl is not None else os.getenv("PROMETHEUS_URL")
+        self.baseUrl = baseUrl or os.getenv("PROMETHEUS_URL")
         if self.baseUrl is None:
             self.baseUrl = "http://localhost:9090"
         elif self.baseUrl[-1] == "/":
