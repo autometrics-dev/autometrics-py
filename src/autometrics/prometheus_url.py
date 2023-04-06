@@ -35,7 +35,8 @@ class Generator:
                 break
         return urls
 
-    def create_prometheus_url(self, query):
-        urlEncode = urllib.parse.quote(query)
-        url = f"{self.baseUrl}/graph?g0.expr={urlEncode}&g0.tab=0"
+    def create_prometheus_url(self, query: str):
+        """Create a the full query url for a given query."""
+        encoded_query = urllib.parse.quote(query)
+        url = f"{self.baseUrl}/graph?g0.expr={encoded_query}&g0.tab=0"
         return url
