@@ -5,109 +5,54 @@ import time
 from typing import Union
 from collections.abc import Callable
 from functools import wraps
-from prometheus_client import Counter, Histogram
-from .constants import (
-    COUNTER_DESCRIPTION,
-    HISTOGRAM_DESCRIPTION,
-    OBJECTIVE_NAME_PROMETHEUS,
-    OBJECTIVE_PERCENTILE_PROMETHEUS,
-    OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
-)
 from .prometheus_url import Generator
 from .objectives import Objective
-
-prom_counter = Counter(
-    "function_calls_count",
-    COUNTER_DESCRIPTION,
-    [
-        "function",
-        "module",
-        "result",
-        "caller",
-        OBJECTIVE_NAME_PROMETHEUS,
-        OBJECTIVE_PERCENTILE_PROMETHEUS,
-    ],
-)
-prom_histogram = Histogram(
-    "function_calls_duration",
-    HISTOGRAM_DESCRIPTION,
-    [
-        "function",
-        "module",
-        OBJECTIVE_NAME_PROMETHEUS,
-        OBJECTIVE_PERCENTILE_PROMETHEUS,
-        OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
-    ],
-)
+from .emit import count, histogram
 
 
 def autometrics(func: Callable, objective: Union[None, Objective] = None) -> Callable:
     """Decorator for tracking function calls and duration."""
+    module_name = get_module_name(func)
     func_name = func.__name__
-    fullname = func.__qualname__
-    filename = get_filename_as_module(func)
-    if fullname == func_name:
-        module_name = filename
-    else:
-        classname = func.__qualname__.rsplit(".", 1)[0]
-        module_name = f"{filename}.{classname}"
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        func_name = func.__name__
         start_time = time.time()
         caller = get_caller_function()
 
         try:
             result = func(*args, **kwargs)
-            prom_counter.labels(
-                func_name,
-                module_name,
-                "ok",
-                caller,
-                "" if objective is None else objective.name,
-                ""
-                if objective is None or objective.success_rate is None
-                else objective.success_rate,
-            ).inc()
+            count(func_name, module_name, caller, objective, "ok")
         except Exception as exception:
             result = exception.__class__.__name__
-            prom_counter.labels(
-                func_name,
-                module_name,
-                "error",
-                caller,
-                "" if objective is None else objective.name,
-                ""
-                if objective is None or objective.success_rate is None
-                else objective.success_rate,
-            ).inc()
+            count(func_name, module_name, caller, objective, "error")
 
-        duration = time.time() - start_time
-        prom_histogram.labels(
-            func_name,
-            module_name,
-            "" if objective is None else objective.name,
-            ""
-            if objective is None or objective.latency is None
-            else objective.latency[1],
-            ""
-            if objective is None or objective.latency is None
-            else objective.latency[0],
-        ).observe(duration)
+        histogram(func_name, module_name, start_time, objective)
         return result
 
-    if func.__doc__ is not None:
-        wrapper.__doc__ = f"{func.__doc__}\n{write_docs(func_name, module_name)}"
-    else:
+    if func.__doc__ is None:
         wrapper.__doc__ = write_docs(func_name, module_name)
+    else:
+        wrapper.__doc__ = f"{func.__doc__}\n{write_docs(func_name, module_name)}"
     return wrapper
+
+
+def get_module_name(func: Callable) -> str:
+    """Get the name of the module that contains the function."""
+    func_name = func.__name__
+    fullname = func.__qualname__
+    filename = get_filename_as_module(func)
+    if fullname == func_name:
+        return filename
+
+    classname = func.__qualname__.rsplit(".", 1)[0]
+    return f"{filename}.{classname}"
 
 
 def get_filename_as_module(func: Callable) -> str:
     """Get the filename of the module that contains the function."""
     fullpath = inspect.getsourcefile(func)
-    if fullpath == None:
+    if fullpath is None:
         return ""
 
     filename = os.path.basename(fullpath)
