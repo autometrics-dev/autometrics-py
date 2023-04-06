@@ -31,7 +31,7 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 - Import the library in your code and use the decorator for any function:
 
 ```py
-from autometrics.autometrics import autometrics
+from autometrics import autometrics
 
 @autometrics
 def sayHello:

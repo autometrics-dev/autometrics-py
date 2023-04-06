@@ -7,10 +7,6 @@ on:
   push:
     branches: ["main"]
 
-env:
-  POETRY_VIRTUALENVS_CREATE: true
-  POETRY_VIRTUALENVS_IN_PROJECT: true
-
 jobs:
   build:
     runs-on: ubuntu-latest

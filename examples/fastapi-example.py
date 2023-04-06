@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Response
 import uvicorn
-from autometrics.autometrics import autometrics
+from autometrics import autometrics
 from prometheus_client import generate_latest
 
 app = FastAPI()
