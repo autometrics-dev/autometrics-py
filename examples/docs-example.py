@@ -1,4 +1,4 @@
-from autometrics.autometrics import autometrics
+from autometrics import autometrics
 
 
 @autometrics

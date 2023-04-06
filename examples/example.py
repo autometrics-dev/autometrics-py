@@ -1,5 +1,5 @@
 from prometheus_client import start_http_server
-from autometrics.autometrics import autometrics
+from autometrics import autometrics
 import time
 import random
 
