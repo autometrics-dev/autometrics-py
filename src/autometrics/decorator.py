@@ -62,10 +62,10 @@ def get_filename_as_module(func: Callable) -> str:
 
 def write_docs(func_name: str, module_name: str):
     """Write the prometheus query urls to the function docstring."""
-    g = Generator(func_name, module_name)
+    generator = Generator(func_name, module_name)
     docs = f"Prometheus Query URLs for Function - {func_name} and Module - {module_name}: \n\n"
 
-    urls = g.createURLs()
+    urls = generator.create_urls()
     for key, value in urls.items():
         docs = f"{docs}{key} : {value} \n\n"
 

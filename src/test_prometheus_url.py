@@ -7,8 +7,8 @@ class TestPrometheusUrlGeneratorDefault(unittest.TestCase):
     def setUp(self):
         self.generator = Generator("myFunction", "myModule")
 
-    def test_createPrometheusUrl(self):
-        url = self.generator.createPrometheusUrl("myQuery")
+    def test_create_prometheus_url(self):
+        url = self.generator.create_prometheus_url("myQuery")
         self.assertTrue(
             url.startswith("http://localhost:9090/graph?g0.expr=")
         )  # Make sure the base URL is correct
@@ -19,11 +19,11 @@ class TestPrometheusUrlGeneratorDefault(unittest.TestCase):
 class TestPrometheusUrlGeneratorCustomUrl(unittest.TestCase):
     def setUp(self):
         self.generator = Generator(
-            "myFunction", "myModule", baseUrl="http://localhost:9091"
+            "myFunction", "myModule", base_url="http://localhost:9091"
         )
 
-    def test_createPrometheusUrl(self):
-        url = self.generator.createPrometheusUrl("myQuery")
+    def test_create_prometheus_url(self):
+        url = self.generator.create_prometheus_url("myQuery")
         self.assertTrue(
             url.startswith("http://localhost:9091/graph?g0.expr=")
         )  # Make sure the base URL is correct
