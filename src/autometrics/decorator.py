@@ -23,6 +23,7 @@ def autometrics(func: Callable[P, T]) -> Callable[P, T]:
 def autometrics(*, objective: Optional[Objective] = None) -> Callable:
     ...
 
+
 def autometrics(
     func: Optional[Callable] = None,
     *,

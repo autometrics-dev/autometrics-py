@@ -36,6 +36,7 @@ def div_unhandled(num1, num2):
     result = num1 / num2
     return result
 
+
 RANDOM_SLO = Objective(
     "random",
     success_rate=ObjectivePercentile.P99_9,

@@ -83,7 +83,7 @@ def histogram(
     latency = None if objective is None else objective.latency
     percentile = ""
     threshold = ""
-    if latency is not None: 
+    if latency is not None:
         threshold = latency[0]
         percentile = latency[1]
 
