@@ -1,51 +1,54 @@
 """Autometrics module."""
 import time
 from typing import Union, overload, TypeVar, Any, Callable, Optional
+from typing_extensions import ParamSpec
 from functools import wraps
 from .objectives import Objective
-from .emit import count, histogram
+from .emit import count, histogram, Result
 from .utils import get_module_name, get_caller_function, write_docs
 
 
-F = TypeVar("F", bound=Callable[..., Any])
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
 # Bare decorator usage
 @overload
-def autometrics(func: F) -> F:
+def autometrics(func: Callable[P, T]) -> Callable[P, T]:
     ...
 
 
 # Decorator with arguments
 @overload
-def autometrics(*, objective: Union[None, Objective] = None) -> Callable[[F], F]:
+def autometrics(*, objective: Optional[Objective] = None) -> Callable:
     ...
 
-
 def autometrics(
-    func: Optional[Callable[..., Any]] = None,
+    func: Optional[Callable] = None,
     *,
-    objective: Union[None, Objective] = None,
+    objective: Optional[Objective] = None,
 ):
     """Decorator for tracking function calls and duration."""
 
-    def decorator(func: F) -> F:
+    def decorator(func: Callable[P, T]) -> Callable[P, T]:
         module_name = get_module_name(func)
         func_name = func.__name__
 
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P.args, **kwds: P.kwargs) -> T:
             start_time = time.time()
             caller = get_caller_function()
 
             try:
-                result = func(*args, **kwargs)
-                count(func_name, module_name, caller, objective, "ok")
+                result = func(*args, **kwds)
+                count(func_name, module_name, caller, objective, result=Result.OK)
+                histogram(func_name, module_name, start_time, objective)
             except Exception as exception:
                 result = exception.__class__.__name__
-                count(func_name, module_name, caller, objective, "error")
-
-            histogram(func_name, module_name, start_time, objective)
+                count(func_name, module_name, caller, objective, result=Result.ERROR)
+                histogram(func_name, module_name, start_time, objective)
+                # Reraise exception
+                raise exception
             return result
 
         if func.__doc__ is None:

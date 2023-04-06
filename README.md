@@ -18,7 +18,7 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 - 🔗 Create links to live Prometheus charts directly into each functions docstrings (with tooltips coming soon!)
 - 📊 (Coming Soon!) Grafana dashboard showing the performance of all
   instrumented functions
-- 🚨 (Coming Soon!) Generates Prometheus alerting rules using SLO best practices
+- 🚨 Emits data for Prometheus alerting rules using SLO best practices
   from simple annotations in your code
 - ⚡ Minimal runtime overhead
 
@@ -48,9 +48,10 @@ def sayHello:
 ## Development of the package
 
 This package uses [poetry](https://python-poetry.org) as a package manager, with all dependencies separated into three groups:
- - root level dependencies, required
- - `dev`, everything that is needed for development or in ci
- - `examples`, dependencies of everything in `examples/` directory
+
+- root level dependencies, required
+- `dev`, everything that is needed for development or in ci
+- `examples`, dependencies of everything in `examples/` directory
 
 By default, poetry will only install required dependencies, if you want to run examples, install using this command:
 

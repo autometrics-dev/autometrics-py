@@ -1,6 +1,6 @@
 import time
 from enum import Enum
-from typing import Union
+from typing import Optional
 from prometheus_client import Counter, Histogram
 
 from .constants import (
@@ -48,19 +48,25 @@ def count(
     func_name: str,
     module_name: str,
     caller: str,
-    objective: Union[None, Objective] = None,
+    objective: Optional[Objective] = None,
     result: Result = Result.OK,
 ):
     """Increment the counter for the function call."""
+
+    objective_name = "" if objective is None else objective.name
+    percentile = (
+        ""
+        if objective is None or objective.success_rate is None
+        else objective.success_rate
+    )
+
     prom_counter.labels(
         func_name,
         module_name,
         result,
         caller,
-        "" if objective is None else objective.name,
-        ""
-        if objective is None or objective.success_rate is None
-        else objective.success_rate,
+        objective_name,
+        percentile,
     ).inc()
 
 
@@ -68,14 +74,23 @@ def histogram(
     func_name: str,
     module_name: str,
     start_time: float,
-    objective: Union[None, Objective] = None,
+    objective: Optional[Objective] = None,
 ):
     """Observe the duration of the function call."""
     duration = time.time() - start_time
+
+    objective_name = "" if objective is None else objective.name
+    latency = None if objective is None else objective.latency
+    percentile = ""
+    threshold = ""
+    if latency is not None: 
+        threshold = latency[0]
+        percentile = latency[1]
+
     prom_histogram.labels(
         func_name,
         module_name,
-        "" if objective is None else objective.name,
-        "" if objective is None or objective.latency is None else objective.latency[1],
-        "" if objective is None or objective.latency is None else objective.latency[0],
+        objective_name,
+        percentile,
+        threshold,
     ).observe(duration)
