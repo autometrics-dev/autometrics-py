@@ -1,8 +1,13 @@
 from prometheus_client import start_http_server
 from autometrics.autometrics import autometrics
 import time
+import random
 
 
+# Defines a class called `Operations`` that has two methods:
+#   1. `add` - Perform addition
+#   2. `div_handled` - Perform division and handle errors
+#
 class Operations:
     def __init__(self, **args):
         self.args = args
@@ -24,29 +29,33 @@ class Operations:
         return result
 
 
+# Perform division without handling errors
 @autometrics
 def div_unhandled(num1, num2):
     result = num1 / num2
     return result
 
 
-@autometrics
-def text_print():
-    return "hello"
-
-
 ops = Operations()
 
+# Show the docstring (with links to prometheus metrics) for the `add` method
 print(ops.add.__doc__)
+
+# Show the docstring (with links to prometheus metrics) for the `div_unhandled` method
 print(div_unhandled.__doc__)
 
+# Start an HTTP server on port 8080 using the Prometheus client library, which exposes our metrics to prometheus
 start_http_server(8080)
+
+# Enter an infinite loop (with a 2 second sleep period), calling the "div_handled", "add", and "div_unhandled" methods,
+# in order to generate metrics.
 while True:
     ops.div_handled(2, 0)
     ops.add(1, 2)
     ops.div_handled(2, 1)
-    div_unhandled(2, 0)
-    text_print()
+    # Randomly call `div_unhandled` with a 50/50 chance of raising an error
+    div_unhandled(2, random.randint(0, 1))
     ops.add(1, 2)
     time.sleep(2)
+    # Call `div_unhandled` such that it raises an error
     div_unhandled(2, 0)

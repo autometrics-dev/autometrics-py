@@ -1,4 +1,3 @@
-import time
 from autometrics.autometrics import autometrics
 
 
@@ -8,4 +7,8 @@ def hello():
     print("Hello")
 
 
+# Use the built-in `help` function to print the docstring for `hello`
+#
+# In your console, you'll see links to prometheus metrics for the `hello` function,
+# which were added by the `autometrics` decorator.
 help(hello)
