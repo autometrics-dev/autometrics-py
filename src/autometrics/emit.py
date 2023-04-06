@@ -1,4 +1,5 @@
 import time
+from enum import Enum
 from typing import Union
 from prometheus_client import Counter, Histogram
 
@@ -36,12 +37,19 @@ prom_histogram = Histogram(
 )
 
 
+class Result(Enum):
+    """Result of the function call."""
+
+    OK = "ok"
+    ERROR = "error"
+
+
 def count(
     func_name: str,
     module_name: str,
     caller: str,
     objective: Union[None, Objective] = None,
-    result: Union("error", "ok") = "ok",
+    result: Result = Result.OK,
 ):
     """Increment the counter for the function call."""
     prom_counter.labels(

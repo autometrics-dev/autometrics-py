@@ -39,8 +39,8 @@ class ObjectiveLatency(Enum):
 # Example:
 # ```python
 # from autometrics.autometrics import autometrics
-# from autometrics.objective import Objective, ObjectivePercentile, TargetLatency
-# API_SLO: = Objective("api", success_rate=ObjectivePercentile.P99_9, latency = (TargetLatency.Ms250, ObjectivePercentile.P99))
+# from autometrics.objectives import Objective, ObjectivePercentile, ObjectiveLatency
+# API_SLO = Objective("api", success_rate=ObjectivePercentile.P99_9, latency = (ObjectiveLatency.Ms250, ObjectivePercentile.P99))
 #
 # @autometrics(objective = API_SLO)]
 # def api_handler() :
