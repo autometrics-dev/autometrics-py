@@ -37,7 +37,7 @@ def div_unhandled(num1, num2):
     return result
 
 RANDOM_SLO = Objective(
-    "api",
+    "random",
     success_rate=ObjectivePercentile.P99_9,
     latency=(ObjectiveLatency.Ms250, ObjectivePercentile.P99),
 )

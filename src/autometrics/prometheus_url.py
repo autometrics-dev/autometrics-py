@@ -4,12 +4,13 @@ from dotenv import load_dotenv
 
 
 class Generator:
+    """Generate prometheus query urls for a given function/module."""
+
     def __init__(self, function_name: str, module_name: str, base_url: str=None):
         load_dotenv()
         self.function_name = function_name
         self.module_name = module_name
-        self.baseUrl = base_url or os.getenv("PROMETHEUS_URL")
-        self.base_url = os.getenv("PROMETHEUS_URL")
+        self.base_url = base_url or os.getenv("PROMETHEUS_URL")
     
         if self.base_url is None:
             self.base_url = "http://localhost:9090"
