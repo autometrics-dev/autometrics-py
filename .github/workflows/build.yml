@@ -24,5 +24,5 @@ jobs:
         uses: psf/black@stable
       - name: Lint code
         run: poetry run pyright
-      - name: run test
+      - name: Run tests
         run: poetry run pytest
