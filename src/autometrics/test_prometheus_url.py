@@ -1,5 +1,5 @@
 import unittest
-from autometrics.prometheus_url import Generator
+from .prometheus_url import Generator
 
 
 # Defaults to localhost:9090
