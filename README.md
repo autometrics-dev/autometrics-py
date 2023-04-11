@@ -55,6 +55,29 @@ This package uses [poetry](https://python-poetry.org) as a package manager, with
 
 By default, poetry will only install required dependencies, if you want to run examples, install using this command:
 
-`poetry install --with examples`
+```sh
+poetry install --with examples
+```
 
-Code in this repository is formatted using [black](https://black.readthedocs.io/en/stable/) and contains type definitions (which are linted by [pyright](https://microsoft.github.io/pyright/))
+Code in this repository is:
+
+- formatted using [black](https://black.readthedocs.io/en/stable/).
+- contains type definitions (which are linted by [pyright](https://microsoft.github.io/pyright/))
+- tested using [pytest](https://docs.pytest.org/)
+
+In order to run these tools locally you have to install them, you can install them using poetry:
+
+```sh
+poetry install --with dev
+```
+
+After that you can run the tools individually
+
+```sh
+# Formatting using black
+poetry run black .
+# Lint using pyright
+poetry run pyright
+# Run the tests using pytest
+poetry run pytest
+```

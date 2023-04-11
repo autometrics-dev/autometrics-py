@@ -20,6 +20,9 @@ jobs:
           cache: "poetry"
       - name: Install dependencies
         run: poetry install --no-interaction --no-root --with dev
-      - uses: psf/black@stable
-      - name: Run pyright
+      - name: Check code formatting
+        uses: psf/black@stable
+      - name: Lint code
         run: poetry run pyright
+      - name: run test
+        run: poetry run pytest
