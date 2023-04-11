@@ -1,8 +1,8 @@
 """Autometrics module."""
 import time
-from typing import Union, overload, TypeVar, Any, Callable, Optional
-from typing_extensions import ParamSpec
 from functools import wraps
+from typing import overload, TypeVar, Callable, Optional
+from typing_extensions import ParamSpec
 from .objectives import Objective
 from .emit import count, histogram, Result
 from .utils import get_module_name, get_caller_function, write_docs
