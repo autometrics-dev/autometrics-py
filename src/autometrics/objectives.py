@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Union, Tuple
+from typing import Optional, Tuple
 
 
 class ObjectivePercentile(Enum):
@@ -67,18 +67,18 @@ class Objective:
 
     name: str
     """name: The name of the objective. This should be something descriptive of the function or group of functions it covers."""
-    success_rate: Union[None, ObjectivePercentile]
+    success_rate: Optional[ObjectivePercentile]
     """Specify the success rate for this objective.
 
     This means that the function or group of functions that are part of this objective
     should return an `Ok` result at least this percentage of the time."""
-    latency = Union[None, Tuple[ObjectiveLatency, ObjectivePercentile]]
+    latency: Optional[Tuple[ObjectiveLatency, ObjectivePercentile]]
 
     def __init__(
         self,
         name: str,
-        success_rate: Union[None, ObjectivePercentile] = None,
-        latency: Union[None, Tuple[ObjectiveLatency, ObjectivePercentile]] = None,
+        success_rate: Optional[ObjectivePercentile] = None,
+        latency: Optional[Tuple[ObjectiveLatency, ObjectivePercentile]] = None,
     ):
         """Create a new objective with the given name.
 
