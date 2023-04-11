@@ -57,7 +57,7 @@ def count(
     percentile = (
         ""
         if objective is None or objective.success_rate is None
-        else objective.success_rate
+        else objective.success_rate.value
     )
 
     prom_counter.labels(
@@ -84,8 +84,8 @@ def histogram(
     percentile = ""
     threshold = ""
     if latency is not None:
-        threshold = latency[0]
-        percentile = latency[1]
+        threshold = latency[0].value
+        percentile = latency[1].value
 
     prom_histogram.labels(
         func_name,

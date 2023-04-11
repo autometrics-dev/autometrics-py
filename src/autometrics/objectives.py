@@ -23,11 +23,11 @@ class ObjectiveLatency(Enum):
     Ms250 = "0.25"
     Ms500 = "0.5"
     Ms750 = "0.75"
-    Ms1000 = "1"
+    Ms1000 = "1.0"
     Ms2500 = "2.5"
-    Ms5000 = "5"
+    Ms5000 = "5.0"
     Ms7500 = "7.5"
-    Ms10000 = "10"
+    Ms10000 = "10.0"
 
 
 # This represents a Service-Level Objective (SLO) for a function or group of functions.
