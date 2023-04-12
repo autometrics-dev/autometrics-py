@@ -46,7 +46,7 @@ class ObjectiveLatency(Enum):
 #     latency=(ObjectiveLatency.Ms250, ObjectivePercentile.P99),
 # )
 #
-# @autometrics(objective = API_SLO)]
+# @autometrics(objective = API_SLO)
 # def api_handler() :
 #    # ...
 # ```
