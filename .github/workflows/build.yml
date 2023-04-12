@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction --no-root --with dev
       - name: Check code formatting
-        uses: psf/black@stable
+        run: poetry run black .
       - name: Lint code
         run: poetry run pyright
       - name: Run tests
