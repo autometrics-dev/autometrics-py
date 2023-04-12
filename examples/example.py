@@ -46,12 +46,12 @@ RANDOM_SLO = Objective(
 
 @autometrics(objective=RANDOM_SLO)
 def random_error():
-    """This function will randomly return an error or not."""
+    """This function will randomly return an error or ok."""
 
     result = random.choice(["ok", "error"])
     if result == "error":
         time.sleep(1)
-        raise Exception("random error")
+        raise RuntimeError("random error")
     return result
 
 
