@@ -63,7 +63,7 @@ def count(
     prom_counter.labels(
         func_name,
         module_name,
-        result,
+        result.value,
         caller,
         objective_name,
         percentile,
