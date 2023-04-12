@@ -1,6 +1,8 @@
+![GitHub_headerImage](https://user-images.githubusercontent.com/3262610/221191767-73b8a8d9-9f8b-440e-8ab6-75cb3c82f2bc.png)
+
 # autometrics-py
 
-A Python decorator that makes it easy to understand the error rate, response time, and production usage of any function in your code. Jump straight from your IDE to live Prometheus charts for each HTTP/RPC handler, database method, or other piece of application logic.
+A Python library that exports a decorator that makes it easy to understand the error rate, response time, and production usage of any function in your code. Jump straight from your IDE to live Prometheus charts for each HTTP/RPC handler, database method, or other piece of application logic.
 
 Autometrics for Python provides:
 
@@ -18,8 +20,7 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 - 🔗 Create links to live Prometheus charts directly into each functions docstrings (with tooltips coming soon!)
 - 📊 (Coming Soon!) Grafana dashboard showing the performance of all
   instrumented functions
-- 🚨 Emits data for Prometheus alerting rules using SLO best practices
-  from simple annotations in your code
+- 🚨 Enable Prometheus alerts using SLO best practices from simple annotations in your code
 - ⚡ Minimal runtime overhead
 
 ## Using autometrics-py
@@ -44,6 +45,30 @@ def sayHello:
 - To show tooltips over decorated functions in VSCode, with links to Prometheus queries, try installing [the VSCode extension](https://marketplace.visualstudio.com/items?itemName=Fiberplane.autometrics).
 
 > Note that we cannot support tooltips without a VSCode extension due to behavior of the [static analyzer](https://github.com/davidhalter/jedi/issues/1921) used in VSCode.
+
+## Alerts / SLOs
+
+Autometrics makes it easy to add Prometheus alerts using Service-Level Objectives (SLOs) to a function or group of functions.
+
+This works using pre-defined [Prometheus alerting rules](./autometrics.rules.yml) (read more about alerting rules in general [here](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)).
+By default, most of the recording rules are dormaint. They are enabled by specific metric labels that can be automatically attached by autometrics.
+
+To use autometrics SLOs and alerts, create one or multiple `Objective`s based on the function(s) success rate and/or latency, as shown below. The `Objective` can be passed as an argument to the `autometrics` macro to include the given function in that objective.
+
+```python
+from autometrics import autometrics
+from autometrics.objectives import Objective, ObjectiveLatency, ObjectivePercentile
+
+API_SLO = Objective(
+    "random",
+    success_rate=ObjectivePercentile.P99_9,
+    latency=(ObjectiveLatency.Ms250, ObjectivePercentile.P99),
+)
+
+@autometrics(objective=API_SLO)
+def api_handler():
+  # ...
+```
 
 ## Development of the package
 
