@@ -69,7 +69,7 @@ def api_handler():
   # ...
 ```
 
-Autometrics by default will try to store information on which function calls a decorated function. As such you may want to place the autometrics is the top/first decorator as otherwise you may get `inner` or `wrapper` as the caller function.
+Autometrics by default will try to store information on which function calls a decorated function. As such you may want to place the autometrics in the top/first decorator, as otherwise you may get `inner` or `wrapper` as the caller function.
 
 So instead of writing:
 
