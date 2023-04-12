@@ -50,8 +50,7 @@ def sayHello:
 
 Autometrics makes it easy to add Prometheus alerts using Service-Level Objectives (SLOs) to a function or group of functions.
 
-This works using pre-defined [Prometheus alerting rules](./autometrics.rules.yml) (read more about alerting rules in general [here](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)).
-By default, most of the recording rules are dormaint. They are enabled by specific metric labels that can be automatically attached by autometrics.
+This works using pre-defined [Prometheus alerting rules](https://github.com/autometrics-dev/autometrics-shared#prometheus-recording--alerting-rules). By default, most of the recording rules are dormant. They are enabled by specific metric labels that can be automatically attached by autometrics.
 
 To use autometrics SLOs and alerts, create one or multiple `Objective`s based on the function(s) success rate and/or latency, as shown below. The `Objective` can be passed as an argument to the `autometrics` macro to include the given function in that objective.
 
@@ -66,6 +65,35 @@ API_SLO = Objective(
 )
 
 @autometrics(objective=API_SLO)
+def api_handler():
+  # ...
+```
+
+Autometrics by default will try to store information on which function calls a decorated function. As such you may want to place the autometrics is the top/first decorator as otherwise you may get `inner` or `wrapper` as the caller function.
+
+So instead of writing:
+
+```py
+def noop(func: Callable[..., R]) -> Callable[..., R]:
+    """A noop decorator that does nothing."""
+
+    @wraps(func)
+    def inner(*args: Any, **kwargs: Any) -> Any:
+        return func(*args, **kwargs)
+
+    return inner
+
+@noop
+@autometrics
+def api_handler():
+  # ...
+```
+
+You may want to:
+
+```py
+@autometrics
+@noop
 def api_handler():
   # ...
 ```

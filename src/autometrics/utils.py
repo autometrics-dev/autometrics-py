@@ -41,7 +41,7 @@ def write_docs(func_name: str, module_name: str):
 
 
 def get_caller_function(depth: int = 2):
-    """Get the name of the function that called the function being decorated."""
+    """Get the name of the function. Default depth is 2 to get the caller of the caller of the function being decorated."""
     caller_frame = inspect.stack()[depth]
     caller_function_name = caller_frame[3]
     return caller_function_name
