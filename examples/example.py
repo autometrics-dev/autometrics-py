@@ -1,7 +1,8 @@
-from prometheus_client import start_http_server
-from autometrics import autometrics
 import time
 import random
+from prometheus_client import start_http_server
+from autometrics import autometrics
+from autometrics.objectives import Objective, ObjectiveLatency, ObjectivePercentile
 
 
 # Defines a class called `Operations`` that has two methods:
@@ -36,6 +37,24 @@ def div_unhandled(num1, num2):
     return result
 
 
+RANDOM_SLO = Objective(
+    "random",
+    success_rate=ObjectivePercentile.P99_9,
+    latency=(ObjectiveLatency.Ms250, ObjectivePercentile.P99),
+)
+
+
+@autometrics(objective=RANDOM_SLO)
+def random_error():
+    """This function will randomly return an error or ok."""
+
+    result = random.choice(["ok", "error"])
+    if result == "error":
+        time.sleep(1)
+        raise RuntimeError("random error")
+    return result
+
+
 ops = Operations()
 
 # Show the docstring (with links to prometheus metrics) for the `add` method
@@ -59,3 +78,4 @@ while True:
     time.sleep(2)
     # Call `div_unhandled` such that it raises an error
     div_unhandled(2, 0)
+    random_error()

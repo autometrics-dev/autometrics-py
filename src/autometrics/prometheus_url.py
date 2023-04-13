@@ -1,38 +1,48 @@
 import urllib.parse
 import os
+from typing import Optional
 from dotenv import load_dotenv
 
 
+def cleanup_url(url: str) -> str:
+    """Remove the trailing slash if there is one."""
+    if url[-1] == "/":
+        url = url[:-1]
+    return url
+
+
 class Generator:
-    def __init__(self, functionName, moduleName, baseUrl=None):
+    """Generate prometheus query urls for a given function/module."""
+
+    def __init__(
+        self, function_name: str, module_name: str, base_url: Optional[str] = None
+    ):
         load_dotenv()
-        self.functionName = functionName
-        self.moduleName = moduleName
-        self.baseUrl = baseUrl or os.getenv("PROMETHEUS_URL")
-        if self.baseUrl is None:
-            self.baseUrl = "http://localhost:9090"
-        elif self.baseUrl[-1] == "/":
-            self.baseUrl = self.baseUrl[
-                :-1
-            ]  # Remove the trailing slash if there is one
+        self.function_name = function_name
+        self.module_name = module_name
 
-    def createURLs(self):
-        requestRateQuery = f'sum by (function, module) (rate (function_calls_count_total{{function="{self.functionName}",module="{self.moduleName}"}}[5m]))'
-        latencyQuery = f'sum by (le, function, module) (rate(function_calls_duration_bucket{{function="{self.functionName}",module="{self.moduleName}"}}[5m]))'
-        errorRatioQuery = f'sum by (function, module) (rate (function_calls_count_total{{function="{self.functionName}",module="{self.moduleName}", result="error"}}[5m])) / {requestRateQuery}'
+        url = base_url or os.getenv("PROMETHEUS_URL") or "http://localhost:9090"
+        self.base_url = cleanup_url(url)
 
-        queries = [requestRateQuery, latencyQuery, errorRatioQuery]
+    def create_urls(self):
+        """Create the prometheus query urls for the function and module."""
+        request_rate_query = f'sum by (function, module) (rate (function_calls_count_total{{function="{self.function_name}",module="{self.module_name}"}}[5m]))'
+        latency_query = f'sum by (le, function, module) (rate(function_calls_duration_bucket{{function="{self.function_name}",module="{self.module_name}"}}[5m]))'
+        error_ratio_query = f'sum by (function, module) (rate (function_calls_count_total{{function="{self.function_name}",module="{self.module_name}", result="error"}}[5m])) / {request_rate_query}'
+
+        queries = [request_rate_query, latency_query, error_ratio_query]
         names = ["Request rate URL", "Latency URL", "Error Ratio URL"]
         urls = {}
-        for n in names:
+        for name in names:
             for query in queries:
-                generateUrl = self.createPrometheusUrl(query)
-                urls[n] = generateUrl
+                generated_url = self.create_prometheus_url(query)
+                urls[name] = generated_url
                 queries.remove(query)
                 break
         return urls
 
-    def createPrometheusUrl(self, query):
-        urlEncode = urllib.parse.quote(query)
-        url = f"{self.baseUrl}/graph?g0.expr={urlEncode}&g0.tab=0"
+    def create_prometheus_url(self, query: str):
+        """Create a the full query url for a given query."""
+        encoded_query = urllib.parse.quote(query)
+        url = f"{self.base_url}/graph?g0.expr={encoded_query}&g0.tab=0"
         return url
