@@ -28,8 +28,11 @@ def load_config_file() -> Dict[str, Any]:
     if LOADED_CONFIG is not None:
         return LOADED_CONFIG
     config_path = find_autometrics_yaml()
-    with open(config_path, "r") as config_file:
-        LOADED_CONFIG = yaml.safe_load(config_file)
+    try:
+        with open(config_path, "r") as config_file:
+            LOADED_CONFIG = yaml.safe_load(config_file)
+    except FileNotFoundError:
+        LOADED_CONFIG = {}
     return LOADED_CONFIG
 
 
