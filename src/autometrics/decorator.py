@@ -50,7 +50,7 @@ def autometrics(
                 histogram(func_name, module_name, start_time, objective)
                 # Reraise exception
                 raise exception
-            
+
             # TODO - this should be done in a separate thread IMO (also should be error safe)
             push_metrics_if_push_enabled()
             return result

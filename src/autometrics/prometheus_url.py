@@ -2,7 +2,7 @@ import urllib.parse
 import os
 from typing import Optional
 from dotenv import load_dotenv
-
+from .constants import (ENV_FP_METRICS_URL, ENV_PROMETHEUS_URL_DEPRECATED)
 
 def cleanup_url(url: str) -> str:
     """Remove the trailing slash if there is one."""
@@ -21,7 +21,7 @@ class Generator:
         self.function_name = function_name
         self.module_name = module_name
 
-        url = base_url or os.getenv("PROMETHEUS_URL") or "http://localhost:9090"
+        url = base_url or os.getenv(ENV_FP_METRICS_URL) or os.getenv(ENV_PROMETHEUS_URL_DEPRECATED) or "http://localhost:9090"
         self.base_url = cleanup_url(url)
 
     def create_urls(self):
