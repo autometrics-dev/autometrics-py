@@ -1,7 +1,9 @@
 import time
+import os
 from enum import Enum
 from typing import Optional
-from prometheus_client import Counter, Histogram
+from prometheus_client import CollectorRegistry, Counter, Histogram, push_to_gateway
+from dotenv import load_dotenv
 
 from .constants import (
     COUNTER_DESCRIPTION,
@@ -11,6 +13,21 @@ from .constants import (
     OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
 )
 from .objectives import Objective
+
+load_dotenv()
+
+# TODO - load app name from autometrics.yaml file in project root
+#        take inspiration from `find_dotenv` in `dotenv` package
+# The app name will be the job name in the registry
+app_name = os.getenv("FP_APP_NAME")
+
+# TODO - Add a debug log that pushing is enabled
+# TODO - Configure the push gateway url in the autometrics.yaml file?
+push_gateway_url = os.getenv("FP_PUSH_GATEWAY_URL")
+is_pushing_metrics = push_gateway_url is not None
+
+# INVESTIGATE - Does adding a registry affect anything in the pull model?
+registry = CollectorRegistry()
 
 prom_counter = Counter(
     "function_calls_count",
@@ -23,6 +40,7 @@ prom_counter = Counter(
         OBJECTIVE_NAME_PROMETHEUS,
         OBJECTIVE_PERCENTILE_PROMETHEUS,
     ],
+    registry=registry,
 )
 prom_histogram = Histogram(
     "function_calls_duration",
@@ -34,6 +52,7 @@ prom_histogram = Histogram(
         OBJECTIVE_PERCENTILE_PROMETHEUS,
         OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
     ],
+    registry=registry,
 )
 
 
@@ -69,7 +88,6 @@ def count(
         percentile,
     ).inc()
 
-
 def histogram(
     func_name: str,
     module_name: str,
@@ -94,3 +112,12 @@ def histogram(
         percentile,
         threshold,
     ).observe(duration)
+
+def push_metrics_if_push_enabled():
+    """Push the metrics to the push gateway if there is a push gateway url configured."""
+    if is_pushing_metrics:
+        push_to_gateway(
+            push_gateway_url,
+            job=app_name,
+            registry=registry,
+        )

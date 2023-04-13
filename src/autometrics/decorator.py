@@ -4,7 +4,7 @@ from functools import wraps
 from typing import overload, TypeVar, Callable, Optional
 from typing_extensions import ParamSpec
 from .objectives import Objective
-from .emit import count, histogram, Result
+from .emit import count, histogram, Result, push_metrics_if_push_enabled
 from .utils import get_module_name, get_caller_function, write_docs
 
 
@@ -50,6 +50,9 @@ def autometrics(
                 histogram(func_name, module_name, start_time, objective)
                 # Reraise exception
                 raise exception
+            
+            # TODO - this should be done in a separate thread IMO (also should be error safe)
+            push_metrics_if_push_enabled()
             return result
 
         if func.__doc__ is None:
