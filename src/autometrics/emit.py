@@ -10,7 +10,7 @@ from .constants import (
     OBJECTIVE_NAME_PROMETHEUS,
     OBJECTIVE_PERCENTILE_PROMETHEUS,
     OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
-    ENV_FP_METRICS_URL
+    ENV_FP_METRICS_URL,
 )
 from .objectives import Objective
 from .config import get_push_gateway_url, get_app_name, get_is_pushing_metrics
