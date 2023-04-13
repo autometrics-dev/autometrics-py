@@ -1,6 +1,10 @@
 # autometrics-py examples
 
-You should be able to run each example by executing `python examples/<example>.py` from the root of the repo.
+You should be able to run each example by:
+
+- cloning this repository
+- run `poetry install --with examples`
+- and execute `poetry run python examples/<example>.py` from the root of the repo.
 
 You can change the base url for Prometheus links via the `PROMETHEUS_URL` environment variable. So, if your local Prometheus were on a non-default port, like 9091, you would run:
 
