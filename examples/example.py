@@ -69,13 +69,31 @@ start_http_server(8080)
 # Enter an infinite loop (with a 2 second sleep period), calling the "div_handled", "add", and "div_unhandled" methods,
 # in order to generate metrics.
 while True:
-    ops.div_handled(2, 0)
+    try:
+        ops.div_handled(2, 0)
+    except Exception:
+        pass
+
     ops.add(1, 2)
     ops.div_handled(2, 1)
-    # Randomly call `div_unhandled` with a 50/50 chance of raising an error
-    div_unhandled(2, random.randint(0, 1))
+
+    try:
+        # Randomly call `div_unhandled` with a 50/50 chance of raising an error
+        div_unhandled(2, random.randint(0, 1))
+    except Exception:
+        pass
+
     ops.add(1, 2)
     time.sleep(2)
-    # Call `div_unhandled` such that it raises an error
-    div_unhandled(2, 0)
-    random_error()
+
+    try:
+        # Call `div_unhandled` such that it raises an error
+        div_unhandled(2, 0)
+    except Exception:
+        pass
+
+    try:
+        # Call random_error. It will randomly raise an error or return "ok"
+        random_error() 
+    except Exception:
+        pass
