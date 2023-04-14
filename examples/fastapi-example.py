@@ -14,8 +14,8 @@ def metrics():
 
 
 # Set up the root endpoint of the API
-@app.get("/")
 @autometrics
+@app.get("/")
 def read_root():
     do_something()
     return {"Hello": "World"}
