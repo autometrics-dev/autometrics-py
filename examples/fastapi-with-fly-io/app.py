@@ -19,8 +19,7 @@ def hello_world():
     return {"Hello": "World"}
 
 
-# Let's set up an SLO, so we can check out what it looks like 
-# in a grafana dashboard
+# Let's set up an SLO, so we can check out
 ITEM_SLO = Objective(
     "sleep",
     success_rate=ObjectivePercentile.P99_9,
@@ -33,8 +32,8 @@ ITEM_SLO = Objective(
 def get_sleep(duration: int = 0):
     """A function that takes a duration parameter to determine how much the response
     needs to be delayed"""
-    time.sleep(duration)
 
+    time.sleep(duration)
     return {"duration": duration}
 
 
@@ -44,10 +43,12 @@ def not_implemented():
     """An endpoint that always throws an exception"""
     raise NotImplementedError("Not implemented")
 
+
 @autometrics
 def do_something():
     # This function doesn't do much
     print("done")
+
 
 # In order for prometheus to get the data we'll set
 # up a separate endpoint that exposes data in a format
