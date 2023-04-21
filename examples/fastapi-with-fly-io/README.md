@@ -1,6 +1,6 @@
 # Getting started FastAPI & Fly.io
 
-In this tutorial we'll create a simple back-end application that uses autometrics to track several of the api calls. If only interested in how to deploy a small [fastapi](https://fastapi.tiangolo.com/) app and see autometrics in action on fly.io, you can just clone this repository and continue at the [#deploy](Deploy section). This app will report metrics like:
+In this tutorial we'll create a simple back-end application that uses autometrics to track several of the api calls. If only interested in how to deploy a small [fastapi](https://fastapi.tiangolo.com/) app and see autometrics in action on fly.io, you can just clone this repository and continue at the [deploy & monitor section](#deploy--monitor). This app will report metrics like:
 
 - success rate
 - error ratio
