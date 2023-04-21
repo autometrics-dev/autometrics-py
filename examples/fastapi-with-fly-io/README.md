@@ -1,4 +1,4 @@
-# Getting started with Python, Autometrics & Fly.io
+# Getting started FastAPI & Fly.io
 
 In this tutorial we'll create a simple back-end application that uses autometrics to track several of the api calls. If only interested in how to deploy a small [fastapi](https://fastapi.tiangolo.com/) app and see autometrics in action on fly.io, you can just clone this repository and continue at the [#deploy](Deploy section). This app will report metrics like:
 
@@ -311,3 +311,5 @@ It should look something similar to:
 <img src="./images/overview_dashboard.jpg" alt="Example dashboard" width="500" />
 
 Feel free to import the other dashboards and see more detailed information around SLO's and function specific details.
+
+That's it! If you have ideas for improving autometrics or feedback around this example, feel free to open up a ticket on our github repository: https://github.com/autometrics-dev/autometrics-py or contact us on [discord](https://discord.gg/kHtwcH8As9)
