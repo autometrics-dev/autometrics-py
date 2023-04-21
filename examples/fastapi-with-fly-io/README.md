@@ -298,12 +298,12 @@ Autometrics comes with several dashboards you can import and which will allow yo
 
 1. Go to your apps dashboard by running `flyctl dashboard` and go the the `metrics` page and on the metrics page click on the `open in grafana` button.
 2. Now that you're on grafana, navigate to the imports page, by clicking the dashboards icon in the side menu and click on `+ Import`  
-   <img alt="go to `+ Import" src="./images/go_to_imports.jpg" width="100"/>
+   <img alt="go to `+ Import" src="./images/go_to_imports.jpg" width="200"/>
 3. Go to the [autometrics-shared repository](https://github.com/autometrics-dev/autometrics-shared) repository and download the `Autometrics overview.json`
 4. Click on the `Upload JSON file` button and select the just downloaded JSON file.  
-   <img src="./images/import_form.jpg" width="300">
+   <img src="./images/import_form.jpg" width="500">
 5. You will see a new form which will be mostly filled in except the `Prometheus` field. There `Prometheus on Fly (default)` needs to be selected.  
-   <img src="./images/select_prometheus.jpg" width="300"/>
+   <img src="./images/select_prometheus.jpg" width="500"/>
 6. Finally: click `import` and you will be redirected to the dashboard.
 
 It should look something similar to:
