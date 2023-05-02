@@ -42,7 +42,7 @@ docutils = "0.19"
 fastapi = "0.95.0"
 h11 = "0.14.0"
 idna = "3.4"
-importlib-metadata = "6.1.0"
+importlib-metadata = "~6.0.0"
 jaraco-classes = "3.2.3"
 keyring = "23.13.1"
 markdown-it-py = "2.2.0"
@@ -67,6 +67,12 @@ uvicorn = "0.21.1"
 webencodings = "0.5.1"
 zipp = "3.15.0"
 django = "^4.2"
+
+
+[tool.poetry.group.extras.dependencies]
+opentelemetry-api = "^1.17.0"
+opentelemetry-sdk = "^1.17.0"
+opentelemetry-exporter-prometheus = "^1.12.0rc1"
 
 [build-system]
 requires = ["poetry-core"]

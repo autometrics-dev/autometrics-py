@@ -4,7 +4,7 @@ from functools import wraps
 from typing import overload, TypeVar, Callable, Optional
 from typing_extensions import ParamSpec
 from .objectives import Objective
-from .emit import count, histogram, Result
+from .emit import get_tracker, Result
 from .utils import get_module_name, get_caller_function, write_docs
 
 
@@ -42,12 +42,25 @@ def autometrics(
 
             try:
                 result = func(*args, **kwds)
-                count(func_name, module_name, caller, objective, result=Result.OK)
-                histogram(func_name, module_name, start_time, objective)
+                get_tracker().finish(
+                    start_time,
+                    function=func_name,
+                    module=module_name,
+                    caller=caller,
+                    objective=objective,
+                    result=Result.OK,
+                )
+
             except Exception as exception:
                 result = exception.__class__.__name__
-                count(func_name, module_name, caller, objective, result=Result.ERROR)
-                histogram(func_name, module_name, start_time, objective)
+                get_tracker().finish(
+                    start_time,
+                    function=func_name,
+                    module=module_name,
+                    caller=caller,
+                    objective=objective,
+                    result=Result.ERROR,
+                )
                 # Reraise exception
                 raise exception
             return result
