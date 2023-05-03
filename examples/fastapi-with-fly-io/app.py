@@ -12,7 +12,7 @@ app = FastAPI()
 @app.get("/")
 # Add the autometrics decorator to enable metrics for this endpoint
 # It needs to be added AFTER the fastapi decorator otherwise it won't
-# triggered
+# be triggered
 @autometrics
 def hello_world():
     do_something()
