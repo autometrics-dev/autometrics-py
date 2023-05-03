@@ -1,5 +1,7 @@
 from typing import Protocol, Optional
 from enum import Enum
+import os
+
 
 from ..objectives import Objective
 
@@ -13,9 +15,6 @@ class Result(Enum):
 
 class TrackMetrics(Protocol):
     """Protocol for tracking metrics."""
-
-    # def start(self, function: str = None, module: str = None):
-    #     """Start tracking metrics for a function call."""
 
     def finish(
         self,
@@ -34,51 +33,37 @@ class TrackerType(Enum):
 
     OPENTELEMETRY = "opentelemetry"
     PROMETHEUS = "prometheus"
-    # DUMMY = "dummy"
 
 
 def create_tracker(tracker_type: TrackerType) -> TrackMetrics:
     """Create a tracker"""
     if tracker_type == TrackerType.OPENTELEMETRY:
-        print("open yes")
         # pylint: disable=import-outside-toplevel
         from .opentelemetry import OpenTelemetryTracker
 
-        # if isinstance(tracker, OpenTelemetryTracker):
-        #     return tracker
         return OpenTelemetryTracker()
     elif tracker_type == TrackerType.PROMETHEUS:
-        print("prom yes")
         # pylint: disable=import-outside-toplevel
         from .prometheus import PrometheusTracker
 
-        # if isinstance(tracker, PrometheusTracker):
-        #     return tracker
         return PrometheusTracker()
-    # elif tracker_type == TrackerType.DUMMY:
-    #     return DummyTracker()
 
 
-# class DummyTracker:
-#     def finish(
-#         self,
-#         start_time: float,
-#         function: str,
-#         module: str,
-#         caller: str,
-#         result: Result = Result.OK,
-#         objective: Optional[Objective] = None,
-#     ):
-#         pass
+def get_tracker_type() -> TrackerType:
+    """Get the tracker type."""
+    tracker_type = os.getenv("AUTOMETRICS_TRACKER") or "opentelemetry"
+    if tracker_type.lower() == "prometheus":
+        return TrackerType.PROMETHEUS
+    return TrackerType.OPENTELEMETRY
 
-try:
-    print("Create open telemetry tracker")
-    tracker = create_tracker(TrackerType.OPENTELEMETRY)
-except ImportError:
-    print("Create prometheus tracker")
-    tracker = create_tracker(TrackerType.PROMETHEUS)
 
-# tracker = create_tracker(TrackerType.DUMMY)
+def default_tracker():
+    """Setup the default tracker."""
+    preferred_tracker = get_tracker_type()
+    return create_tracker(preferred_tracker)
+
+
+tracker: TrackMetrics = default_tracker()
 
 
 def get_tracker() -> TrackMetrics:
@@ -88,7 +73,5 @@ def get_tracker() -> TrackMetrics:
 
 def set_tracker(tracker_type: TrackerType):
     """Set the tracker type."""
-    # print("Set tracker type", tracker_type.value)
-    # pylint: disable=global-statement
     global tracker
     tracker = create_tracker(tracker_type)

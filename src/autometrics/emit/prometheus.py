@@ -51,9 +51,6 @@ class PrometheusTracker:
         result: Result = Result.OK,
     ):
         """Increment the counter for the function call."""
-
-        print("prom_counting")
-
         objective_name = "" if objective is None else objective.name
         percentile = (
             ""

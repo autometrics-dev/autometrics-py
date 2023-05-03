@@ -4,7 +4,6 @@ from opentelemetry.metrics import (
     Meter,
     Counter,
     Histogram,
-    get_meter_provider,
     set_meter_provider,
 )
 
@@ -56,8 +55,7 @@ class OpenTelemetryTracker:
         )
         meter_provider = MeterProvider(metric_readers=[self.__exporter], views=[view])
         set_meter_provider(meter_provider)
-
-        self.__meter = get_meter_provider().get_meter(name="autometrics")
+        self.__meter = meter_provider.get_meter(name="autometrics")
         self.__counter_instance = self.__meter.create_counter(
             name=COUNTER_NAME, description=COUNTER_DESCRIPTION
         )
@@ -74,7 +72,6 @@ class OpenTelemetryTracker:
         objective: Optional[Objective],
         result: Result,
     ):
-        print("counting")
         objective_name = "" if objective is None else objective.name
         percentile = (
             ""
@@ -101,7 +98,6 @@ class OpenTelemetryTracker:
         objective: Optional[Objective],
     ):
         duration = time.time() - start_time
-        print("histograming", duration)
 
         objective_name = "" if objective is None else objective.name
         latency = None if objective is None else objective.latency
