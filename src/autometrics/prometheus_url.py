@@ -37,6 +37,8 @@ class Generator:
             for query in queries:
                 generated_url = self.create_prometheus_url(query)
                 urls[name] = generated_url
+                queries.remove(query)
+                break
         return urls
 
     def create_prometheus_url(self, query: str):
