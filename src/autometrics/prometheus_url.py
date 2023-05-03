@@ -30,15 +30,17 @@ class Generator:
         latency_query = f'sum by (le, function, module) (rate(function_calls_duration_bucket{{function="{self.function_name}",module="{self.module_name}"}}[5m]))'
         error_ratio_query = f'sum by (function, module) (rate (function_calls_count_total{{function="{self.function_name}",module="{self.module_name}", result="error"}}[5m])) / {request_rate_query}'
 
-        queries = [request_rate_query, latency_query, error_ratio_query]
-        names = ["Request rate URL", "Latency URL", "Error Ratio URL"]
+        queries = {
+            "Request rate URL": request_rate_query,
+            "Latency URL": latency_query,
+            "Error Ratio URL": error_ratio_query,
+        }
+
         urls = {}
-        for name in names:
-            for query in queries:
-                generated_url = self.create_prometheus_url(query)
-                urls[name] = generated_url
-                queries.remove(query)
-                break
+        for [name, query] in queries.items():
+            # for query in queries:
+            generated_url = self.create_prometheus_url(query)
+            urls[name] = generated_url
         return urls
 
     def create_prometheus_url(self, query: str):
