@@ -6,7 +6,7 @@ import pytest
 from .decorator import autometrics
 from .objectives import ObjectiveLatency, Objective, ObjectivePercentile
 
-from .emit import set_tracker, TrackerType, get_tracker
+from .tracker import set_tracker, TrackerType
 from .utils import get_caller_function
 
 

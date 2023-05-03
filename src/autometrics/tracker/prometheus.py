@@ -1,7 +1,7 @@
 import time
 from typing import Optional
 from prometheus_client import Counter, Histogram
-from .emit import Result
+from .tracker import Result
 
 from ..constants import (
     COUNTER_NAME_PROMETHEUS,

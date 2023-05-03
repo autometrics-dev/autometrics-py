@@ -4,7 +4,7 @@ from functools import wraps
 from typing import overload, TypeVar, Callable, Optional
 from typing_extensions import ParamSpec
 from .objectives import Objective
-from .emit import get_tracker, Result
+from .tracker import get_tracker, Result
 from .utils import get_module_name, get_caller_function, write_docs
 
 

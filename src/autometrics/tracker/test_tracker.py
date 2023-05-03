@@ -1,7 +1,7 @@
 from .opentelemetry import OpenTelemetryTracker
 from .prometheus import PrometheusTracker
 
-from .emit import default_tracker
+from .tracker import default_tracker
 
 
 def test_default_tracker(monkeypatch):

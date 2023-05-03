@@ -14,7 +14,7 @@ from opentelemetry.sdk.metrics.export import (
 from opentelemetry.sdk.metrics.view import View, ExplicitBucketHistogramAggregation
 
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
-from .emit import Result
+from .tracker import Result
 from ..objectives import Objective, ObjectiveLatency
 from ..constants import (
     COUNTER_DESCRIPTION,
