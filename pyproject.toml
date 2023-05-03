@@ -46,6 +46,7 @@ docutils = "0.19"
 fastapi = "0.95.0"
 h11 = "0.14.0"
 idna = "3.4"
+# pinned importlib-metadat to version ~6.0.0 because of opentelemetry-api
 importlib-metadata = "~6.0.0"
 jaraco-classes = "3.2.3"
 keyring = "23.13.1"
