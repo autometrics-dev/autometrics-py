@@ -45,7 +45,6 @@ class TestDecoratorClass:
         wrapped_function = autometrics(basic_function)
         wrapped_function()
 
-        time.sleep(1)
         blob = generate_latest()
         assert blob is not None
         data = blob.decode("utf-8")
