@@ -37,14 +37,11 @@ def get_objective_boundaries():
 class OpenTelemetryTracker:
     """Tracker for OpenTelemetry."""
 
-    __exporter: MetricReader
-    __meter: Meter
     __counter_instance: Counter
     __histogram_instance: Histogram
 
     def __init__(self):
-        self.__exporter = PrometheusMetricReader("")
-
+        exporter = PrometheusMetricReader("")
         view = View(
             name=HISTOGRAM_NAME,
             description=HISTOGRAM_DESCRIPTION,
@@ -53,13 +50,13 @@ class OpenTelemetryTracker:
                 boundaries=get_objective_boundaries()
             ),
         )
-        meter_provider = MeterProvider(metric_readers=[self.__exporter], views=[view])
+        meter_provider = MeterProvider(metric_readers=[exporter], views=[view])
         set_meter_provider(meter_provider)
-        self.__meter = meter_provider.get_meter(name="autometrics")
-        self.__counter_instance = self.__meter.create_counter(
+        meter = meter_provider.get_meter(name="autometrics")
+        self.__counter_instance = meter.create_counter(
             name=COUNTER_NAME, description=COUNTER_DESCRIPTION
         )
-        self.__histogram_instance = self.__meter.create_histogram(
+        self.__histogram_instance = meter.create_histogram(
             name=HISTOGRAM_NAME,
             description=HISTOGRAM_DESCRIPTION,
         )

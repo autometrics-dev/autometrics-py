@@ -66,7 +66,6 @@ class TestDecoratorClass:
     def test_objectives(self):
         """This is a test that covers objectives."""
 
-        # set_tracker(TrackerType.OPENTELEMETRY)
         # set up the function + objective variables
         caller = get_caller_function(depth=1)
         assert caller is not None
