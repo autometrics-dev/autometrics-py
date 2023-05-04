@@ -20,7 +20,8 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 - 🔗 Create links to live Prometheus charts directly into each functions docstrings (with tooltips coming soon!)
 - [🚨 Define alerts](#alerts--slos) using SLO best practices directly in your source code
 - [📊 Grafana dashboards](#dashboards) work out of the box to visualize the performance of instrumented functions & SLOs
-- [⚙️ Configurable](#metrics-libraries) metric collection library (`opentelemetry`, `prometheus`, or `metrics`)- ⚡ Minimal runtime overhead
+- [⚙️ Configurable](#metrics-libraries) metric collection library (`opentelemetry`, `prometheus`, or `metrics`)
+- ⚡ Minimal runtime overhead
 
 ## Using autometrics-py
 
