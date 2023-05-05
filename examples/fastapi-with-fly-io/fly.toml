@@ -1,0 +1,8 @@
+[http_service]
+  internal_port = 8080
+  force_https = true
+
+[metrics]
+  port = 8008
+  path = "/metrics"
+
