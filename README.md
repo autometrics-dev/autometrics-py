@@ -18,10 +18,9 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 - 💡 Writes Prometheus queries so you can understand the data generated without
   knowing PromQL
 - 🔗 Create links to live Prometheus charts directly into each functions docstrings (with tooltips coming soon!)
-- 📊 (Coming Soon!) Grafana dashboard showing the performance of all
-  instrumented functions
-- 🚨 Enable Prometheus alerts using SLO best practices from simple annotations in your code
-- ⚡ Minimal runtime overhead
+- [🚨 Define alerts](#alerts--slos) using SLO best practices directly in your source code
+- [📊 Grafana dashboards](#dashboards) work out of the box to visualize the performance of instrumented functions & SLOs
+- [⚙️ Configurable](#metrics-libraries) metric collection library (`opentelemetry`, `prometheus`, or `metrics`)- ⚡ Minimal runtime overhead
 
 ## Using autometrics-py
 
@@ -45,6 +44,10 @@ def sayHello:
 - To show tooltips over decorated functions in VSCode, with links to Prometheus queries, try installing [the VSCode extension](https://marketplace.visualstudio.com/items?itemName=Fiberplane.autometrics).
 
 > Note that we cannot support tooltips without a VSCode extension due to behavior of the [static analyzer](https://github.com/davidhalter/jedi/issues/1921) used in VSCode.
+
+## Dashboards
+
+Autometrics provides [Grafana dashboards](https://github.com/autometrics-dev/autometrics-shared#dashboards) that will work for any project instrumented with the library.
 
 ## Alerts / SLOs
 
@@ -102,6 +105,13 @@ You may want to switch the order of the decorator
 def api_handler():
   # ...
 ```
+
+#### Metrics Libraries
+
+Configure the crate that autometrics will use to produce metrics by using one of the following feature flags:
+
+- `opentelemetry` - (enabled by default, can also be explicitly set using the AUTOMETRICS_TRACKER="OPEN_TELEMETERY" env var) uses
+- `prometheus` -(using the AUTOMETRICS_TRACKER env var set to "PROMETHEUS")
 
 ## Development of the package
 

@@ -15,8 +15,11 @@ keywords = ["metrics", "telemetry", "prometheus", "monitoring", "observability",
 packages = [{include = "autometrics", from = "src"}]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+opentelemetry-api = "^1.17.0"
+opentelemetry-exporter-prometheus = "^1.12.0rc1"
+opentelemetry-sdk = "^1.17.0"
 prometheus-client = "0.16.0"
+python = "^3.8"
 python-dotenv = "1.0.0"
 typing-extensions = "^4.5.0"
 
@@ -38,11 +41,13 @@ build = "0.10.0"
 certifi = "2022.12.7"
 charset-normalizer = "3.1.0"
 click = "8.1.3"
+django = "^4.2"
 docutils = "0.19"
 fastapi = "0.95.0"
 h11 = "0.14.0"
 idna = "3.4"
-importlib-metadata = "6.1.0"
+# pinned importlib-metadat to version ~6.0.0 because of opentelemetry-api
+importlib-metadata = "~6.0.0"
 jaraco-classes = "3.2.3"
 keyring = "23.13.1"
 markdown-it-py = "2.2.0"
@@ -66,7 +71,6 @@ urllib3 = "1.26.15"
 uvicorn = "0.21.1"
 webencodings = "0.5.1"
 zipp = "3.15.0"
-django = "^4.2"
 
 [build-system]
 requires = ["poetry-core"]
