@@ -38,7 +38,6 @@ def autometrics(
     objective: Optional[Objective] = None,
 ):
     def track_result_ok(start_time: float, function: str, module: str, caller: str):
-        print("THE CALLER:", caller)
         get_tracker().finish(
             start_time,
             function=function,
