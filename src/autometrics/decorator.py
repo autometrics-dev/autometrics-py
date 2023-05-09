@@ -4,7 +4,7 @@ import inspect
 
 # import asyncio
 from functools import wraps
-from typing import overload, TypeVar, Callable, Optional
+from typing import overload, TypeVar, Callable, Optional, Coroutine, Any
 from typing_extensions import ParamSpec
 from .objectives import Objective
 from .tracker import get_tracker, Result
@@ -66,7 +66,9 @@ def autometrics(
         module_name = get_module_name(func)
         func_name = func.__name__
 
-        def sync_wrapper_helper(func, *args, **kwds) -> T:
+        def sync_wrapper_helper(
+            func: Callable[P, T], *args: P.args, **kwds: P.kwargs
+        ) -> T:
             start_time = time.time()
             caller = get_caller_function()
 
@@ -89,7 +91,9 @@ def autometrics(
                 raise exception
             return result
 
-        async def async_wrapper_helper(func, *args, **kwds) -> T:
+        async def async_wrapper_helper(
+            func: Callable[P, T], *args: P.args, **kwds: P.kwargs
+        ) -> T:
             start_time = time.time()
             caller = get_caller_function()
 
