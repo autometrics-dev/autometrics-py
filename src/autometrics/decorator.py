@@ -66,7 +66,7 @@ def autometrics(
         module_name = get_module_name(func)
         func_name = func.__name__
 
-        def sync_wrapper(func, *args, **kwds) -> T:
+        def sync_wrapper_helper(func, *args, **kwds) -> T:
             start_time = time.time()
             caller = get_caller_function()
 
@@ -79,13 +79,17 @@ def autometrics(
             except Exception as exception:
                 result = exception.__class__.__name__
                 track_result_error(
-                    start_time, function=func_name, module=module_name, caller=caller
+                    exception,
+                    start_time,
+                    function=func_name,
+                    module=module_name,
+                    caller=caller,
                 )
                 # Reraise exception
                 raise exception
             return result
 
-        async def async_wrapper(func, *args, **kwds) -> T:
+        async def async_wrapper_helper(func, *args, **kwds) -> T:
             start_time = time.time()
             caller = get_caller_function()
 
@@ -98,7 +102,11 @@ def autometrics(
             except Exception as exception:
                 result = exception.__class__.__name__
                 track_result_error(
-                    start_time, function=func_name, module=module_name, caller=caller
+                    exception,
+                    start_time,
+                    function=func_name,
+                    module=module_name,
+                    caller=caller,
                 )
                 # Reraise exception
                 raise exception
@@ -107,17 +115,23 @@ def autometrics(
         if inspect.iscoroutinefunction(func):
 
             @wraps(func)
-            async def wrapper(*args: P.args, **kwds: P.kwargs) -> T:
-                return await async_wrapper(func, *args, **kwds)
+            async def async_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
+                return await async_wrapper_helper(func, *args, **kwds)
 
+            async_wrapper.__doc__ = append_docs_to_docstring(
+                func, func_name, module_name
+            )
+            return async_wrapper
         else:
 
             @wraps(func)
-            def wrapper(*args: P.args, **kwds: P.kwargs) -> T:
-                return sync_wrapper(func, *args, **kwds)
+            def sync_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
+                return sync_wrapper_helper(func, *args, **kwds)
 
-        wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
-        return wrapper
+            sync_wrapper.__doc__ = append_docs_to_docstring(
+                func, func_name, module_name
+            )
+            return sync_wrapper
 
     if func is None:
         return decorator
