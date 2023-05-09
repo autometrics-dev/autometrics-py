@@ -1,7 +1,6 @@
 """Autometrics module."""
 import time
 import inspect
-import asyncio
 
 # import asyncio
 from functools import wraps
