@@ -94,6 +94,6 @@ while True:
 
     try:
         # Call random_error. It will randomly raise an error or return "ok"
-        random_error() 
+        random_error()
     except Exception:
         pass

@@ -21,10 +21,12 @@ def error_function():
     """This is a function that raises an error."""
     raise RuntimeError("This is a test error")
 
+
 async def basic_async_function(sleep_duration: float = 1.0):
     """This is a basic async function."""
     await asyncio.sleep(sleep_duration)
     return True
+
 
 tracker_types = [TrackerType.PROMETHEUS, TrackerType.OPENTELEMETRY]
 
@@ -78,7 +80,7 @@ class TestDecoratorClass:
         assert caller != ""
         function_name = basic_async_function.__name__
         wrapped_function = autometrics(basic_async_function)
-        
+
         # Test that the function is *still* async after we wrap it
         assert asyncio.iscoroutinefunction(wrapped_function) == True
 
