@@ -38,6 +38,7 @@ def autometrics(
     objective: Optional[Objective] = None,
 ):
     def track_result_ok(start_time: float, function: str, module: str, caller: str):
+        print("THE CALLER:", caller)
         get_tracker().finish(
             start_time,
             function=function,
@@ -71,9 +72,8 @@ def autometrics(
         module_name = get_module_name(func)
         func_name = func.__name__
 
-        def sync_wrapper_helper(
-            func: Callable[P, T], *args: P.args, **kwds: P.kwargs
-        ) -> T:
+        @wraps(func)
+        def sync_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
             start_time = time.time()
             caller = get_caller_function()
 
@@ -96,10 +96,6 @@ def autometrics(
                 raise exception
             return result
 
-        @wraps(func)
-        def sync_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
-            return sync_wrapper_helper(func, *args, **kwds)
-
         sync_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
         return sync_wrapper
 
@@ -109,9 +105,8 @@ def autometrics(
         module_name = get_module_name(func)
         func_name = func.__name__
 
-        async def async_wrapper_helper(
-            func: Callable[P, Awaitable[T]], *args: P.args, **kwds: P.kwargs
-        ) -> T:
+        @wraps(func)
+        async def async_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
             start_time = time.time()
             caller = get_caller_function()
 
@@ -132,11 +127,6 @@ def autometrics(
                 )
                 # Reraise exception
                 raise exception
-            return result
-
-        @wraps(func)
-        async def async_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
-            result = await async_wrapper_helper(func, *args, **kwds)
             return result
 
         async_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
