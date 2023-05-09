@@ -50,7 +50,6 @@ class TestDecoratorClass:
         assert caller != ""
         function_name = basic_function.__name__
         wrapped_function = autometrics(basic_function)
-
         wrapped_function()
 
         blob = generate_latest()
@@ -84,7 +83,6 @@ class TestDecoratorClass:
         # Test that the function is *still* async after we wrap it
         assert asyncio.iscoroutinefunction(wrapped_function) == True
 
-        # NOTE - This runs the function synchronously, but it's still an async function
         await wrapped_function()
 
         blob = generate_latest()
