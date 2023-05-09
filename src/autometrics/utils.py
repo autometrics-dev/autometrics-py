@@ -40,6 +40,14 @@ def write_docs(func_name: str, module_name: str):
     return docs
 
 
+def append_docs_to_docstring(func, func_name, module_name):
+    """Helper for appending docs to a function's docstring."""
+    if func.__doc__ is None:
+        return write_docs(func_name, module_name)
+    else:
+        return f"{func.__doc__}\n{write_docs(func_name, module_name)}"
+
+
 def get_caller_function(depth: int = 2):
     """Get the name of the function. Default depth is 2 to get the caller of the caller of the function being decorated."""
     caller_frame = inspect.stack()[depth]
