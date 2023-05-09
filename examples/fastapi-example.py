@@ -7,7 +7,7 @@ app = FastAPI()
 
 
 # Set up a metrics endpoint for Prometheus to scrape
-# `generate_lates` returns the latest metrics data in the Prometheus text format
+# `generate_latest` returns the latest metrics data in the Prometheus text format
 @app.get("/metrics")
 def metrics():
     return Response(generate_latest())
