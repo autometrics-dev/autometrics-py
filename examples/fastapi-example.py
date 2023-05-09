@@ -15,16 +15,16 @@ def metrics():
 
 
 # Set up the root endpoint of the API
-@autometrics
 @app.get("/")
+@autometrics
 def read_root():
     do_something()
     return {"Hello": "World"}
 
 
 # Set up an async handler
-@autometrics
 @app.get("/async")
+@autometrics
 async def async_route():
     message = await do_something_async()
     return {"Hello": message}
