@@ -4,7 +4,7 @@ import inspect
 
 # import asyncio
 from functools import wraps
-from typing import overload, TypeVar, Callable, Optional, Coroutine, Any
+from typing import overload, TypeVar, Callable, Optional, Awaitable
 from typing_extensions import ParamSpec
 from .objectives import Objective
 from .tracker import get_tracker, Result
@@ -18,6 +18,11 @@ T = TypeVar("T")
 # Bare decorator usage
 @overload
 def autometrics(func: Callable[P, T]) -> Callable[P, T]:
+    ...
+
+
+@overload
+def autometrics(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
     ...
 
 
@@ -91,8 +96,21 @@ def autometrics(
                 raise exception
             return result
 
+        @wraps(func)
+        def sync_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
+            return sync_wrapper_helper(func, *args, **kwds)
+
+        sync_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
+        return sync_wrapper
+
+    """Async Decorator for tracking function async calls and duration."""
+
+    def async_decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+        module_name = get_module_name(func)
+        func_name = func.__name__
+
         async def async_wrapper_helper(
-            func: Callable[P, T], *args: P.args, **kwds: P.kwargs
+            func: Callable[P, Awaitable[T]], *args: P.args, **kwds: P.kwargs
         ) -> T:
             start_time = time.time()
             caller = get_caller_function()
@@ -116,28 +134,17 @@ def autometrics(
                 raise exception
             return result
 
-        if inspect.iscoroutinefunction(func):
+        @wraps(func)
+        async def async_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
+            result = await async_wrapper_helper(func, *args, **kwds)
+            return result
 
-            @wraps(func)
-            async def async_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
-                return await async_wrapper_helper(func, *args, **kwds)
-
-            async_wrapper.__doc__ = append_docs_to_docstring(
-                func, func_name, module_name
-            )
-            return async_wrapper
-        else:
-
-            @wraps(func)
-            def sync_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
-                return sync_wrapper_helper(func, *args, **kwds)
-
-            sync_wrapper.__doc__ = append_docs_to_docstring(
-                func, func_name, module_name
-            )
-            return sync_wrapper
+        async_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
+        return async_wrapper
 
     if func is None:
         return decorator
+    elif inspect.iscoroutinefunction(func):
+        return async_decorator(func)
     else:
         return decorator(func)
