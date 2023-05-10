@@ -106,6 +106,7 @@ class PrometheusTracker:
     def set_build_info(self, commit: str, version: str):
         """Observe the build info. Should only be called once per tracker instance"""
         if not self._has_set_build_info:
+            self._has_set_build_info = True
             self.prom_gauge.labels(commit, version).set(1)
 
     # def start(self, function: str = None, module: str = None):
