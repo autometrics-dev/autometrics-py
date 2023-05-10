@@ -77,16 +77,3 @@ def test_create_otel_tracker_set_build_info(monkeypatch):
 
     monkeypatch.delenv("AUTOMETRICS_VERSION", raising=False)
     monkeypatch.delenv("AUTOMETRICS_COMMIT", raising=False)
-
-
-# def test_create_tracker_set_build_info_empty(monkeypatch):
-#     """Test that create_tracker calls set_build_info with empty strings when none is present."""
-
-#     monkeypatch.delenv("AUTOMETRICS_VERSION", raising=False)
-#     monkeypatch.delenv("AUTOMETRICS_COMMIT", raising=False)
-
-#     otel_tracker = create_tracker(TrackerType.OPENTELEMETRY)
-#     assert isinstance(otel_tracker, OpenTelemetryTracker)
-
-#     prom_tracker = create_tracker()
-#     assert isinstance(prom_tracker, PrometheusTracker)
