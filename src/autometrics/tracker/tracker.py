@@ -37,16 +37,26 @@ class TrackerType(Enum):
 
 def create_tracker(tracker_type: TrackerType) -> TrackMetrics:
     """Create a tracker"""
+    tracker_instance = None
     if tracker_type == TrackerType.OPENTELEMETRY:
         # pylint: disable=import-outside-toplevel
         from .opentelemetry import OpenTelemetryTracker
 
-        return OpenTelemetryTracker()
+        tracker_instance = OpenTelemetryTracker()
     elif tracker_type == TrackerType.PROMETHEUS:
         # pylint: disable=import-outside-toplevel
         from .prometheus import PrometheusTracker
 
-        return PrometheusTracker()
+        tracker_instance = PrometheusTracker()
+
+    # NOTE - Only set the build info when the tracker is initialized
+    if tracker_instance:
+        tracker_instance.set_build_info(
+            commit=os.getenv("AUTOMETRICS_COMMIT") or "",
+            version=os.getenv("AUTOMETRICS_VERSION") or "",
+        )
+
+    return tracker_instance
 
 
 def get_tracker_type() -> TrackerType:
@@ -64,12 +74,6 @@ def default_tracker():
 
 
 tracker: TrackMetrics = default_tracker()
-
-# FIXME - move somewhere else
-tracker.set_build_info(
-    commit=os.getenv("AUTOMETRICS_COMMIT") or "",
-    version=os.getenv("AUTOMETRICS_VERSION") or "",
-)
 
 
 def get_tracker() -> TrackMetrics:
