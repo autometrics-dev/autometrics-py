@@ -117,19 +117,15 @@ Configure the crate that autometrics will use to produce metrics by using one of
 
 ## Identifying commits that introduced problems
 
+> This follows the method outlined in [Exposing the software version to Prometheus](https://www.robustperception.io/exposing-the-software-version-to-prometheus/).
+
 Autometrics makes it easy to identify if a specific version or commit introduced errors or increased latencies.
 
 It uses a separate metric (`build_info`) to track the version and, optionally, git commit of your service. It then writes queries that group metrics by the `version` and `commit` labels so you can spot correlations between those and potential issues.
 
 The `version` is collected from the `...TODO...` environment variable. You can override this by setting the runtime environment variable `AUTOMETRICS_VERSION`. 
 
-This follows the method outlined in [Exposing the software version to Prometheus](https://www.robustperception.io/exposing-the-software-version-to-prometheus/).
-
-To set the `commit`, you can either set the run-time environment variable `AUTOMETRICS_COMMIT`, or have it set automatically using `...TODO...`
-
-```py
-# TODO
-```
+To set the `commit`, expose the run-time environment variable `AUTOMETRICS_COMMIT`.
 
 ## Development of the package
 
