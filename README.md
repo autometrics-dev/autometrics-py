@@ -123,9 +123,7 @@ Autometrics makes it easy to identify if a specific version or commit introduced
 
 It uses a separate metric (`build_info`) to track the version and, optionally, git commit of your service. It then writes queries that group metrics by the `version` and `commit` labels so you can spot correlations between those and potential issues.
 
-The `version` is collected from the `...TODO...` environment variable. You can override this by setting the runtime environment variable `AUTOMETRICS_VERSION`. 
-
-To set the `commit`, expose the run-time environment variable `AUTOMETRICS_COMMIT`.
+The `version` is read from the `AUTOMETRICS_VERSION` environment variable, and the `commit` value uses the environment variable `AUTOMETRICS_COMMIT`.
 
 ## Development of the package
 
@@ -162,4 +160,6 @@ poetry run black .
 poetry run pyright
 # Run the tests using pytest
 poetry run pytest
+# Run a single test, and clear the cache
+poetry run pytest --cache-clear -k test_tracker
 ```
