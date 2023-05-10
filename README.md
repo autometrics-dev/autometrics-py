@@ -17,7 +17,7 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
   most useful metrics
 - 💡 Writes Prometheus queries so you can understand the data generated without
   knowing PromQL
-- 🔗 Create links to live Prometheus charts directly into each functions docstrings (with tooltips coming soon!)
+- 🔗 Create links to live Prometheus charts directly into each functions docstrings
 - [🔍 Identify commits](#identifying-commits-that-introduced-problems) that introduced errors or increased latency
 - [🚨 Define alerts](#alerts--slos) using SLO best practices directly in your source code
 - [📊 Grafana dashboards](#dashboards) work out of the box to visualize the performance of instrumented functions & SLOs
