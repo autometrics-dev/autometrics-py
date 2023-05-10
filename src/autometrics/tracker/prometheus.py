@@ -100,9 +100,9 @@ class PrometheusTracker:
             threshold,
         ).observe(duration)
 
-    def _build_info(self):
+    def set_build_info(self, commit: str, version: str):
         """Observe the build info."""
-        pass
+        self.prom_gague.labels(commit, version).set(1.0)
 
     # def start(self, function: str = None, module: str = None):
     #     """Start tracking metrics for a function call."""

@@ -65,6 +65,12 @@ def default_tracker():
 
 tracker: TrackMetrics = default_tracker()
 
+# FIXME - move somewhere else
+tracker.set_build_info(
+    commit=os.getenv("AUTOMETRICS_COMMIT") or "",
+    version=os.getenv("AUTOMETRICS_VERSION") or "",
+)
+
 
 def get_tracker() -> TrackMetrics:
     """Get the tracker type."""
