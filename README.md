@@ -17,7 +17,7 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
   most useful metrics
 - 💡 Writes Prometheus queries so you can understand the data generated without
   knowing PromQL
-- 🔗 Create links to live Prometheus charts directly into each functions docstrings
+- 🔗 Create links to live Prometheus charts directly into each function's docstring
 - [🔍 Identify commits](#identifying-commits-that-introduced-problems) that introduced errors or increased latency
 - [🚨 Define alerts](#alerts--slos) using SLO best practices directly in your source code
 - [📊 Grafana dashboards](#dashboards) work out of the box to visualize the performance of instrumented functions & SLOs
@@ -114,6 +114,22 @@ Configure the crate that autometrics will use to produce metrics by using one of
 
 - `opentelemetry` - (enabled by default, can also be explicitly set using the AUTOMETRICS_TRACKER="OPEN_TELEMETERY" env var) uses
 - `prometheus` -(using the AUTOMETRICS_TRACKER env var set to "PROMETHEUS")
+
+## Identifying commits that introduced problems
+
+Autometrics makes it easy to identify if a specific version or commit introduced errors or increased latencies.
+
+It uses a separate metric (`build_info`) to track the version and, optionally, git commit of your service. It then writes queries that group metrics by the `version` and `commit` labels so you can spot correlations between those and potential issues.
+
+The `version` is collected from the `...TODO...` environment variable. You can override this by setting the runtime environment variable `AUTOMETRICS_VERSION`. 
+
+This follows the method outlined in [Exposing the software version to Prometheus](https://www.robustperception.io/exposing-the-software-version-to-prometheus/).
+
+To set the `commit`, you can either set the run-time environment variable `AUTOMETRICS_COMMIT`, or have it set automatically using `...TODO...`
+
+```py
+# TODO
+```
 
 ## Development of the package
 
