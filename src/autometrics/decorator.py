@@ -63,7 +63,6 @@ def autometrics(
             result=Result.ERROR,
         )
 
-
     def sync_decorator(func: Callable[P, T]) -> Callable[P, T]:
         """Helper for decorating synchronous functions, to track calls and duration."""
 
@@ -95,7 +94,6 @@ def autometrics(
 
         sync_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
         return sync_wrapper
-
 
     def async_decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
         """Helper for decorating async functions, to track calls and duration."""

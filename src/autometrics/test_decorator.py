@@ -28,6 +28,12 @@ async def basic_async_function(sleep_duration: float = 1.0):
     return True
 
 
+async def error_async_function():
+    """This is an async function that raises an error."""
+    await asyncio.sleep(0.5)
+    raise RuntimeError("This is a test error")
+
+
 tracker_types = [TrackerType.PROMETHEUS, TrackerType.OPENTELEMETRY]
 
 
@@ -153,6 +159,41 @@ class TestDecoratorClass:
 
         with pytest.raises(RuntimeError) as exception:
             wrapped_function()
+        assert "This is a test error" in str(exception.value)
+
+        # get the metrics
+        blob = generate_latest()
+        assert blob is not None
+        data = blob.decode("utf-8")
+
+        total_count = f"""function_calls_count_total{{caller="{caller}",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="error"}} 1.0"""
+        assert total_count in data
+
+        for latency in ObjectiveLatency:
+            query = f"""function_calls_duration_bucket{{function="{function_name}",le="{latency.value}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+            assert query in data
+
+        duration_count = f"""function_calls_duration_count{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+        assert duration_count in data
+
+        duration_sum = f"""function_calls_duration_sum{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+        assert duration_sum in data
+
+    @pytest.mark.asyncio
+    async def test_async_exception(self):
+        """This is a test that covers exceptions."""
+        caller = get_caller_function(depth=1)
+        assert caller is not None
+        assert caller != ""
+
+        function_name = error_async_function.__name__
+        wrapped_function = autometrics(error_async_function)
+
+        # Test that the function is *still* async after we wrap it
+        assert asyncio.iscoroutinefunction(wrapped_function) == True
+
+        with pytest.raises(RuntimeError) as exception:
+            await wrapped_function()
         assert "This is a test error" in str(exception.value)
 
         # get the metrics
