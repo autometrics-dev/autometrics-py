@@ -2,6 +2,7 @@
 
 COUNTER_NAME = "function.calls.count"
 HISTOGRAM_NAME = "function.calls.duration"
+# NOTE - The Rust implementation does not use `build.info`, instead opts for just `build_info`
 BUILD_INFO_NAME = "build.info"
 
 COUNTER_NAME_PROMETHEUS = COUNTER_NAME.replace(".", "_")
@@ -10,7 +11,9 @@ BUILD_INFO_NAME_PROMETHEUS = BUILD_INFO_NAME.replace(".", "_")
 
 COUNTER_DESCRIPTION = "Autometrics counter for tracking function calls"
 HISTOGRAM_DESCRIPTION = "Autometrics histogram for tracking function call duration"
-BUILD_INFO_DESCRIPTION = "Autometrics info metric for tracking software version and build details"
+BUILD_INFO_DESCRIPTION = (
+    "Autometrics info metric for tracking software version and build details"
+)
 
 # The following constants are used to create the labels
 OBJECTIVE_NAME = "objective.name"

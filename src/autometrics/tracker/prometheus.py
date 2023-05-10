@@ -14,7 +14,7 @@ from ..constants import (
     OBJECTIVE_PERCENTILE_PROMETHEUS,
     OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
     COMMIT_KEY,
-    VERSION_KEY
+    VERSION_KEY,
 )
 from ..objectives import Objective
 
@@ -46,12 +46,7 @@ class PrometheusTracker:
         ],
     )
     prom_gague = Gauge(
-        BUILD_INFO_NAME_PROMETHEUS,
-        BUILD_INFO_DESCRIPTION,
-        [
-            COMMIT_KEY,
-            VERSION_KEY
-        ]
+        BUILD_INFO_NAME_PROMETHEUS, BUILD_INFO_DESCRIPTION, [COMMIT_KEY, VERSION_KEY]
     )
 
     def _count(
