@@ -45,7 +45,7 @@ class PrometheusTracker:
             OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
         ],
     )
-    prom_gague = Gauge(
+    prom_gauge = Gauge(
         BUILD_INFO_NAME_PROMETHEUS, BUILD_INFO_DESCRIPTION, [COMMIT_KEY, VERSION_KEY]
     )
 
@@ -102,7 +102,7 @@ class PrometheusTracker:
 
     def set_build_info(self, commit: str, version: str):
         """Observe the build info."""
-        self.prom_gague.labels(commit, version).set(1.0)
+        self.prom_gauge.labels(commit, version).set(1)
 
     # def start(self, function: str = None, module: str = None):
     #     """Start tracking metrics for a function call."""
