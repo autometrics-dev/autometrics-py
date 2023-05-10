@@ -24,11 +24,13 @@ def test_create_prometheus_url_with_default_url(default_url_generator: Generator
 def test_create_urls_with_default_url(default_url_generator: Generator):
     urls = default_url_generator.create_urls()
 
-    # print(urls.keys())
+    print(urls.keys())
+    print(urls.values())
+
     result = {
-        "Request rate URL": "http://localhost:9090/graph?g0.expr=sum%20by%20%28function%2C%20module%29%20%28rate%20%28function_calls_count_total%7Bfunction%3D%22myFunction%22%2Cmodule%3D%22myModule%22%7D%5B5m%5D%29%29&g0.tab=0",
-        "Latency URL": "http://localhost:9090/graph?g0.expr=sum%20by%20%28le%2C%20function%2C%20module%29%20%28rate%28function_calls_duration_bucket%7Bfunction%3D%22myFunction%22%2Cmodule%3D%22myModule%22%7D%5B5m%5D%29%29&g0.tab=0",
-        "Error Ratio URL": "http://localhost:9090/graph?g0.expr=sum%20by%20%28function%2C%20module%29%20%28rate%20%28function_calls_count_total%7Bfunction%3D%22myFunction%22%2Cmodule%3D%22myModule%22%2C%20result%3D%22error%22%7D%5B5m%5D%29%29%20/%20sum%20by%20%28function%2C%20module%29%20%28rate%20%28function_calls_count_total%7Bfunction%3D%22myFunction%22%2Cmodule%3D%22myModule%22%7D%5B5m%5D%29%29&g0.tab=0",
+        "Request rate URL": "http://localhost:9090/graph?g0.expr=sum%20by%20%28function%2C%20module%2C%20commit%2C%20version%29%20%28rate%20%28function_calls_count_total%7Bfunction%3D%22myFunction%22%2Cmodule%3D%22myModule%22%7D%5B5m%5D%29%20%2A%20on%20%28instance%2C%20job%29%20group_left%28version%2C%20commit%29%20build_info%29&g0.tab=0",
+        "Latency URL": "http://localhost:9090/graph?g0.expr=sum%20by%20%28le%2C%20function%2C%20module%2C%20commit%2C%20version%29%20%28rate%28function_calls_duration_bucket%7Bfunction%3D%22myFunction%22%2Cmodule%3D%22myModule%22%7D%5B5m%5D%29%20%2A%20on%20%28instance%2C%20job%29%20group_left%28version%2C%20commit%29%20build_info%29&g0.tab=0",
+        "Error Ratio URL": "http://localhost:9090/graph?g0.expr=sum%20by%20%28function%2C%20module%2C%20commit%2C%20version%29%20%28rate%20%28function_calls_count_total%7Bfunction%3D%22myFunction%22%2Cmodule%3D%22myModule%22%2C%20result%3D%22error%22%7D%5B5m%5D%29%20%2A%20on%20%28instance%2C%20job%29%20group_left%28version%2C%20commit%29%20build_info%29%20/%20sum%20by%20%28function%2C%20module%2C%20commit%2C%20version%29%20%28rate%20%28function_calls_count_total%7Bfunction%3D%22myFunction%22%2Cmodule%3D%22myModule%22%7D%5B5m%5D%29%20%2A%20on%20%28instance%2C%20job%29%20group_left%28version%2C%20commit%29%20build_info%29&g0.tab=0",
     }
     assert result == urls
 
