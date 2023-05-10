@@ -6,7 +6,7 @@ from .tracker import Result
 from ..constants import (
     COUNTER_NAME_PROMETHEUS,
     HISTOGRAM_NAME_PROMETHEUS,
-    BUILD_INFO_NAME_PROMETHEUS,
+    BUILD_INFO_NAME,
     COUNTER_DESCRIPTION,
     HISTOGRAM_DESCRIPTION,
     BUILD_INFO_DESCRIPTION,
@@ -46,7 +46,7 @@ class PrometheusTracker:
         ],
     )
     prom_gauge = Gauge(
-        BUILD_INFO_NAME_PROMETHEUS, BUILD_INFO_DESCRIPTION, [COMMIT_KEY, VERSION_KEY]
+        BUILD_INFO_NAME, BUILD_INFO_DESCRIPTION, [COMMIT_KEY, VERSION_KEY]
     )
 
     def _count(

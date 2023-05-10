@@ -6,6 +6,7 @@ from opentelemetry.metrics import (
     Histogram,
     UpDownCounter,
     set_meter_provider,
+    get_meter_provider,
 )
 
 from opentelemetry.sdk.metrics import MeterProvider
@@ -68,6 +69,7 @@ class OpenTelemetryTracker:
             name=BUILD_INFO_NAME,
             description=BUILD_INFO_DESCRIPTION,
         )
+        self.__exporter = exporter
 
     def __count(
         self,
@@ -123,6 +125,13 @@ class OpenTelemetryTracker:
                 OBJECTIVE_LATENCY_THRESHOLD: threshold,
             },
         )
+
+    def _collect(self):
+        self.__exporter.collect()
+
+    def _get_metrics_data(self):
+        result = self.__exporter._collector._metrics_datas
+        return result
 
     def set_build_info(self, commit: str, version: str):
         """Observe the build info."""

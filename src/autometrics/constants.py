@@ -3,11 +3,10 @@
 COUNTER_NAME = "function.calls.count"
 HISTOGRAM_NAME = "function.calls.duration"
 # NOTE - The Rust implementation does not use `build.info`, instead opts for just `build_info`
-BUILD_INFO_NAME = "build.info"
+BUILD_INFO_NAME = "build_info"
 
 COUNTER_NAME_PROMETHEUS = COUNTER_NAME.replace(".", "_")
 HISTOGRAM_NAME_PROMETHEUS = HISTOGRAM_NAME.replace(".", "_")
-BUILD_INFO_NAME_PROMETHEUS = BUILD_INFO_NAME.replace(".", "_")
 
 COUNTER_DESCRIPTION = "Autometrics counter for tracking function calls"
 HISTOGRAM_DESCRIPTION = "Autometrics histogram for tracking function call duration"
