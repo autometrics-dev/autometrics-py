@@ -126,7 +126,6 @@ class OpenTelemetryTracker:
         )
 
     def set_build_info(self, commit: str, version: str):
-        """Observe the build info."""
         if not self._has_set_build_info:
             self._has_set_build_info = True
             self.__up_down_counter_instance.add(

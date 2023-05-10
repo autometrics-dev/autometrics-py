@@ -16,6 +16,9 @@ class Result(Enum):
 class TrackMetrics(Protocol):
     """Protocol for tracking metrics."""
 
+    def set_build_info(self, commit: str, version: str):
+        """Observe the build info. Should only be called once per tracker instance"""
+
     def finish(
         self,
         start_time: float,
