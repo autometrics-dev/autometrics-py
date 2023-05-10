@@ -36,6 +36,8 @@ def autometrics(
     *,
     objective: Optional[Objective] = None,
 ):
+    """Decorator for tracking function calls and duration. Supports synchronous and async functions."""
+
     def track_result_ok(start_time: float, function: str, module: str, caller: str):
         get_tracker().finish(
             start_time,
@@ -47,7 +49,6 @@ def autometrics(
         )
 
     def track_result_error(
-        exception: Exception,
         start_time: float,
         function: str,
         module: str,
@@ -61,12 +62,11 @@ def autometrics(
             objective=objective,
             result=Result.ERROR,
         )
-        # Reraise exception
-        raise exception
 
-    """Decorator for tracking function calls and duration."""
 
-    def decorator(func: Callable[P, T]) -> Callable[P, T]:
+    def sync_decorator(func: Callable[P, T]) -> Callable[P, T]:
+        """Helper for decorating synchronous functions, to track calls and duration."""
+
         module_name = get_module_name(func)
         func_name = func.__name__
 
@@ -84,7 +84,6 @@ def autometrics(
             except Exception as exception:
                 result = exception.__class__.__name__
                 track_result_error(
-                    exception,
                     start_time,
                     function=func_name,
                     module=module_name,
@@ -97,9 +96,10 @@ def autometrics(
         sync_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
         return sync_wrapper
 
-    """Async Decorator for tracking function async calls and duration."""
 
     def async_decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+        """Helper for decorating async functions, to track calls and duration."""
+
         module_name = get_module_name(func)
         func_name = func.__name__
 
@@ -117,7 +117,6 @@ def autometrics(
             except Exception as exception:
                 result = exception.__class__.__name__
                 track_result_error(
-                    exception,
                     start_time,
                     function=func_name,
                     module=module_name,
@@ -131,8 +130,8 @@ def autometrics(
         return async_wrapper
 
     if func is None:
-        return decorator
+        return sync_decorator
     elif inspect.iscoroutinefunction(func):
         return async_decorator(func)
     else:
-        return decorator(func)
+        return sync_decorator(func)
