@@ -49,6 +49,9 @@ class PrometheusTracker:
         BUILD_INFO_NAME, BUILD_INFO_DESCRIPTION, [COMMIT_KEY, VERSION_KEY]
     )
 
+    def __init__(self) -> None:
+        self._has_set_build_info = False
+
     def _count(
         self,
         func_name: str,
@@ -101,8 +104,9 @@ class PrometheusTracker:
         ).observe(duration)
 
     def set_build_info(self, commit: str, version: str):
-        """Observe the build info."""
-        self.prom_gauge.labels(commit, version).set(1)
+        """Observe the build info. Should only be called once per tracker instance"""
+        if not self._has_set_build_info:
+            self.prom_gauge.labels(commit, version).set(1)
 
     # def start(self, function: str = None, module: str = None):
     #     """Start tracking metrics for a function call."""

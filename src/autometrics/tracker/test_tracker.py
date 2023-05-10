@@ -4,9 +4,7 @@ import pytest
 from .opentelemetry import OpenTelemetryTracker
 from .prometheus import PrometheusTracker
 
-from .tracker import default_tracker, create_tracker, TrackerType
-
-tracker_types = [TrackerType.PROMETHEUS, TrackerType.OPENTELEMETRY]
+from .tracker import default_tracker, create_tracker, set_tracker, TrackerType
 
 
 def test_default_tracker(monkeypatch):
@@ -57,9 +55,9 @@ def test_create_otel_tracker_set_build_info(monkeypatch):
     Test that create_tracker (for an OTEL tracker) calls set_build_info using env vars.
     Note that the OTEL collector translates metrics to Prometheus.
     """
-    # pytest.skip(
-    #     "Skipping test because OTEL collector does not create a gauge when it translates UpDownCounter to Prometheus"
-    # )
+    pytest.skip(
+        "Skipping test because OTEL collector does not create a gauge when it translates UpDownCounter to Prometheus"
+    )
 
     commit = "a29a178"
     version = "0.0.1"

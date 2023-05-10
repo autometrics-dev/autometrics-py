@@ -68,7 +68,7 @@ class OpenTelemetryTracker:
             name=BUILD_INFO_NAME,
             description=BUILD_INFO_DESCRIPTION,
         )
-        self.__exporter = exporter
+        self._has_set_build_info = False
 
     def __count(
         self,
@@ -127,13 +127,14 @@ class OpenTelemetryTracker:
 
     def set_build_info(self, commit: str, version: str):
         """Observe the build info."""
-        self.__up_down_counter_instance.add(
-            1.0,
-            attributes={
-                "commit": commit,
-                "version": version,
-            },
-        )
+        if not self._has_set_build_info:
+            self.__up_down_counter_instance.add(
+                1.0,
+                attributes={
+                    "commit": commit,
+                    "version": version,
+                },
+            )
 
     def finish(
         self,
