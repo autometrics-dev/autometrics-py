@@ -3,6 +3,8 @@ import os
 from typing import Optional
 from dotenv import load_dotenv
 
+ADD_BUILD_INFO_LABELS = "* on (instance, job) group_left(version, commit) build_info"
+
 
 def cleanup_url(url: str) -> str:
     """Remove the trailing slash if there is one."""
@@ -26,9 +28,9 @@ class Generator:
 
     def create_urls(self):
         """Create the prometheus query urls for the function and module."""
-        request_rate_query = f'sum by (function, module) (rate (function_calls_count_total{{function="{self.function_name}",module="{self.module_name}"}}[5m]))'
-        latency_query = f'sum by (le, function, module) (rate(function_calls_duration_bucket{{function="{self.function_name}",module="{self.module_name}"}}[5m]))'
-        error_ratio_query = f'sum by (function, module) (rate (function_calls_count_total{{function="{self.function_name}",module="{self.module_name}", result="error"}}[5m])) / {request_rate_query}'
+        request_rate_query = f'sum by (function, module, commit, version) (rate (function_calls_count_total{{function="{self.function_name}",module="{self.module_name}"}}[5m]) {ADD_BUILD_INFO_LABELS})'
+        latency_query = f'sum by (le, function, module, commit, version) (rate(function_calls_duration_bucket{{function="{self.function_name}",module="{self.module_name}"}}[5m]) {ADD_BUILD_INFO_LABELS})'
+        error_ratio_query = f'sum by (function, module, commit, version) (rate (function_calls_count_total{{function="{self.function_name}",module="{self.module_name}", result="error"}}[5m]) {ADD_BUILD_INFO_LABELS}) / {request_rate_query}'
 
         queries = {
             "Request rate URL": request_rate_query,
