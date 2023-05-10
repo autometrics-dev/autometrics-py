@@ -3,7 +3,7 @@ import os
 from typing import Optional
 from dotenv import load_dotenv
 
-ADD_BUILD_INFO_LABELS = "* on (instance, job) group_left(version, commit) build_info"
+ADD_BUILD_INFO_LABELS = "* on (instance, job) group_left(version, commit) (last_over_time(build_info[1s]) or on (instance, job) up)"
 
 
 def cleanup_url(url: str) -> str:
