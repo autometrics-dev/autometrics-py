@@ -37,7 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Support `build_info` metrics for Prometheus tracker (#35)
-  - **NOTE**: OpenTelemetry support is not yet supported, see #38
+  - **NOTE**: The OpenTelemetry tracker does not accurately track `build_info`, so you will need to set the env var `AUTOMETRICS_TRACKER=PROMETHEUS` to see accurate build info in your metrics (see #38)
 - OpenTelemetry Support (#28)
 - Fly.io example (#26)
 - Django example (#22)
