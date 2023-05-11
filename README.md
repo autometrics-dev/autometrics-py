@@ -130,6 +130,10 @@ The `version` is read from the `AUTOMETRICS_VERSION` environment variable, and t
 
 This follows the method outlined in [Exposing the software version to Prometheus](https://www.robustperception.io/exposing-the-software-version-to-prometheus/).
 
+## Admin Panel
+
+> **TODO**
+
 ## Development of the package
 
 This package uses [poetry](https://python-poetry.org) as a package manager, with all dependencies separated into three groups:
