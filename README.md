@@ -157,6 +157,10 @@ Exemplars are a way to associate a metric sample to a trace by attaching `trace_
 To use exemplars, you need to first switch to a tracker that supports them by setting `AUTOMETRICS_TRACKER=prometheus` and enable
 exemplar collection by setting `AUTOMETRICS_EXEMPLARS=true`. You also need to enable exemplars in Prometheus by launching Prometheus with the `--enable-feature=exemplar-storage` flag.
 
+## Admin Panel
+
+> **TODO**
+
 ## Development of the package
 
 This package uses [poetry](https://python-poetry.org) as a package manager, with all dependencies separated into three groups:
