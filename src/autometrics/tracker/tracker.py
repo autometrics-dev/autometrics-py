@@ -38,7 +38,7 @@ class TrackerType(Enum):
     PROMETHEUS = "prometheus"
 
 
-def create_tracker(tracker_type: TrackerType) -> TrackMetrics:
+def init_tracker(tracker_type: TrackerType) -> TrackMetrics:
     """Create a tracker"""
     tracker_instance = None
     if tracker_type == TrackerType.OPENTELEMETRY:
@@ -73,7 +73,7 @@ def get_tracker_type() -> TrackerType:
 def default_tracker():
     """Setup the default tracker."""
     preferred_tracker = get_tracker_type()
-    return create_tracker(preferred_tracker)
+    return init_tracker(preferred_tracker)
 
 
 tracker: TrackMetrics = default_tracker()
@@ -87,4 +87,4 @@ def get_tracker() -> TrackMetrics:
 def set_tracker(tracker_type: TrackerType):
     """Set the tracker type."""
     global tracker
-    tracker = create_tracker(tracker_type)
+    tracker = init_tracker(tracker_type)

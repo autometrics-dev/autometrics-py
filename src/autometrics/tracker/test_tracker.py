@@ -4,7 +4,7 @@ import pytest
 from .opentelemetry import OpenTelemetryTracker
 from .prometheus import PrometheusTracker
 
-from .tracker import default_tracker, create_tracker, set_tracker, TrackerType
+from .tracker import default_tracker, init_tracker, TrackerType
 
 
 def test_default_tracker(monkeypatch):
@@ -27,8 +27,8 @@ def test_default_tracker(monkeypatch):
     assert isinstance(tracker, OpenTelemetryTracker)
 
 
-def test_create_prometheus_tracker_set_build_info(monkeypatch):
-    """Test that create_tracker (for a Prometheus tracker) calls set_build_info using env vars."""
+def test_init_prometheus_tracker_set_build_info(monkeypatch):
+    """Test that init_tracker (for a Prometheus tracker) calls set_build_info using env vars."""
 
     commit = "d6abce3"
     version = "1.0.1"
@@ -36,7 +36,7 @@ def test_create_prometheus_tracker_set_build_info(monkeypatch):
     monkeypatch.setenv("AUTOMETRICS_COMMIT", commit)
     monkeypatch.setenv("AUTOMETRICS_VERSION", version)
 
-    prom_tracker = create_tracker(TrackerType.PROMETHEUS)
+    prom_tracker = init_tracker(TrackerType.PROMETHEUS)
     assert isinstance(prom_tracker, PrometheusTracker)
 
     blob = generate_latest()
@@ -50,9 +50,9 @@ def test_create_prometheus_tracker_set_build_info(monkeypatch):
     monkeypatch.delenv("AUTOMETRICS_COMMIT", raising=False)
 
 
-def test_create_otel_tracker_set_build_info(monkeypatch):
+def test_init_otel_tracker_set_build_info(monkeypatch):
     """
-    Test that create_tracker (for an OTEL tracker) calls set_build_info using env vars.
+    Test that init_tracker (for an OTEL tracker) calls set_build_info using env vars.
     Note that the OTEL collector translates metrics to Prometheus.
     """
     pytest.skip(
@@ -65,7 +65,7 @@ def test_create_otel_tracker_set_build_info(monkeypatch):
     monkeypatch.setenv("AUTOMETRICS_COMMIT", commit)
     monkeypatch.setenv("AUTOMETRICS_VERSION", version)
 
-    otel_tracker = create_tracker(TrackerType.OPENTELEMETRY)
+    otel_tracker = init_tracker(TrackerType.OPENTELEMETRY)
     assert isinstance(otel_tracker, OpenTelemetryTracker)
 
     blob = generate_latest()
