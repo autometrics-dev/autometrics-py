@@ -4,6 +4,7 @@ from opentelemetry.metrics import (
     Meter,
     Counter,
     Histogram,
+    UpDownCounter,
     set_meter_provider,
 )
 
@@ -21,6 +22,8 @@ from ..constants import (
     COUNTER_NAME,
     HISTOGRAM_DESCRIPTION,
     HISTOGRAM_NAME,
+    BUILD_INFO_NAME,
+    BUILD_INFO_DESCRIPTION,
     OBJECTIVE_NAME,
     OBJECTIVE_PERCENTILE,
     OBJECTIVE_LATENCY_THRESHOLD,
@@ -39,6 +42,7 @@ class OpenTelemetryTracker:
 
     __counter_instance: Counter
     __histogram_instance: Histogram
+    __up_down_counter_instance: UpDownCounter
 
     def __init__(self):
         exporter = PrometheusMetricReader("")
@@ -60,6 +64,11 @@ class OpenTelemetryTracker:
             name=HISTOGRAM_NAME,
             description=HISTOGRAM_DESCRIPTION,
         )
+        self.__up_down_counter_instance = meter.create_up_down_counter(
+            name=BUILD_INFO_NAME,
+            description=BUILD_INFO_DESCRIPTION,
+        )
+        self._has_set_build_info = False
 
     def __count(
         self,
@@ -115,6 +124,17 @@ class OpenTelemetryTracker:
                 OBJECTIVE_LATENCY_THRESHOLD: threshold,
             },
         )
+
+    def set_build_info(self, commit: str, version: str):
+        if not self._has_set_build_info:
+            self._has_set_build_info = True
+            self.__up_down_counter_instance.add(
+                1.0,
+                attributes={
+                    "commit": commit,
+                    "version": version,
+                },
+            )
 
     def finish(
         self,

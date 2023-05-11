@@ -1,16 +1,20 @@
 import time
 from typing import Optional
-from prometheus_client import Counter, Histogram
+from prometheus_client import Counter, Histogram, Gauge
 from .tracker import Result
 
 from ..constants import (
     COUNTER_NAME_PROMETHEUS,
     HISTOGRAM_NAME_PROMETHEUS,
+    BUILD_INFO_NAME,
     COUNTER_DESCRIPTION,
     HISTOGRAM_DESCRIPTION,
+    BUILD_INFO_DESCRIPTION,
     OBJECTIVE_NAME_PROMETHEUS,
     OBJECTIVE_PERCENTILE_PROMETHEUS,
     OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
+    COMMIT_KEY,
+    VERSION_KEY,
 )
 from ..objectives import Objective
 
@@ -41,6 +45,12 @@ class PrometheusTracker:
             OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
         ],
     )
+    prom_gauge = Gauge(
+        BUILD_INFO_NAME, BUILD_INFO_DESCRIPTION, [COMMIT_KEY, VERSION_KEY]
+    )
+
+    def __init__(self) -> None:
+        self._has_set_build_info = False
 
     def _count(
         self,
@@ -92,6 +102,11 @@ class PrometheusTracker:
             percentile,
             threshold,
         ).observe(duration)
+
+    def set_build_info(self, commit: str, version: str):
+        if not self._has_set_build_info:
+            self._has_set_build_info = True
+            self.prom_gauge.labels(commit, version).set(1)
 
     # def start(self, function: str = None, module: str = None):
     #     """Start tracking metrics for a function call."""

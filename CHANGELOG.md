@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Support for build_info metrics in Prometheus (#35)
 - OpenTelemetry Support (#28)
 - Fly.io example (#26)
 - Django example (#22)

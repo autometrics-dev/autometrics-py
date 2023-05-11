@@ -17,7 +17,8 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
   most useful metrics
 - 💡 Writes Prometheus queries so you can understand the data generated without
   knowing PromQL
-- 🔗 Create links to live Prometheus charts directly into each functions docstrings (with tooltips coming soon!)
+- 🔗 Create links to live Prometheus charts directly into each function's docstring
+- [🔍 Identify commits](#identifying-commits-that-introduced-problems) that introduced errors or increased latency
 - [🚨 Define alerts](#alerts--slos) using SLO best practices directly in your source code
 - [📊 Grafana dashboards](#dashboards) work out of the box to visualize the performance of instrumented functions & SLOs
 - [⚙️ Configurable](#metrics-libraries) metric collection library (`opentelemetry`, `prometheus`, or `metrics`)
@@ -112,7 +113,22 @@ def api_handler():
 Configure the crate that autometrics will use to produce metrics by using one of the following feature flags:
 
 - `opentelemetry` - (enabled by default, can also be explicitly set using the AUTOMETRICS_TRACKER="OPEN_TELEMETERY" env var) uses
-- `prometheus` -(using the AUTOMETRICS_TRACKER env var set to "PROMETHEUS")
+- `prometheus` - (using the AUTOMETRICS_TRACKER env var set to "PROMETHEUS")
+
+## Identifying commits that introduced problems
+
+> **NOTE** - As of writing, `build_info` will not work correctly when using the default tracker (`AUTOMETRICS_TRACKER=OPEN_TELEMETRY`).
+> This will be fixed once the following PR is merged on the opentelemetry-python project: https://github.com/open-telemetry/opentelemetry-python/pull/3306
+>
+> autometrics-py will track support for build_info using the OpenTelemetry tracker via #38
+
+Autometrics makes it easy to identify if a specific version or commit introduced errors or increased latencies.
+
+It uses a separate metric (`build_info`) to track the version and, optionally, git commit of your service. It then writes queries that group metrics by the `version` and `commit` labels so you can spot correlations between those and potential issues.
+
+The `version` is read from the `AUTOMETRICS_VERSION` environment variable, and the `commit` value uses the environment variable `AUTOMETRICS_COMMIT`.
+
+This follows the method outlined in [Exposing the software version to Prometheus](https://www.robustperception.io/exposing-the-software-version-to-prometheus/).
 
 ## Development of the package
 
@@ -149,4 +165,6 @@ poetry run black .
 poetry run pyright
 # Run the tests using pytest
 poetry run pytest
+# Run a single test, and clear the cache
+poetry run pytest --cache-clear -k test_tracker
 ```
