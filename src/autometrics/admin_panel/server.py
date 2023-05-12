@@ -3,7 +3,7 @@ import http.server
 import socketserver
 import threading
 import logging
-from .memo import get_decorated_functions_list
+from .function_registry import get_decorated_functions_list
 
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -33,7 +33,9 @@ def run_admin_server():
 
 def get_functions_as_html_list_items():
     functions = get_decorated_functions_list()
-    return "\n".join([f"<li>{func[1]}:{func[0]}</li>" for func in functions])
+    return "\n".join(
+        [f"""<li>{func["module"]}:{func["name"]}</li>""" for func in functions]
+    )
 
 
 def get_autometrics_admin_html():
