@@ -1,3 +1,3 @@
 from .server import *
 
-from .memo import add_to_admin_panel
+from .function_registry import register_function_info
