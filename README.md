@@ -24,6 +24,87 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 - [⚙️ Configurable](#metrics-libraries) metric collection library (`opentelemetry`, `prometheus`, or `metrics`)
 - ⚡ Minimal runtime overhead
 
+1. Add `autometrics` to your project:
+
+   ```sh
+   pip3 install autometrics
+   ```
+
+2. Instrument your functions with the [`@autometrics`](https://pypi.org/project/autometrics/) decorator
+
+   <details>
+
+   <summary> Tip: Adding autometrics to all <code>pub</code> functions (not necessarily recommended 😅)
+   </summary>
+     <br />
+
+   You can use a search and replace to add autometrics to all public functions. Yes, this is a bit nuts.
+
+   Use a regular expression search to replace:
+
+   ```
+   ((?:async)? def .*)
+   ```
+
+   With:
+
+   ```
+   @autometrics
+   $1
+   ```
+
+   And then check which files you need to add `from autometrics import autometrics` at the top of.
+
+   </details>
+
+3. Export the metrics for Prometheus
+
+   <details>
+
+     <summary>
+     For projects not currently using Prometheus metrics
+     </summary>
+
+     <br />
+
+   Autometrics includes optional functions to help collect and prepare metrics to be collected by Prometheus.
+
+   Create a route on your API (probably mounted under `/metrics`) that returns the following:
+
+   ```py
+   from autometrics import autometrics
+   from fastapi import FastAPI, Response
+   from prometheus_client import start_http_server
+
+   app = FastAPI()
+
+   @app.get("/metrics")
+   def metrics():
+       return Response(generate_latest())
+
+   ```
+
+     </details>
+
+     <details>
+
+     <summary>
+     For projects already using custom Prometheus metrics
+     </summary>
+
+     <br />
+
+   Configure `autometrics` to use the same underlying metrics library you use with the appropriate feature flag (see [below](#metrics-libraries)).
+
+   The `autometrics` metrics will be produced alongside yours.
+
+   You do not need to use the Prometheus exporter functions this library provides (you can leave out the `prometheus-exporter` feature flag) and you do not need a separate endpoint for autometrics' metrics.
+
+     </details>
+
+4. [Configure Prometheus](https://github.com/autometrics-dev#5-configuring-prometheus) to scrape your metrics endpoint
+5. (Optional) If you have Grafana, import the [Autometrics dashboards](https://github.com/autometrics-dev/autometrics-shared#dashboards) for an overview and detailed view of the function metrics
+
 ## Using autometrics-py
 
 - Set up a [Prometheus instance](https://prometheus.io/download/)
