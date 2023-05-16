@@ -7,6 +7,7 @@ from typing import overload, TypeVar, Callable, Optional, Awaitable
 from typing_extensions import ParamSpec
 from .objectives import Objective
 from .tracker import get_tracker, Result
+from .admin_panel import register_function_info
 from .utils import get_module_name, get_caller_function, append_docs_to_docstring
 
 
@@ -68,6 +69,7 @@ def autometrics(
 
         module_name = get_module_name(func)
         func_name = func.__name__
+        register_function_info(func_name, module_name)
 
         @wraps(func)
         def sync_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
@@ -100,6 +102,7 @@ def autometrics(
 
         module_name = get_module_name(func)
         func_name = func.__name__
+        register_function_info(func_name, module_name)
 
         @wraps(func)
         async def async_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
