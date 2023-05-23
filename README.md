@@ -110,10 +110,10 @@ def api_handler():
 
 #### Metrics Libraries
 
-Configure the crate that autometrics will use to produce metrics by using one of the following feature flags:
+Configure the package that autometrics will use to produce metrics with the `AUTOMETRICS_TRACKER` environment variable.
 
-- `opentelemetry` - (enabled by default, can also be explicitly set using the AUTOMETRICS_TRACKER="OPEN_TELEMETERY" env var) uses
-- `prometheus` - (using the AUTOMETRICS_TRACKER env var set to "PROMETHEUS")
+- `opentelemetry` - Enabled by default, can also be explicitly set using the env var `AUTOMETRICS_TRACKER="OPEN_TELEMETERY"`. Look in `pyproject.toml` for the versions of the OpenTelemetry packages that will be used.
+- `prometheus` - Can be set using the env var `AUTOMETRICS_TRACKER="PROMETHEUS"`. Look in `pyproject.toml` for the version of the `prometheus-client` package that will be used.
 
 ## Identifying commits that introduced problems
 
