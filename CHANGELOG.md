@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
--
+- `build_info` is extended with support for branch labels and now picks up the commit label from `COMMIT_SHA` env var (#52)
 
 ### Deprecated
 
@@ -30,7 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Security
 
-- Update requests, starlette, fastapi dependencies used by the examples 
+- Update requests, starlette, fastapi dependencies used by the examples
 
 ## [0.5](https://github.com/autometrics-dev/autometrics-py/releases/tag/0.5) - 2023-05-11
 

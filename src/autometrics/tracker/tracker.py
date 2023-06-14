@@ -16,7 +16,7 @@ class Result(Enum):
 class TrackMetrics(Protocol):
     """Protocol for tracking metrics."""
 
-    def set_build_info(self, commit: str, version: str):
+    def set_build_info(self, commit: str, version: str, branch: str):
         """Observe the build info. Should only be called once per tracker instance"""
 
     def finish(
@@ -55,8 +55,9 @@ def init_tracker(tracker_type: TrackerType) -> TrackMetrics:
 
     # NOTE - Only set the build info when the tracker is initialized
     tracker_instance.set_build_info(
-        commit=os.getenv("AUTOMETRICS_COMMIT") or "",
+        commit=os.getenv("AUTOMETRICS_COMMIT") or os.getenv("COMMIT_SHA") or "",
         version=os.getenv("AUTOMETRICS_VERSION") or "",
+        branch=os.getenv("AUTOMETRICS_BRANCH") or os.getenv("BRANCH_NAME") or "",
     )
 
     return tracker_instance
