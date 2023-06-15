@@ -1,7 +1,7 @@
+import os
 import time
 from typing import Optional
 from prometheus_client import Counter, Histogram, Gauge
-from .tracker import Result
 
 from ..constants import (
     COUNTER_NAME_PROMETHEUS,
@@ -16,6 +16,9 @@ from ..constants import (
     COMMIT_KEY,
     VERSION_KEY,
 )
+
+from .exemplar import get_exemplar
+from .tracker import Result
 from ..objectives import Objective
 
 
@@ -58,6 +61,7 @@ class PrometheusTracker:
         module_name: str,
         caller: str,
         objective: Optional[Objective] = None,
+        exemplar: Optional[dict] = None,
         result: Result = Result.OK,
     ):
         """Increment the counter for the function call."""
@@ -75,7 +79,7 @@ class PrometheusTracker:
             caller,
             objective_name,
             percentile,
-        ).inc()
+        ).inc(1, exemplar)
 
     def _histogram(
         self,
@@ -83,6 +87,7 @@ class PrometheusTracker:
         module_name: str,
         start_time: float,
         objective: Optional[Objective] = None,
+        exemplar: Optional[dict] = None,
     ):
         """Observe the duration of the function call."""
         duration = time.time() - start_time
@@ -101,7 +106,7 @@ class PrometheusTracker:
             objective_name,
             percentile,
             threshold,
-        ).observe(duration)
+        ).observe(duration, exemplar)
 
     def set_build_info(self, commit: str, version: str):
         if not self._has_set_build_info:
@@ -122,5 +127,8 @@ class PrometheusTracker:
         objective: Optional[Objective] = None,
     ):
         """Finish tracking metrics for a function call."""
-        self._count(function, module, caller, objective, result)
-        self._histogram(function, module, start_time, objective)
+        exemplar = None
+        if os.getenv("AUTOMETRICS_EXEMPLARS") == "true":
+            exemplar = get_exemplar()
+        self._count(function, module, caller, objective, exemplar, result)
+        self._histogram(function, module, start_time, objective, exemplar)

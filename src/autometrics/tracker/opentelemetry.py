@@ -1,5 +1,7 @@
+import os
 import time
 from typing import Optional
+
 from opentelemetry.metrics import (
     Meter,
     Counter,
@@ -7,14 +9,14 @@ from opentelemetry.metrics import (
     UpDownCounter,
     set_meter_provider,
 )
-
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import (
     MetricReader,
 )
 from opentelemetry.sdk.metrics.view import View, ExplicitBucketHistogramAggregation
-
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
+
+from .exemplar import get_exemplar
 from .tracker import Result
 from ..objectives import Objective, ObjectiveLatency
 from ..constants import (
@@ -76,6 +78,7 @@ class OpenTelemetryTracker:
         module: str,
         caller: str,
         objective: Optional[Objective],
+        exemplar: Optional[dict],
         result: Result,
     ):
         objective_name = "" if objective is None else objective.name
@@ -102,6 +105,7 @@ class OpenTelemetryTracker:
         module: str,
         start_time: float,
         objective: Optional[Objective],
+        exemplar: Optional[dict],
     ):
         duration = time.time() - start_time
 
@@ -146,5 +150,10 @@ class OpenTelemetryTracker:
         objective: Optional[Objective] = None,
     ):
         """Finish tracking metrics for a function call."""
-        self.__count(function, module, caller, objective, result)
-        self.__histogram(function, module, start_time, objective)
+        exemplar = None
+        # Currently, exemplars are only supported by prometheus-client
+        # https://github.com/autometrics-dev/autometrics-py/issues/41
+        # if os.getenv("AUTOMETRICS_EXEMPLARS") == "true":
+        #     exemplar = get_exemplar()
+        self.__count(function, module, caller, objective, exemplar, result)
+        self.__histogram(function, module, start_time, objective, exemplar)

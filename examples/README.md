@@ -5,6 +5,7 @@ You should be able to run each example by:
 - cloning this repository
 - run `poetry install --with examples`
 - and execute `poetry run python examples/<example>.py` from the root of the repo.
+- for django and starlette examples, you can find the exact commands below
 
 You can change the base url for Prometheus links via the `PROMETHEUS_URL` environment variable. So, if your local Prometheus were on a non-default port, like 9091, you would run:
 
@@ -55,5 +56,21 @@ Autometrics also tracks a label, `caller`, which is the name of the function tha
 ## `fastapi-example.py`
 
 This is an example that shows you how to use autometrics to get metrics on http handlers with FastAPI. In this case, we're setting up the API ourselves, which means we need to expose a `/metrics` endpoint manually.
+
+> Don't forget to configure Prometheus itself to scrape the metrics endpoint. Refer to the example `prometheus.yaml` file in the root of this project on how to set this up.
+
+## `django-example`
+
+This is a default Django project with autometrics configured. You can find examples of instrumenting function and class based views in `django_example/views`. To run the example, navigate to `django_example` directory and run the standard command:
+
+`python manage.py runserver 8080`
+
+> Don't forget to configure Prometheus itself to scrape the metrics endpoint. Refer to the example `prometheus.yaml` file in the root of this project on how to set this up.
+
+## `starlette-otel-exemplars.py`
+
+This app shows how to use the OpenTelemetry integration to add exemplars to your metrics. In a distributed system, it allows you to track a request as it flows through your system by adding trace/span ids to it. We can catch these ids from OpenTelemetry and expose them to Prometheus as exemplars. Do note that exemplars are an experimental feature and you need to enable it in Prometheus with a `--enable-feature=exemplar-storage` flag. Run the example with a command:
+
+`AUTOMETRICS_TRACKER=prometheus AUTOMETRICS_EXEMPLARS=true uvicorn starlette-otel-exemplars:app --port 8080`
 
 > Don't forget to configure Prometheus itself to scrape the metrics endpoint. Refer to the example `prometheus.yaml` file in the root of this project on how to set this up.
