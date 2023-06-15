@@ -134,11 +134,10 @@ The `version` is read from the `AUTOMETRICS_VERSION` environment variable, and t
 
 This follows the method outlined in [Exposing the software version to Prometheus](https://www.robustperception.io/exposing-the-software-version-to-prometheus/).
 
-<<<<<<< HEAD
 ## Admin Panel
 
 > **TODO**
-=======
+
 ## Exemplars
 
 > **NOTE** - As of writing, exemplars aren't supported by the default tracker (`AUTOMETRICS_TRACKER=OPEN_TELEMETRY`).
@@ -148,7 +147,6 @@ Exemplars are a way to associate a metric sample to a trace by attaching `trace_
 
 To use exemplars, you need to first switch to a tracker that supports them by setting `AUTOMETRICS_TRACKER=prometheus` and enable
 exemplar collection by setting `AUTOMETRICS_EXEMPLARS=true`. You also need to enable exemplars in Prometheus by launching Prometheus with the `--enable-feature=exemplar-storage` flag.
->>>>>>> main
 
 ## Development of the package
 
