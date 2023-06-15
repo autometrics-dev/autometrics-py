@@ -157,7 +157,7 @@ exemplar collection by setting `AUTOMETRICS_EXEMPLARS=true`. You also need to en
 
 ## Admin Panel
 
-> **TODO**
+> TODO
 
 ## Development of the package
 
