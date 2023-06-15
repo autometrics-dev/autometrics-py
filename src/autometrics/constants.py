@@ -20,6 +20,7 @@ OBJECTIVE_PERCENTILE = "objective.percentile"
 OBJECTIVE_LATENCY_THRESHOLD = "objective.latency_threshold"
 VERSION_KEY = "version"
 COMMIT_KEY = "commit"
+BRANCH_KEY = "branch"
 
 # The values are updated to use underscores instead of periods to avoid issues with prometheus.
 # A similar thing is done in the rust library, which supports multiple exporters

@@ -10,9 +10,6 @@ from opentelemetry.metrics import (
     set_meter_provider,
 )
 from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import (
-    MetricReader,
-)
 from opentelemetry.sdk.metrics.view import View, ExplicitBucketHistogramAggregation
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
 
@@ -129,7 +126,7 @@ class OpenTelemetryTracker:
             },
         )
 
-    def set_build_info(self, commit: str, version: str):
+    def set_build_info(self, commit: str, version: str, branch: str):
         if not self._has_set_build_info:
             self._has_set_build_info = True
             self.__up_down_counter_instance.add(
@@ -137,6 +134,7 @@ class OpenTelemetryTracker:
                 attributes={
                     "commit": commit,
                     "version": version,
+                    "branch": branch,
                 },
             )
 

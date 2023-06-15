@@ -128,9 +128,14 @@ Configure the package that autometrics will use to produce metrics with the `AUT
 
 Autometrics makes it easy to identify if a specific version or commit introduced errors or increased latencies.
 
-It uses a separate metric (`build_info`) to track the version and, optionally, git commit of your service. It then writes queries that group metrics by the `version` and `commit` labels so you can spot correlations between those and potential issues.
+It uses a separate metric (`build_info`) to track the version and, optionally, git commit of your service. It then writes queries that group metrics by the `version`, `commit` and `branch` labels so you can spot correlations between those and potential issues.
+Configure the labels by setting the following environment variables:
 
-The `version` is read from the `AUTOMETRICS_VERSION` environment variable, and the `commit` value uses the environment variable `AUTOMETRICS_COMMIT`.
+| Label     | Run-Time Environment Variables        | Default value |
+| --------- | ------------------------------------- | ------------- |
+| `version` | `AUTOMETRICS_VERSION`                 | `""`          |
+| `commit`  | `AUTOMETRICS_COMMIT` or `COMMIT_SHA`  | `""`          |
+| `branch`  | `AUTOMETRICS_BRANCH` or `BRANCH_NAME` | `""`          |
 
 This follows the method outlined in [Exposing the software version to Prometheus](https://www.robustperception.io/exposing-the-software-version-to-prometheus/).
 

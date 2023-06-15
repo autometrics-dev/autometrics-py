@@ -15,6 +15,7 @@ from ..constants import (
     OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
     COMMIT_KEY,
     VERSION_KEY,
+    BRANCH_KEY,
 )
 
 from .exemplar import get_exemplar
@@ -49,7 +50,7 @@ class PrometheusTracker:
         ],
     )
     prom_gauge = Gauge(
-        BUILD_INFO_NAME, BUILD_INFO_DESCRIPTION, [COMMIT_KEY, VERSION_KEY]
+        BUILD_INFO_NAME, BUILD_INFO_DESCRIPTION, [COMMIT_KEY, VERSION_KEY, BRANCH_KEY]
     )
 
     def __init__(self) -> None:
@@ -108,10 +109,10 @@ class PrometheusTracker:
             threshold,
         ).observe(duration, exemplar)
 
-    def set_build_info(self, commit: str, version: str):
+    def set_build_info(self, commit: str, version: str, branch: str):
         if not self._has_set_build_info:
             self._has_set_build_info = True
-            self.prom_gauge.labels(commit, version).set(1)
+            self.prom_gauge.labels(commit, version, branch).set(1)
 
     # def start(self, function: str = None, module: str = None):
     #     """Start tracking metrics for a function call."""

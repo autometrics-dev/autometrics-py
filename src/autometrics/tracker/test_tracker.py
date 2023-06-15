@@ -32,9 +32,11 @@ def test_init_prometheus_tracker_set_build_info(monkeypatch):
 
     commit = "d6abce3"
     version = "1.0.1"
+    branch = "main"
 
     monkeypatch.setenv("AUTOMETRICS_COMMIT", commit)
     monkeypatch.setenv("AUTOMETRICS_VERSION", version)
+    monkeypatch.setenv("AUTOMETRICS_BRANCH", branch)
 
     prom_tracker = init_tracker(TrackerType.PROMETHEUS)
     assert isinstance(prom_tracker, PrometheusTracker)
@@ -43,11 +45,14 @@ def test_init_prometheus_tracker_set_build_info(monkeypatch):
     assert blob is not None
     data = blob.decode("utf-8")
 
-    prom_build_info = f"""build_info{{commit="{commit}",version="{version}"}} 1.0"""
+    prom_build_info = (
+        f"""build_info{{branch="{branch}",commit="{commit}",version="{version}"}} 1.0"""
+    )
     assert prom_build_info in data
 
     monkeypatch.delenv("AUTOMETRICS_VERSION", raising=False)
     monkeypatch.delenv("AUTOMETRICS_COMMIT", raising=False)
+    monkeypatch.delenv("AUTOMETRICS_BRANCH", raising=False)
 
 
 def test_init_otel_tracker_set_build_info(monkeypatch):
@@ -61,9 +66,11 @@ def test_init_otel_tracker_set_build_info(monkeypatch):
 
     commit = "a29a178"
     version = "0.0.1"
+    branch = "main"
 
     monkeypatch.setenv("AUTOMETRICS_COMMIT", commit)
     monkeypatch.setenv("AUTOMETRICS_VERSION", version)
+    monkeypatch.setenv("AUTOMETRICS_BRANCH", branch)
 
     otel_tracker = init_tracker(TrackerType.OPENTELEMETRY)
     assert isinstance(otel_tracker, OpenTelemetryTracker)
@@ -72,8 +79,11 @@ def test_init_otel_tracker_set_build_info(monkeypatch):
     assert blob is not None
     data = blob.decode("utf-8")
 
-    prom_build_info = f"""build_info{{commit="{commit}",version="{version}"}} 1.0"""
+    prom_build_info = (
+        f"""build_info{{branch="{branch}",commit="{commit}",version="{version}"}} 1.0"""
+    )
     assert prom_build_info in data
 
     monkeypatch.delenv("AUTOMETRICS_VERSION", raising=False)
     monkeypatch.delenv("AUTOMETRICS_COMMIT", raising=False)
+    monkeypatch.delenv("AUTOMETRICS_BRANCH", raising=False)
