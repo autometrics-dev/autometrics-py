@@ -67,13 +67,19 @@ To use autometrics SLOs and alerts, create one or multiple `Objective`s based on
 from autometrics import autometrics
 from autometrics.objectives import Objective, ObjectiveLatency, ObjectivePercentile
 
-API_SLO = Objective(
-    "My API SLO for High Error Rate",
+# Create an objective for a high success rate
+API_SLO_HIGH_SUCCESS = Objective(
+    "My API SLO for High Success Rate (99.9%)",
     success_rate=ObjectivePercentile.P99_9,
+)
+
+# Or you can also create an objective for low latency
+API_SLO_LOW_LATENCY = Objective(
+    "My API SLO for Low Latency (99th percentile < 250ms)",
     latency=(ObjectiveLatency.Ms250, ObjectivePercentile.P99),
 )
 
-@autometrics(objective=API_SLO)
+@autometrics(objective=API_SLO_HIGH_SUCCESS)
 def api_handler():
   # ...
 ```
