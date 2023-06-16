@@ -79,7 +79,7 @@ def autometrics(
 
         module_name = get_module_name(func)
         func_name = func.__name__
-        register_function_info(func_name, module_name)
+        register_function_info(func_name, module_name, get_tracker(), objective)
 
         @wraps(func)
         def sync_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
@@ -114,7 +114,7 @@ def autometrics(
 
         module_name = get_module_name(func)
         func_name = func.__name__
-        register_function_info(func_name, module_name)
+        register_function_info(func_name, module_name, get_tracker(), objective)
 
         @wraps(func)
         async def async_wrapper(*args: P.args, **kwds: P.kwargs) -> T:

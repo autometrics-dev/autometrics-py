@@ -83,6 +83,7 @@ class OpenTelemetryTracker:
         objective: Optional[Objective],
         exemplar: Optional[dict],
         result: Result,
+        inc_by: int = 1,
     ):
         objective_name = "" if objective is None else objective.name
         percentile = (
@@ -91,7 +92,7 @@ class OpenTelemetryTracker:
             else objective.success_rate.value
         )
         self.__counter_instance.add(
-            1,
+            inc_by,
             attributes={
                 "function": function,
                 "module": module,
@@ -184,3 +185,13 @@ class OpenTelemetryTracker:
                     "module": module,
                 },
             )
+
+    def initialize_at_zero(
+        self,
+        function: str,
+        module: str,
+        objective: Optional[Objective] = None,
+    ):
+        """Initialize tracking metrics for a function call at zero."""
+        self.__count(function, module, None, objective, None, Result.OK, inc_by=0)
+        self.__count(function, module, None, objective, None, Result.ERROR, inc_by=0)

@@ -36,6 +36,15 @@ class TrackMetrics(Protocol):
     ):
         """Finish tracking metrics for a function call."""
 
+    def initialize_at_zero(
+        self,
+        function: str,
+        module: str,
+        result: Result = Result.OK,
+        objective: Optional[Objective] = None,
+    ):
+        """Initialize (counter) metrics for a functions at zero."""
+
 
 class TrackerType(Enum):
     """Type of tracker."""
