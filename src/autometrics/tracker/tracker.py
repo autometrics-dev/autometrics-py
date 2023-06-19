@@ -40,7 +40,6 @@ class TrackMetrics(Protocol):
         self,
         function: str,
         module: str,
-        result: Result = Result.OK,
         objective: Optional[Objective] = None,
     ):
         """Initialize (counter) metrics for a functions at zero."""

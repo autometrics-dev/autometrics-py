@@ -155,5 +155,6 @@ class PrometheusTracker:
         objective: Optional[Objective] = None,
     ):
         """Initialize tracking metrics for a function call at zero."""
-        self._count(function, module, None, objective, None, Result.OK, inc_by=0)
-        self._count(function, module, None, objective, None, Result.ERROR, inc_by=0)
+        caller = ""
+        self._count(function, module, caller, objective, None, Result.OK, inc_by=0)
+        self._count(function, module, caller, objective, None, Result.ERROR, inc_by=0)
