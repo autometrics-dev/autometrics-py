@@ -19,6 +19,11 @@ class TrackMetrics(Protocol):
     def set_build_info(self, commit: str, version: str, branch: str):
         """Observe the build info. Should only be called once per tracker instance"""
 
+    def start(
+        self, function: str, module: str, track_concurrency: Optional[bool] = False
+    ):
+        """Start tracking metrics for a function call."""
+
     def finish(
         self,
         start_time: float,
@@ -27,6 +32,7 @@ class TrackMetrics(Protocol):
         caller: str,
         result: Result = Result.OK,
         objective: Optional[Objective] = None,
+        track_concurrency: Optional[bool] = False,
     ):
         """Finish tracking metrics for a function call."""
 

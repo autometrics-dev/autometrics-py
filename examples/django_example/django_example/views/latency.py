@@ -10,8 +10,8 @@ class RandomLatencyView(View):
 
     @autometrics
     def get(self, request):
-        duration = random.randint(1, 500)
+        duration = random.randint(1, 10)
 
-        time.sleep(duration / 1000)
+        time.sleep(duration / 10)
 
         return HttpResponse("i was waiting for {}ms!".format(duration))

@@ -1,4 +1,3 @@
-import os
 import time
 from typing import Optional
 
@@ -17,6 +16,8 @@ from .exemplar import get_exemplar
 from .tracker import Result
 from ..objectives import Objective, ObjectiveLatency
 from ..constants import (
+    CONCURRENCY_NAME,
+    CONCURRENCY_DESCRIPTION,
     COUNTER_DESCRIPTION,
     COUNTER_NAME,
     HISTOGRAM_DESCRIPTION,
@@ -41,7 +42,8 @@ class OpenTelemetryTracker:
 
     __counter_instance: Counter
     __histogram_instance: Histogram
-    __up_down_counter_instance: UpDownCounter
+    __up_down_counter_build_info_instance: UpDownCounter
+    __up_down_counter_concurrency_instance: UpDownCounter
 
     def __init__(self):
         exporter = PrometheusMetricReader("")
@@ -63,9 +65,13 @@ class OpenTelemetryTracker:
             name=HISTOGRAM_NAME,
             description=HISTOGRAM_DESCRIPTION,
         )
-        self.__up_down_counter_instance = meter.create_up_down_counter(
+        self.__up_down_counter_build_info_instance = meter.create_up_down_counter(
             name=BUILD_INFO_NAME,
             description=BUILD_INFO_DESCRIPTION,
+        )
+        self.__up_down_counter_concurrency_instance = meter.create_up_down_counter(
+            name=CONCURRENCY_NAME,
+            description=CONCURRENCY_DESCRIPTION,
         )
         self._has_set_build_info = False
 
@@ -129,12 +135,25 @@ class OpenTelemetryTracker:
     def set_build_info(self, commit: str, version: str, branch: str):
         if not self._has_set_build_info:
             self._has_set_build_info = True
-            self.__up_down_counter_instance.add(
+            self.__up_down_counter_build_info_instance.add(
                 1.0,
                 attributes={
                     "commit": commit,
                     "version": version,
                     "branch": branch,
+                },
+            )
+
+    def start(
+        self, function: str, module: str, track_concurrency: Optional[bool] = False
+    ):
+        """Start tracking metrics for a function call."""
+        if track_concurrency:
+            self.__up_down_counter_concurrency_instance.add(
+                1.0,
+                attributes={
+                    "function": function,
+                    "module": module,
                 },
             )
 
@@ -146,8 +165,10 @@ class OpenTelemetryTracker:
         caller: str,
         result: Result = Result.OK,
         objective: Optional[Objective] = None,
+        track_concurrency: Optional[bool] = False,
     ):
         """Finish tracking metrics for a function call."""
+
         exemplar = None
         # Currently, exemplars are only supported by prometheus-client
         # https://github.com/autometrics-dev/autometrics-py/issues/41
@@ -155,3 +176,11 @@ class OpenTelemetryTracker:
         #     exemplar = get_exemplar()
         self.__count(function, module, caller, objective, exemplar, result)
         self.__histogram(function, module, start_time, objective, exemplar)
+        if track_concurrency:
+            self.__up_down_counter_concurrency_instance.add(
+                -1.0,
+                attributes={
+                    "function": function,
+                    "module": module,
+                },
+            )

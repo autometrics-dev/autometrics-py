@@ -16,12 +16,14 @@ Including another URLconf
 """
 from django.urls import path
 
+from .views.concurrency import ConcurrencyView
 from .views.latency import RandomLatencyView
 from .views.metrics import metrics
 from .views.simple import simple_handler
 from .views.error import ErrorOrOkView
 
 urlpatterns = [
+    path("concurrency/", ConcurrencyView.as_view()),
     path("latency/", RandomLatencyView.as_view()),
     path("error/", ErrorOrOkView.as_view()),
     path("simple/", simple_handler),

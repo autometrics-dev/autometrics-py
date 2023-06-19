@@ -28,7 +28,9 @@ def autometrics(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
 
 # Decorator with arguments
 @overload
-def autometrics(*, objective: Optional[Objective] = None) -> Callable:
+def autometrics(
+    *, objective: Optional[Objective] = None, track_concurrency: Optional[bool] = False
+) -> Callable:
     ...
 
 
@@ -36,8 +38,14 @@ def autometrics(
     func: Optional[Callable] = None,
     *,
     objective: Optional[Objective] = None,
+    track_concurrency: Optional[bool] = False,
 ):
     """Decorator for tracking function calls and duration. Supports synchronous and async functions."""
+
+    def track_start(function: str, module: str):
+        get_tracker().start(
+            function=function, module=module, track_concurrency=track_concurrency
+        )
 
     def track_result_ok(start_time: float, function: str, module: str, caller: str):
         get_tracker().finish(
@@ -46,6 +54,7 @@ def autometrics(
             module=module,
             caller=caller,
             objective=objective,
+            track_concurrency=track_concurrency,
             result=Result.OK,
         )
 
@@ -61,6 +70,7 @@ def autometrics(
             module=module,
             caller=caller,
             objective=objective,
+            track_concurrency=track_concurrency,
             result=Result.ERROR,
         )
 
@@ -77,6 +87,8 @@ def autometrics(
             caller = get_caller_function()
 
             try:
+                if track_concurrency:
+                    track_start(module=module_name, function=func_name)
                 result = func(*args, **kwds)
                 track_result_ok(
                     start_time, function=func_name, module=module_name, caller=caller
@@ -110,6 +122,8 @@ def autometrics(
             caller = get_caller_function()
 
             try:
+                if track_concurrency:
+                    track_start(module=module_name, function=func_name)
                 result = await func(*args, **kwds)
                 track_result_ok(
                     start_time, function=func_name, module=module_name, caller=caller
@@ -130,8 +144,14 @@ def autometrics(
         async_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
         return async_wrapper
 
+    def pick_decorator(func: Callable) -> Callable:
+        """Pick the correct decorator based on the function type."""
+        if inspect.iscoroutinefunction(func):
+            return async_decorator(func)
+        return sync_decorator(func)
+
     if func is None:
-        return sync_decorator
+        return pick_decorator
     elif inspect.iscoroutinefunction(func):
         return async_decorator(func)
     else:
