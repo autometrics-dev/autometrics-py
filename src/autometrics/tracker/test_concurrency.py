@@ -3,27 +3,61 @@ import asyncio
 import pytest
 
 
-from .tracker import init_tracker, TrackerType
+from .tracker import set_tracker, TrackerType
 
 from ..decorator import autometrics
 
 
+@autometrics(track_concurrency=True)
+async def sleep(time):
+    await asyncio.sleep(time)
+
+
 @pytest.mark.asyncio
-async def test_concurrency_tracking(monkeypatch):
-    @autometrics(track_concurrency=True)
-    async def sleep(time):
-        await asyncio.sleep(time)
+async def test_concurrency_tracking_prometheus(monkeypatch):
+    # HACK - We need to set the tracker explicitly here, instead of using `init_tracker`
+    #        because the library was already initialized with the OpenTelemetry tracker
+    set_tracker(TrackerType.PROMETHEUS)
 
-    tracker = init_tracker(TrackerType.OPENTELEMETRY)
+    # Create a 200ms async task
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(sleep(0.2))
 
-    tasks = [sleep(1), sleep(1)]
-    sleep(2)
-    await asyncio.gather(*tasks)
+    # Await a separate 100ms async task.
+    # This way, the 200ms task will still running once this task is done.
+    # We have to do this to ensure that the 200ms task is kicked off before we call `generate_latest`
+    await sleep(0.1)
     blob = generate_latest()
+    await task
     assert blob is not None
     data = blob.decode("utf-8")
     print(data)
     assert (
-        f"""# TYPE function_calls_concurrent gauge function_calls_concurrent{{function="sleep",module="test_concurrency"}} 1.0"""
+        f"""# TYPE function_calls_concurrent gauge\nfunction_calls_concurrent{{function="sleep",module="test_concurrency"}} 1.0"""
+        in data
+    )
+
+
+@pytest.mark.asyncio
+async def test_concurrency_tracking_opentelemetry(monkeypatch):
+    # HACK - We need to set the tracker explicitly here, instead of using `init_tracker`
+    #        because the library was already initialized with the OpenTelemetry tracker
+    set_tracker(TrackerType.OPENTELEMETRY)
+
+    # Create a 200ms async task
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(sleep(0.2))
+
+    # Await a separate 100ms async task.
+    # This way, the 200ms task will still running once this task is done.
+    # We have to do this to ensure that the 200ms task is kicked off before we call `generate_latest`
+    await sleep(0.1)
+    blob = generate_latest()
+    await task
+    assert blob is not None
+    data = blob.decode("utf-8")
+    print(data)
+    assert (
+        f"""# TYPE function_calls_concurrent gauge\nfunction_calls_concurrent{{function="sleep",module="test_concurrency"}} 1.0"""
         in data
     )
