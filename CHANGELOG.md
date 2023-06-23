@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Exemplars support (#51)
+- Optional concurrency tracking support (#55)
 
 ### Changed
 
@@ -27,6 +28,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 -
 
 ### Fixed
+
+- Fixed decorator async function handling (#55)
 
 ### Security
 

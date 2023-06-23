@@ -6,9 +6,11 @@ from prometheus_client import Counter, Histogram, Gauge
 from ..constants import (
     COUNTER_NAME_PROMETHEUS,
     HISTOGRAM_NAME_PROMETHEUS,
+    CONCURRENCY_NAME_PROMETHEUS,
     BUILD_INFO_NAME,
     COUNTER_DESCRIPTION,
     HISTOGRAM_DESCRIPTION,
+    CONCURRENCY_DESCRIPTION,
     BUILD_INFO_DESCRIPTION,
     OBJECTIVE_NAME_PROMETHEUS,
     OBJECTIVE_PERCENTILE_PROMETHEUS,
@@ -49,8 +51,11 @@ class PrometheusTracker:
             OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
         ],
     )
-    prom_gauge = Gauge(
+    prom_gauge_build_info = Gauge(
         BUILD_INFO_NAME, BUILD_INFO_DESCRIPTION, [COMMIT_KEY, VERSION_KEY, BRANCH_KEY]
+    )
+    prom_gauge_concurrency = Gauge(
+        CONCURRENCY_NAME_PROMETHEUS, CONCURRENCY_DESCRIPTION, ["function", "module"]
     )
 
     def __init__(self) -> None:
@@ -112,11 +117,14 @@ class PrometheusTracker:
     def set_build_info(self, commit: str, version: str, branch: str):
         if not self._has_set_build_info:
             self._has_set_build_info = True
-            self.prom_gauge.labels(commit, version, branch).set(1)
+            self.prom_gauge_build_info.labels(commit, version, branch).set(1)
 
-    # def start(self, function: str = None, module: str = None):
-    #     """Start tracking metrics for a function call."""
-    #     pass
+    def start(
+        self, function: str, module: str, track_concurrency: Optional[bool] = False
+    ):
+        """Start tracking metrics for a function call."""
+        if track_concurrency:
+            self.prom_gauge_concurrency.labels(function, module).inc()
 
     def finish(
         self,
@@ -126,10 +134,15 @@ class PrometheusTracker:
         caller: str,
         result: Result = Result.OK,
         objective: Optional[Objective] = None,
+        track_concurrency: Optional[bool] = False,
     ):
         """Finish tracking metrics for a function call."""
         exemplar = None
         if os.getenv("AUTOMETRICS_EXEMPLARS") == "true":
             exemplar = get_exemplar()
+
         self._count(function, module, caller, objective, exemplar, result)
         self._histogram(function, module, start_time, objective, exemplar)
+
+        if track_concurrency:
+            self.prom_gauge_concurrency.labels(function, module).dec()
