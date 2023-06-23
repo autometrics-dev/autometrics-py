@@ -12,12 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Exemplars support (#51)
-- Optional concurrency tracking support (#55)
+-
 
 ### Changed
 
-- `build_info` is extended with support for branch labels and now picks up the commit label from `COMMIT_SHA` env var (#52)
+-
 
 ### Deprecated
 
@@ -26,6 +25,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 
 -
+
+### Fixed
+
+- Fixed decorator async function handling (#55)
+
+### Security
+
+- Update requests, starlette, fastapi dependencies used by the examples
+
+## [0.6](https://github.com/autometrics-dev/autometrics-py/releases/tag/0.6) - 2023-06-23
+
+### Added
+
+- Exemplars support (#51)
+- Optional concurrency tracking support (#55)
+
+### Changed
+
+- `build_info` is extended with support for branch labels and now picks up the commit label from `COMMIT_SHA` env var (#52)
 
 ### Fixed
 
