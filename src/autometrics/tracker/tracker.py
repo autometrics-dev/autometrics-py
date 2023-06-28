@@ -42,7 +42,7 @@ class TrackMetrics(Protocol):
         module: str,
         objective: Optional[Objective] = None,
     ):
-        """Initialize (counter) metrics for a functions at zero."""
+        """Initialize (counter) metrics for a function at zero."""
 
 
 class TrackerType(Enum):
