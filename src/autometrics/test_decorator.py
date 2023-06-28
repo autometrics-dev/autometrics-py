@@ -11,16 +11,6 @@ from .tracker import set_tracker, TrackerType
 from .utils import get_caller_function
 
 
-def never_called_function():
-    """This is a sync function that should never be called. Used for testing initialization at zero for counters"""
-    raise RuntimeError("This function should never be called")
-
-
-async def never_called_async_function():
-    """This is an async function that should never be called. Used for testing initialization at zero for counters"""
-    raise RuntimeError("This function should never be called")
-
-
 def basic_function(sleep_duration: float = 0.0):
     """This is a basic function."""
     time.sleep(sleep_duration)
@@ -44,6 +34,16 @@ async def error_async_function():
     raise RuntimeError("This is a test error")
 
 
+def never_called_function():
+    """This is a sync function that should never be called. Used for testing initialization at zero for counters"""
+    raise RuntimeError("This function should never be called")
+
+
+async def never_called_async_function():
+    """This is an async function that should never be called. Used for testing initialization at zero for counters"""
+    raise RuntimeError("This function should never be called")
+
+
 tracker_types = [TrackerType.PROMETHEUS, TrackerType.OPENTELEMETRY]
 
 
@@ -56,41 +56,6 @@ def setup_tracker_type(request):
 @pytest.mark.usefixtures("setup_tracker_type")
 class TestDecoratorClass:
     """Test the autometrics decorator. These tests are run multiple times with different trackers."""
-
-    def test_initialize_at_zero_sync(self):
-        """This is a test to see if the function calls metric initializes at 0 after invoking the decorator."""
-
-        function_name = never_called_function.__name__
-        wrapped_function = autometrics(never_called_function)
-        # NOTE - Do not call the function! We want to see if we get counter data for it
-
-        blob = generate_latest()
-        assert blob is not None
-        data = blob.decode("utf-8")
-
-        total_count_ok = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
-        assert total_count_ok in data
-
-        total_count_error = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
-        assert total_count_error in data
-
-    @pytest.mark.asyncio
-    async def test_initialize_at_zero_async(self):
-        """This is a test to see if the function calls metric initializes at 0 after invoking the decorator for an async function"""
-
-        function_name = never_called_async_function.__name__
-        wrapped_function = autometrics(never_called_async_function)
-        # NOTE - Do not call the function! We want to see if we get counter data for it even without ever calling it
-
-        blob = generate_latest()
-        assert blob is not None
-        data = blob.decode("utf-8")
-
-        total_count_ok = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
-        assert total_count_ok in data
-
-        total_count_error = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
-        assert total_count_error in data
 
     def test_basic(self):
         """This is a basic test."""
@@ -302,3 +267,81 @@ class TestDecoratorClass:
 
         duration_sum = f"""function_calls_duration_sum{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
         assert duration_sum in data
+
+    def test_initialize_at_zero_sync(self):
+        """This is a test to see if the function calls metric initializes at 0 after invoking the decorator."""
+
+        function_name = never_called_function.__name__
+        wrapped_function = autometrics(never_called_function)
+        # NOTE - Do not call the function! We want to see if we get counter data for it
+
+        blob = generate_latest()
+        assert blob is not None
+        data = blob.decode("utf-8")
+
+        total_count_ok = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
+        assert total_count_ok in data
+
+        total_count_error = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
+        assert total_count_error in data
+
+    def test_initialize_at_zero_sync_with_objective(self):
+        """This is a test to see if the function calls metric initializes at 0 after invoking the decorator."""
+
+        objective_name = "test_objective"
+        success_rate = ObjectivePercentile.P90
+        objective = Objective(name=objective_name, success_rate=success_rate)
+
+        function_name = never_called_function.__name__
+        wrapped_function = autometrics(objective=objective)(never_called_function)
+        # NOTE - Do not call the function! We want to see if we get counter data for it
+
+        blob = generate_latest()
+        assert blob is not None
+        data = blob.decode("utf-8")
+
+        total_count_ok = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 0.0"""
+        assert total_count_ok in data
+
+        total_count_error = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="error"}} 0.0"""
+        assert total_count_error in data
+
+    @pytest.mark.asyncio
+    async def test_initialize_at_zero_async(self):
+        """This is a test to see if the function calls metric initializes at 0 after invoking the decorator for an async function"""
+
+        function_name = never_called_async_function.__name__
+        wrapped_function = autometrics(never_called_async_function)
+        # NOTE - Do not call the function! We want to see if we get counter data for it even without ever calling it
+
+        blob = generate_latest()
+        assert blob is not None
+        data = blob.decode("utf-8")
+
+        total_count_ok = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
+        assert total_count_ok in data
+
+        total_count_error = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
+        assert total_count_error in data
+
+    @pytest.mark.asyncio
+    async def test_initialize_at_zero_async_with_objective(self):
+        """This is a test to see if the function calls metric initializes at 0 after invoking the decorator for an async function"""
+
+        objective_name = "test_objective"
+        success_rate = ObjectivePercentile.P90
+        objective = Objective(name=objective_name, success_rate=success_rate)
+
+        function_name = never_called_async_function.__name__
+        wrapped_function = autometrics(objective=objective)(never_called_async_function)
+        # NOTE - Do not call the function! We want to see if we get counter data for it even without ever calling it
+
+        blob = generate_latest()
+        assert blob is not None
+        data = blob.decode("utf-8")
+
+        total_count_ok = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 0.0"""
+        assert total_count_ok in data
+
+        total_count_error = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="error"}} 0.0"""
+        assert total_count_error in data
