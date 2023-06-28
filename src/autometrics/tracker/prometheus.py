@@ -148,7 +148,7 @@ class PrometheusTracker:
         if track_concurrency:
             self.prom_gauge_concurrency.labels(function, module).dec()
 
-    def initialize_at_zero(
+    def initialize_counters(
         self,
         function: str,
         module: str,

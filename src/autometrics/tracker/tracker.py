@@ -36,7 +36,7 @@ class TrackMetrics(Protocol):
     ):
         """Finish tracking metrics for a function call."""
 
-    def initialize_at_zero(
+    def initialize_counters(
         self,
         function: str,
         module: str,

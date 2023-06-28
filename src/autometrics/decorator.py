@@ -45,7 +45,7 @@ def autometrics(
         function: str,
         module: str,
     ):
-        get_tracker().initialize_at_zero(
+        get_tracker().initialize_counters(
             function=function, module=module, objective=objective
         )
 

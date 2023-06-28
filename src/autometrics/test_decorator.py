@@ -268,7 +268,7 @@ class TestDecoratorClass:
         duration_sum = f"""function_calls_duration_sum{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
         assert duration_sum in data
 
-    def test_initialize_at_zero_sync(self):
+    def test_initialize_counters_sync(self):
         """This is a test to see if the function calls metric initializes at 0 after invoking the decorator."""
 
         function_name = never_called_function.__name__
@@ -285,7 +285,7 @@ class TestDecoratorClass:
         total_count_error = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
         assert total_count_error in data
 
-    def test_initialize_at_zero_sync_with_objective(self):
+    def test_initialize_counters_sync_with_objective(self):
         """This is a test to see if the function calls metric initializes at 0 after invoking the decorator."""
 
         objective_name = "test_objective"
@@ -307,7 +307,7 @@ class TestDecoratorClass:
         assert total_count_error in data
 
     @pytest.mark.asyncio
-    async def test_initialize_at_zero_async(self):
+    async def test_initialize_counters_async(self):
         """This is a test to see if the function calls metric initializes at 0 after invoking the decorator for an async function"""
 
         function_name = never_called_async_function.__name__
@@ -325,7 +325,7 @@ class TestDecoratorClass:
         assert total_count_error in data
 
     @pytest.mark.asyncio
-    async def test_initialize_at_zero_async_with_objective(self):
+    async def test_initialize_counters_async_with_objective(self):
         """This is a test to see if the function calls metric initializes at 0 after invoking the decorator for an async function"""
 
         objective_name = "test_objective"

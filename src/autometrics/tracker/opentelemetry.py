@@ -186,7 +186,7 @@ class OpenTelemetryTracker:
                 },
             )
 
-    def initialize_at_zero(
+    def initialize_counters(
         self,
         function: str,
         module: str,
