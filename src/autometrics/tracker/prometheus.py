@@ -69,6 +69,7 @@ class PrometheusTracker:
         objective: Optional[Objective] = None,
         exemplar: Optional[dict] = None,
         result: Result = Result.OK,
+        inc_by: int = 1,
     ):
         """Increment the counter for the function call."""
         objective_name = "" if objective is None else objective.name
@@ -85,7 +86,7 @@ class PrometheusTracker:
             caller,
             objective_name,
             percentile,
-        ).inc(1, exemplar)
+        ).inc(inc_by, exemplar)
 
     def _histogram(
         self,
@@ -146,3 +147,14 @@ class PrometheusTracker:
 
         if track_concurrency:
             self.prom_gauge_concurrency.labels(function, module).dec()
+
+    def initialize_counters(
+        self,
+        function: str,
+        module: str,
+        objective: Optional[Objective] = None,
+    ):
+        """Initialize tracking metrics for a function call at zero."""
+        caller = ""
+        self._count(function, module, caller, objective, None, Result.OK, 0)
+        self._count(function, module, caller, objective, None, Result.ERROR, 0)
