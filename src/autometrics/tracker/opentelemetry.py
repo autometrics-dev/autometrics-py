@@ -194,5 +194,5 @@ class OpenTelemetryTracker:
     ):
         """Initialize tracking metrics for a function call at zero."""
         caller = ""
-        self.__count(function, module, caller, objective, None, Result.OK, inc_by=0)
-        self.__count(function, module, caller, objective, None, Result.ERROR, inc_by=0)
+        self.__count(function, module, caller, objective, None, Result.OK, 0)
+        self.__count(function, module, caller, objective, None, Result.ERROR, 0)
