@@ -16,7 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
--
+- Caller tracking only tracks autometricised functions, as per spec #59
+- Function name labels now use qualified name, and module labels use module's `__name__` when available #59
 
 ### Deprecated
 

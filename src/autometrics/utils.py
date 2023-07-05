@@ -1,19 +1,16 @@
 import inspect
 import os
 from collections.abc import Callable
+
 from .prometheus_url import Generator
 
 
 def get_module_name(func: Callable) -> str:
     """Get the name of the module that contains the function."""
-    func_name = func.__name__
-    fullname = func.__qualname__
-    filename = get_filename_as_module(func)
-    if fullname == func_name:
-        return filename
-
-    classname = func.__qualname__.rsplit(".", 1)[0]
-    return f"{filename}.{classname}"
+    module = inspect.getmodule(func)
+    if module is None:
+        return get_filename_as_module(func)
+    return module.__name__
 
 
 def get_filename_as_module(func: Callable) -> str:
@@ -25,6 +22,11 @@ def get_filename_as_module(func: Callable) -> str:
     filename = os.path.basename(fullpath)
     module_part = os.path.splitext(filename)[0]
     return module_part
+
+
+def get_function_name(func: Callable) -> str:
+    """Get the name of the function."""
+    return func.__qualname__ or func.__name__
 
 
 def write_docs(func_name: str, module_name: str):
@@ -46,10 +48,3 @@ def append_docs_to_docstring(func, func_name, module_name):
         return write_docs(func_name, module_name)
     else:
         return f"{func.__doc__}\n{write_docs(func_name, module_name)}"
-
-
-def get_caller_function(depth: int = 2):
-    """Get the name of the function. Default depth is 2 to get the caller of the caller of the function being decorated."""
-    caller_frame = inspect.stack()[depth]
-    caller_function_name = caller_frame[3]
-    return caller_function_name
