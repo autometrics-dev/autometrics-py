@@ -1,5 +1,6 @@
 ![GitHub_headerImage](https://user-images.githubusercontent.com/3262610/221191767-73b8a8d9-9f8b-440e-8ab6-75cb3c82f2bc.png)
 
+[![Tests](https://github.com/autometrics-dev/autometrics-py/actions/workflows/main.yml/badge.svg)](https://github.com/autometrics-dev/autometrics-py/actions/workflows/main.yml)
 [![Discord Shield](https://discordapp.com/api/guilds/950489382626951178/widget.png?style=shield)](https://discord.gg/kHtwcH8As9)
 
 > A Python port of the Rust
@@ -24,7 +25,7 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 - [🔍 Identify commits](#identifying-commits-that-introduced-problems) that introduced errors or increased latency
 - [🚨 Define alerts](#alerts--slos) using SLO best practices directly in your source code
 - [📊 Grafana dashboards](#dashboards) work out of the box to visualize the performance of instrumented functions & SLOs
-- [⚙️ Configurable](#metrics-libraries) metric collection library (`opentelemetry`, `prometheus`, or `metrics`)
+- [⚙️ Configurable](#metrics-libraries) metric collection library (`opentelemetry` or `prometheus`)
 - [📍 Attach exemplars](#exemplars) to connect metrics with traces
 - ⚡ Minimal runtime overhead
 
@@ -86,39 +87,7 @@ def api_handler():
   # ...
 ```
 
-Autometrics by default will try to store information on which function calls a decorated function. As such you may want to place the autometrics in the top/first decorator, as otherwise you may get `inner` or `wrapper` as the caller function.
-
-So instead of writing:
-
-```py
-from functools import wraps
-from typing import Any, TypeVar, Callable
-
-R = TypeVar("R")
-
-def noop(func: Callable[..., R]) -> Callable[..., R]:
-    """A noop decorator that does nothing."""
-
-    @wraps(func)
-    def inner(*args: Any, **kwargs: Any) -> Any:
-        return func(*args, **kwargs)
-
-    return inner
-
-@noop
-@autometrics
-def api_handler():
-  # ...
-```
-
-You may want to switch the order of the decorator
-
-```py
-@autometrics
-@noop
-def api_handler():
-  # ...
-```
+Autometrics keeps track of instrumented functions calling each other. If you have a function that calls another function, metrics for later will include `caller` label set to the name of the autometricised function that called it.
 
 #### Metrics Libraries
 

@@ -1,17 +1,26 @@
 """Autometrics module."""
+from contextvars import ContextVar
 import time
 import inspect
 
 from functools import wraps
 from typing import overload, TypeVar, Callable, Optional, Awaitable
 from typing_extensions import ParamSpec
+
 from .objectives import Objective
 from .tracker import get_tracker, Result
-from .utils import get_module_name, get_caller_function, append_docs_to_docstring
+from .utils import (
+    get_function_name,
+    get_module_name,
+    append_docs_to_docstring,
+)
 
 
 P = ParamSpec("P")
 T = TypeVar("T")
+
+
+caller_var: ContextVar[str] = ContextVar("caller", default="")
 
 
 # Bare decorator usage
@@ -85,15 +94,17 @@ def autometrics(
         """Helper for decorating synchronous functions, to track calls and duration."""
 
         module_name = get_module_name(func)
-        func_name = func.__name__
+        func_name = get_function_name(func)
         register_function_info(func_name, module_name)
 
         @wraps(func)
         def sync_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
             start_time = time.time()
-            caller = get_caller_function()
+            caller = caller_var.get()
+            context_token = None
 
             try:
+                context_token = caller_var.set(func_name)
                 if track_concurrency:
                     track_start(module=module_name, function=func_name)
                 result = func(*args, **kwds)
@@ -111,6 +122,11 @@ def autometrics(
                 )
                 # Reraise exception
                 raise exception
+
+            finally:
+                if context_token is not None:
+                    caller_var.reset(context_token)
+
             return result
 
         sync_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
@@ -120,15 +136,17 @@ def autometrics(
         """Helper for decorating async functions, to track calls and duration."""
 
         module_name = get_module_name(func)
-        func_name = func.__name__
+        func_name = get_function_name(func)
         register_function_info(func_name, module_name)
 
         @wraps(func)
         async def async_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
             start_time = time.time()
-            caller = get_caller_function()
+            caller = caller_var.get()
+            context_token = None
 
             try:
+                context_token = caller_var.set(func_name)
                 if track_concurrency:
                     track_start(module=module_name, function=func_name)
                 result = await func(*args, **kwds)
@@ -146,6 +164,11 @@ def autometrics(
                 )
                 # Reraise exception
                 raise exception
+
+            finally:
+                if context_token is not None:
+                    caller_var.reset(context_token)
+
             return result
 
         async_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)

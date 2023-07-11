@@ -6,9 +6,8 @@ import pytest
 
 from .decorator import autometrics
 from .objectives import ObjectiveLatency, Objective, ObjectivePercentile
-
 from .tracker import set_tracker, TrackerType
-from .utils import get_caller_function
+from .utils import get_function_name, get_module_name
 
 
 def basic_function(sleep_duration: float = 0.0):
@@ -60,11 +59,6 @@ class TestDecoratorClass:
     def test_basic(self):
         """This is a basic test."""
 
-        # set up the function + basic variables
-        caller = get_caller_function(depth=1)
-        assert caller is not None
-        assert caller != ""
-        function_name = basic_function.__name__
         wrapped_function = autometrics(basic_function)
         wrapped_function()
 
@@ -72,28 +66,23 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_count_total{{caller="{caller}",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="ok"}} 1.0"""
+        total_count = f"""function_calls_count_total{{caller="",function="basic_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 1.0"""
         assert total_count in data
 
         for latency in ObjectiveLatency:
-            query = f"""function_calls_duration_bucket{{function="{function_name}",le="{latency.value}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+            query = f"""function_calls_duration_bucket{{function="basic_function",le="{latency.value}",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
             assert query in data
 
-        duration_count = f"""function_calls_duration_count{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+        duration_count = f"""function_calls_duration_count{{function="basic_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
         assert duration_count in data
 
-        duration_sum = f"""function_calls_duration_sum{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+        duration_sum = f"""function_calls_duration_sum{{function="basic_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
         assert duration_sum in data
 
     @pytest.mark.asyncio
     async def test_basic_async(self):
         """This is a basic test."""
 
-        # set up the function + basic variables
-        caller = get_caller_function(depth=1)
-        assert caller is not None
-        assert caller != ""
-        function_name = basic_async_function.__name__
         wrapped_function = autometrics(basic_async_function)
 
         # Test that the function is *still* async after we wrap it
@@ -105,33 +94,31 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_count_total{{caller="{caller}",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="ok"}} 1.0"""
+        total_count = f"""function_calls_count_total{{caller="",function="basic_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 1.0"""
         assert total_count in data
 
         for latency in ObjectiveLatency:
-            query = f"""function_calls_duration_bucket{{function="{function_name}",le="{latency.value}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+            query = f"""function_calls_duration_bucket{{function="basic_async_function",le="{latency.value}",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
             assert query in data
 
-        duration_count = f"""function_calls_duration_count{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+        duration_count = f"""function_calls_duration_count{{function="basic_async_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
         assert duration_count in data
 
-        duration_sum = f"""function_calls_duration_sum{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+        duration_sum = f"""function_calls_duration_sum{{function="basic_async_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
         assert duration_sum in data
 
     def test_objectives(self):
         """This is a test that covers objectives."""
 
         # set up the function + objective variables
-        caller = get_caller_function(depth=1)
-        assert caller is not None
-        assert caller != ""
         objective_name = "test_objective"
         success_rate = ObjectivePercentile.P90
         latency = (ObjectiveLatency.Ms100, ObjectivePercentile.P99)
         objective = Objective(
             name=objective_name, success_rate=success_rate, latency=latency
         )
-        function_name = basic_function.__name__
+        function_name = get_function_name(basic_function)
+        module_name = get_module_name(basic_function)
         wrapped_function = autometrics(objective=objective)(basic_function)
 
         sleep_duration = 0.25
@@ -143,19 +130,19 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_count_total{{caller="{caller}",function="{function_name}",module="test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 1.0"""
+        total_count = f"""function_calls_count_total{{caller="",function="{function_name}",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 1.0"""
         assert total_count in data
 
         # Check the latency buckets
         for objective in ObjectiveLatency:
             count = 0 if float(objective.value) <= sleep_duration else 1
-            query = f"""function_calls_duration_bucket{{function="{function_name}",le="{objective.value}",module="test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}} {count}"""
+            query = f"""function_calls_duration_bucket{{function="{function_name}",le="{objective.value}",module="autometrics.test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}} {count}"""
             assert query in data
 
-        duration_count = f"""function_calls_duration_count{{function="{function_name}",module="test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}}"""
+        duration_count = f"""function_calls_duration_count{{function="{function_name}",module="autometrics.test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}}"""
         assert duration_count in data
 
-        duration_sum = f"""function_calls_duration_sum{{function="{function_name}",module="test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}}"""
+        duration_sum = f"""function_calls_duration_sum{{function="{function_name}",module="autometrics.test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}}"""
         assert duration_sum in data
 
     @pytest.mark.asyncio
@@ -163,16 +150,12 @@ class TestDecoratorClass:
         """This is a test that covers objectives for async functions."""
 
         # set up the function + objective variables
-        caller = get_caller_function(depth=1)
-        assert caller is not None
-        assert caller != ""
         objective_name = "test_objective"
         success_rate = ObjectivePercentile.P90
         latency = (ObjectiveLatency.Ms100, ObjectivePercentile.P99)
         objective = Objective(
             name=objective_name, success_rate=success_rate, latency=latency
         )
-        function_name = basic_async_function.__name__
         wrapped_function = autometrics(objective=objective)(basic_async_function)
 
         sleep_duration = 0.25
@@ -187,28 +170,24 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_count_total{{caller="{caller}",function="{function_name}",module="test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 1.0"""
+        total_count = f"""function_calls_count_total{{caller="",function="basic_async_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 1.0"""
         assert total_count in data
 
         # Check the latency buckets
         for objective in ObjectiveLatency:
             count = 0 if float(objective.value) <= sleep_duration else 1
-            query = f"""function_calls_duration_bucket{{function="{function_name}",le="{objective.value}",module="test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}} {count}"""
+            query = f"""function_calls_duration_bucket{{function="basic_async_function",le="{objective.value}",module="autometrics.test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}} {count}"""
             assert query in data
 
-        duration_count = f"""function_calls_duration_count{{function="{function_name}",module="test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}}"""
+        duration_count = f"""function_calls_duration_count{{function="basic_async_function",module="autometrics.test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}}"""
         assert duration_count in data
 
-        duration_sum = f"""function_calls_duration_sum{{function="{function_name}",module="test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}}"""
+        duration_sum = f"""function_calls_duration_sum{{function="basic_async_function",module="autometrics.test_decorator",objective_latency_threshold="{latency[0].value}",objective_name="{objective_name}",objective_percentile="{latency[1].value}"}}"""
         assert duration_sum in data
 
     def test_exception(self):
         """This is a test that covers exceptions."""
-        caller = get_caller_function(depth=1)
-        assert caller is not None
-        assert caller != ""
 
-        function_name = error_function.__name__
         wrapped_function = autometrics(error_function)
 
         with pytest.raises(RuntimeError) as exception:
@@ -220,27 +199,23 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_count_total{{caller="{caller}",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="error"}} 1.0"""
+        total_count = f"""function_calls_count_total{{caller="",function="error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 1.0"""
         assert total_count in data
 
         for latency in ObjectiveLatency:
-            query = f"""function_calls_duration_bucket{{function="{function_name}",le="{latency.value}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+            query = f"""function_calls_duration_bucket{{function="error_function",le="{latency.value}",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
             assert query in data
 
-        duration_count = f"""function_calls_duration_count{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+        duration_count = f"""function_calls_duration_count{{function="error_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
         assert duration_count in data
 
-        duration_sum = f"""function_calls_duration_sum{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+        duration_sum = f"""function_calls_duration_sum{{function="error_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
         assert duration_sum in data
 
     @pytest.mark.asyncio
     async def test_async_exception(self):
         """This is a test that covers exceptions."""
-        caller = get_caller_function(depth=1)
-        assert caller is not None
-        assert caller != ""
 
-        function_name = error_async_function.__name__
         wrapped_function = autometrics(error_async_function)
 
         # Test that the function is *still* async after we wrap it
@@ -255,34 +230,33 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_count_total{{caller="{caller}",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="error"}} 1.0"""
+        total_count = f"""function_calls_count_total{{caller="",function="error_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 1.0"""
         assert total_count in data
 
         for latency in ObjectiveLatency:
-            query = f"""function_calls_duration_bucket{{function="{function_name}",le="{latency.value}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+            query = f"""function_calls_duration_bucket{{function="error_async_function",le="{latency.value}",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
             assert query in data
 
-        duration_count = f"""function_calls_duration_count{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+        duration_count = f"""function_calls_duration_count{{function="error_async_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
         assert duration_count in data
 
-        duration_sum = f"""function_calls_duration_sum{{function="{function_name}",module="test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
+        duration_sum = f"""function_calls_duration_sum{{function="error_async_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile=""}}"""
         assert duration_sum in data
 
     def test_initialize_counters_sync(self):
         """This is a test to see if the function calls metric initializes at 0 after invoking the decorator."""
 
-        function_name = never_called_function.__name__
-        wrapped_function = autometrics(never_called_function)
+        autometrics(never_called_function)
         # NOTE - Do not call the function! We want to see if we get counter data for it
 
         blob = generate_latest()
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count_ok = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
+        total_count_ok = f"""function_calls_count_total{{caller="",function="never_called_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
         assert total_count_ok in data
 
-        total_count_error = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
+        total_count_error = f"""function_calls_count_total{{caller="",function="never_called_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
         assert total_count_error in data
 
     def test_initialize_counters_sync_with_objective(self):
@@ -292,36 +266,34 @@ class TestDecoratorClass:
         success_rate = ObjectivePercentile.P90
         objective = Objective(name=objective_name, success_rate=success_rate)
 
-        function_name = never_called_function.__name__
-        wrapped_function = autometrics(objective=objective)(never_called_function)
+        autometrics(objective=objective)(never_called_function)
         # NOTE - Do not call the function! We want to see if we get counter data for it
 
         blob = generate_latest()
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count_ok = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 0.0"""
+        total_count_ok = f"""function_calls_count_total{{caller="",function="never_called_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 0.0"""
         assert total_count_ok in data
 
-        total_count_error = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="error"}} 0.0"""
+        total_count_error = f"""function_calls_count_total{{caller="",function="never_called_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="error"}} 0.0"""
         assert total_count_error in data
 
     @pytest.mark.asyncio
     async def test_initialize_counters_async(self):
         """This is a test to see if the function calls metric initializes at 0 after invoking the decorator for an async function"""
 
-        function_name = never_called_async_function.__name__
-        wrapped_function = autometrics(never_called_async_function)
+        autometrics(never_called_async_function)
         # NOTE - Do not call the function! We want to see if we get counter data for it even without ever calling it
 
         blob = generate_latest()
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count_ok = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
+        total_count_ok = f"""function_calls_count_total{{caller="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
         assert total_count_ok in data
 
-        total_count_error = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
+        total_count_error = f"""function_calls_count_total{{caller="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
         assert total_count_error in data
 
     @pytest.mark.asyncio
@@ -332,16 +304,15 @@ class TestDecoratorClass:
         success_rate = ObjectivePercentile.P90
         objective = Objective(name=objective_name, success_rate=success_rate)
 
-        function_name = never_called_async_function.__name__
-        wrapped_function = autometrics(objective=objective)(never_called_async_function)
+        autometrics(objective=objective)(never_called_async_function)
         # NOTE - Do not call the function! We want to see if we get counter data for it even without ever calling it
 
         blob = generate_latest()
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count_ok = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 0.0"""
+        total_count_ok = f"""function_calls_count_total{{caller="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 0.0"""
         assert total_count_ok in data
 
-        total_count_error = f"""function_calls_count_total{{caller="",function="{function_name}",module="test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="error"}} 0.0"""
+        total_count_error = f"""function_calls_count_total{{caller="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="error"}} 0.0"""
         assert total_count_error in data

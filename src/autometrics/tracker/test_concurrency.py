@@ -6,6 +6,7 @@ import pytest
 from .tracker import set_tracker, TrackerType
 
 from ..decorator import autometrics
+from ..utils import get_function_name, get_module_name
 
 
 @autometrics(track_concurrency=True)
@@ -19,6 +20,9 @@ async def test_concurrency_tracking_prometheus(monkeypatch):
     #        because the library was already initialized with the OpenTelemetry tracker
     set_tracker(TrackerType.PROMETHEUS)
 
+    func_name = get_function_name(sleep)
+    module_name = get_module_name(sleep)
+
     # Create a 200ms async task
     loop = asyncio.get_event_loop()
     task = loop.create_task(sleep(0.2))
@@ -31,9 +35,9 @@ async def test_concurrency_tracking_prometheus(monkeypatch):
     await task
     assert blob is not None
     data = blob.decode("utf-8")
-    print(data)
+
     assert (
-        f"""# TYPE function_calls_concurrent gauge\nfunction_calls_concurrent{{function="sleep",module="test_concurrency"}} 1.0"""
+        f"""# TYPE function_calls_concurrent gauge\nfunction_calls_concurrent{{function="sleep",module="autometrics.tracker.test_concurrency"}} 1.0"""
         in data
     )
 
