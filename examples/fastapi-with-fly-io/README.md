@@ -11,7 +11,7 @@ In this tutorial we'll create a simple back-end application that uses autometric
 In order to set this project up locally you need:
 
 - [poetry](https://python-poetry.org). This is used for managing dependencies
-- Python 3.8 or newer
+- Python 3.7 or newer
 - [Fly.io](https://fly.io/) account and their CLI installed [flyctl](https://fly.io/docs/hands-on/install-flyctl/)
 - optionally: [docker](https://www.docker.com/) if you want to build the container locally
 
@@ -37,7 +37,7 @@ This will trigger a wizard asking for:
 - description (can be left empty)
 - author (you can leave empty or use the default value)
 - license (which I will set to MIT, but can be left empty )
-- Compatible Python version should be at least python 3.8 or higher
+- Compatible Python version should be at least Python 3.7 or higher
 - defining dependencies interactively: which we won't do
 - defining development dependencies interactively: which we won't do either
 - for confirmation of the generation (Which should be answered with the default yes)
