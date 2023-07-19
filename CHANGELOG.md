@@ -12,6 +12,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+-
+
+### Changed
+
+-
+
+### Deprecated
+
+-
+
+### Removed
+
+-
+
+### Fixed
+
+-
+
+### Security
+
+-
+
+## [0.7](https://github.com/autometrics-dev/autometrics-py/releases/tag/0.6) - 2023-07-19
+
+### Added
+
 - Initialize counter metrics at zero #54
 
 ### Changed
@@ -28,6 +54,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 -
 
 ### Fixed
+
+- Fixed calculation of funciton duration when using OpenTelemetry tracker #66
 
 ### Security
 
