@@ -123,7 +123,7 @@ class OpenTelemetryTracker:
             percentile = latency[1].value
 
         self.__histogram_instance.record(
-            duration * 1000,
+            duration,
             attributes={
                 "function": function,
                 "module": module,
