@@ -40,10 +40,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Support for prometheus-client 0.17.x
 
-### Changed
-
-- Explicitly dropped support for Python 3.7 and below
-
 ## [0.7](https://github.com/autometrics-dev/autometrics-py/releases/tag/0.7) - 2023-07-19
 
 ### Added
