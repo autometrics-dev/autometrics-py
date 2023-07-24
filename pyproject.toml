@@ -18,7 +18,7 @@ packages = [{include = "autometrics", from = "src"}]
 opentelemetry-api = "^1.17.0"
 opentelemetry-exporter-prometheus = "^1.12.0rc1"
 opentelemetry-sdk = "^1.17.0"
-prometheus-client = "^0.17.1"
+prometheus-client = "^0.16.0 || ^0.17.0"
 python = "^3.8"
 python-dotenv = "^1.0.0"
 typing-extensions = "^4.5.0"
