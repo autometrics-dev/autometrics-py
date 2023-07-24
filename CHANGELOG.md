@@ -34,6 +34,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 -
 
+## [0.8](https://github.com/autometrics-dev/autometrics-py/releases/tag/0.8) - 2023-07-24
+
+### Added
+
+- Support for prometheus-client 0.17.x
+
 ## [0.7](https://github.com/autometrics-dev/autometrics-py/releases/tag/0.7) - 2023-07-19
 
 ### Added
