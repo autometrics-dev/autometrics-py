@@ -38,6 +38,6 @@ def test_caller_detection():
     assert blob is not None
     data = blob.decode("utf-8")
 
-    expected = """function_calls_count_total{caller="test_caller_detection.<locals>.bar",function="test_caller_detection.<locals>.foo",module="autometrics.test_caller",objective_name="",objective_percentile="",result="ok"} 1.0"""
+    expected = """function_calls_total{caller="test_caller_detection.<locals>.bar",function="test_caller_detection.<locals>.foo",module="autometrics.test_caller",objective_name="",objective_percentile="",result="ok"} 1.0"""
     assert "wrapper" not in data
     assert expected in data

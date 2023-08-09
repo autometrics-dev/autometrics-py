@@ -50,6 +50,7 @@ class PrometheusTracker:
             OBJECTIVE_PERCENTILE_PROMETHEUS,
             OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
         ],
+        unit="seconds",
     )
     prom_gauge_build_info = Gauge(
         BUILD_INFO_NAME, BUILD_INFO_DESCRIPTION, [COMMIT_KEY, VERSION_KEY, BRANCH_KEY]

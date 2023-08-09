@@ -1,6 +1,6 @@
 """Constants used by autometrics"""
 
-COUNTER_NAME = "function.calls.count"
+COUNTER_NAME = "function.calls"
 HISTOGRAM_NAME = "function.calls.duration"
 CONCURRENCY_NAME = "function.calls.concurrent"
 # NOTE - The Rust implementation does not use `build.info`, instead opts for just `build_info`
