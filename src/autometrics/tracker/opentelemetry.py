@@ -64,6 +64,7 @@ class OpenTelemetryTracker:
         self.__histogram_instance = meter.create_histogram(
             name=HISTOGRAM_NAME,
             description=HISTOGRAM_DESCRIPTION,
+            unit="seconds",
         )
         self.__up_down_counter_build_info_instance = meter.create_up_down_counter(
             name=BUILD_INFO_NAME,
