@@ -80,7 +80,8 @@ class OpenTelemetryTracker:
         self,
         function: str,
         module: str,
-        caller: str,
+        caller_module: str,
+        caller_function: str,
         objective: Optional[Objective],
         exemplar: Optional[dict],
         result: Result,
@@ -98,7 +99,8 @@ class OpenTelemetryTracker:
                 "function": function,
                 "module": module,
                 "result": result.value,
-                "caller": caller,
+                "caller.module": caller_module,
+                "caller.function": caller_function,
                 OBJECTIVE_NAME: objective_name,
                 OBJECTIVE_PERCENTILE: percentile,
             },
@@ -164,7 +166,8 @@ class OpenTelemetryTracker:
         start_time: float,
         function: str,
         module: str,
-        caller: str,
+        caller_module: str,
+        caller_function: str,
         result: Result = Result.OK,
         objective: Optional[Objective] = None,
         track_concurrency: Optional[bool] = False,
@@ -176,7 +179,15 @@ class OpenTelemetryTracker:
         # https://github.com/autometrics-dev/autometrics-py/issues/41
         # if os.getenv("AUTOMETRICS_EXEMPLARS") == "true":
         #     exemplar = get_exemplar()
-        self.__count(function, module, caller, objective, exemplar, result)
+        self.__count(
+            function,
+            module,
+            caller_module,
+            caller_function,
+            objective,
+            exemplar,
+            result,
+        )
         self.__histogram(function, module, start_time, objective, exemplar)
         if track_concurrency:
             self.__up_down_counter_concurrency_instance.add(
@@ -194,6 +205,25 @@ class OpenTelemetryTracker:
         objective: Optional[Objective] = None,
     ):
         """Initialize tracking metrics for a function call at zero."""
-        caller = ""
-        self.__count(function, module, caller, objective, None, Result.OK, 0)
-        self.__count(function, module, caller, objective, None, Result.ERROR, 0)
+        caller_module = ""
+        caller_function = ""
+        self.__count(
+            function,
+            module,
+            caller_module,
+            caller_function,
+            objective,
+            None,
+            Result.OK,
+            0,
+        )
+        self.__count(
+            function,
+            module,
+            caller_module,
+            caller_function,
+            objective,
+            None,
+            Result.ERROR,
+            0,
+        )

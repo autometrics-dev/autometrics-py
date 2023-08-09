@@ -1,5 +1,5 @@
 """Autometrics module."""
-from contextvars import ContextVar
+from contextvars import ContextVar, Token
 import time
 import inspect
 
@@ -20,7 +20,8 @@ P = ParamSpec("P")
 T = TypeVar("T")
 
 
-caller_var: ContextVar[str] = ContextVar("caller", default="")
+caller_module_var: ContextVar[str] = ContextVar("caller.module", default="")
+caller_function_var: ContextVar[str] = ContextVar("caller.function", default="")
 
 
 # Bare decorator usage
@@ -63,12 +64,19 @@ def autometrics(
             function=function, module=module, track_concurrency=track_concurrency
         )
 
-    def track_result_ok(start_time: float, function: str, module: str, caller: str):
+    def track_result_ok(
+        start_time: float,
+        function: str,
+        module: str,
+        caller_module: str,
+        caller_function: str,
+    ):
         get_tracker().finish(
             start_time,
             function=function,
             module=module,
-            caller=caller,
+            caller_module=caller_module,
+            caller_function=caller_function,
             objective=objective,
             track_concurrency=track_concurrency,
             result=Result.OK,
@@ -78,13 +86,15 @@ def autometrics(
         start_time: float,
         function: str,
         module: str,
-        caller: str,
+        caller_module: str,
+        caller_function: str,
     ):
         get_tracker().finish(
             start_time,
             function=function,
             module=module,
-            caller=caller,
+            caller_module=caller_module,
+            caller_function=caller_function,
             objective=objective,
             track_concurrency=track_concurrency,
             result=Result.ERROR,
@@ -100,16 +110,23 @@ def autometrics(
         @wraps(func)
         def sync_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
             start_time = time.time()
-            caller = caller_var.get()
-            context_token = None
+            caller_module = caller_module_var.get()
+            caller_function = caller_function_var.get()
+            context_token_module: Optional[Token] = None
+            context_token_function: Optional[Token] = None
 
             try:
-                context_token = caller_var.set(func_name)
+                context_token_module = caller_module_var.set(module_name)
+                context_token_function = caller_function_var.set(func_name)
                 if track_concurrency:
                     track_start(module=module_name, function=func_name)
                 result = func(*args, **kwds)
                 track_result_ok(
-                    start_time, function=func_name, module=module_name, caller=caller
+                    start_time,
+                    function=func_name,
+                    module=module_name,
+                    caller_module=caller_module,
+                    caller_function=caller_function,
                 )
 
             except Exception as exception:
@@ -118,14 +135,17 @@ def autometrics(
                     start_time,
                     function=func_name,
                     module=module_name,
-                    caller=caller,
+                    caller_module=caller_module,
+                    caller_function=caller_function,
                 )
                 # Reraise exception
                 raise exception
 
             finally:
-                if context_token is not None:
-                    caller_var.reset(context_token)
+                if context_token_module is not None:
+                    caller_module_var.reset(context_token_module)
+                if context_token_function is not None:
+                    caller_function_var.reset(context_token_function)
 
             return result
 
@@ -142,16 +162,23 @@ def autometrics(
         @wraps(func)
         async def async_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
             start_time = time.time()
-            caller = caller_var.get()
-            context_token = None
+            caller_module = caller_module_var.get()
+            caller_function = caller_function_var.get()
+            context_token_module: Optional[Token] = None
+            context_token_function: Optional[Token] = None
 
             try:
-                context_token = caller_var.set(func_name)
+                context_token_module = caller_module_var.set(module_name)
+                context_token_function = caller_function_var.set(func_name)
                 if track_concurrency:
                     track_start(module=module_name, function=func_name)
                 result = await func(*args, **kwds)
                 track_result_ok(
-                    start_time, function=func_name, module=module_name, caller=caller
+                    start_time,
+                    function=func_name,
+                    module=module_name,
+                    caller_module=caller_module,
+                    caller_function=caller_function,
                 )
 
             except Exception as exception:
@@ -160,14 +187,17 @@ def autometrics(
                     start_time,
                     function=func_name,
                     module=module_name,
-                    caller=caller,
+                    caller_module=caller_module,
+                    caller_function=caller_function,
                 )
                 # Reraise exception
                 raise exception
 
             finally:
-                if context_token is not None:
-                    caller_var.reset(context_token)
+                if context_token_module is not None:
+                    caller_module_var.reset(context_token_module)
+                if context_token_function is not None:
+                    caller_function_var.reset(context_token_function)
 
             return result
 

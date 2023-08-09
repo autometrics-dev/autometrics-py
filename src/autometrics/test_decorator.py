@@ -66,7 +66,7 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_total{{caller="",function="basic_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 1.0"""
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="basic_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 1.0"""
         assert total_count in data
 
         for latency in ObjectiveLatency:
@@ -94,7 +94,7 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_total{{caller="",function="basic_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 1.0"""
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="basic_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 1.0"""
         assert total_count in data
 
         for latency in ObjectiveLatency:
@@ -130,7 +130,7 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_total{{caller="",function="{function_name}",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 1.0"""
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="{function_name}",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 1.0"""
         assert total_count in data
 
         # Check the latency buckets
@@ -170,7 +170,7 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_total{{caller="",function="basic_async_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 1.0"""
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="basic_async_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 1.0"""
         assert total_count in data
 
         # Check the latency buckets
@@ -199,7 +199,7 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_total{{caller="",function="error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 1.0"""
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 1.0"""
         assert total_count in data
 
         for latency in ObjectiveLatency:
@@ -230,7 +230,7 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count = f"""function_calls_total{{caller="",function="error_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 1.0"""
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="error_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 1.0"""
         assert total_count in data
 
         for latency in ObjectiveLatency:
@@ -253,10 +253,10 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count_ok = f"""function_calls_total{{caller="",function="never_called_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
+        total_count_ok = f"""function_calls_total{{caller_function="",caller_module="",function="never_called_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
         assert total_count_ok in data
 
-        total_count_error = f"""function_calls_total{{caller="",function="never_called_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
+        total_count_error = f"""function_calls_total{{caller_function="",caller_module="",function="never_called_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
         assert total_count_error in data
 
     def test_initialize_counters_sync_with_objective(self):
@@ -273,10 +273,10 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count_ok = f"""function_calls_total{{caller="",function="never_called_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 0.0"""
+        total_count_ok = f"""function_calls_total{{caller_function="",caller_module="",function="never_called_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 0.0"""
         assert total_count_ok in data
 
-        total_count_error = f"""function_calls_total{{caller="",function="never_called_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="error"}} 0.0"""
+        total_count_error = f"""function_calls_total{{caller_function="",caller_module="",function="never_called_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="error"}} 0.0"""
         assert total_count_error in data
 
     @pytest.mark.asyncio
@@ -290,10 +290,10 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count_ok = f"""function_calls_total{{caller="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
+        total_count_ok = f"""function_calls_total{{caller_function="",caller_module="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok"}} 0.0"""
         assert total_count_ok in data
 
-        total_count_error = f"""function_calls_total{{caller="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
+        total_count_error = f"""function_calls_total{{caller_function="",caller_module="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error"}} 0.0"""
         assert total_count_error in data
 
     @pytest.mark.asyncio
@@ -311,8 +311,8 @@ class TestDecoratorClass:
         assert blob is not None
         data = blob.decode("utf-8")
 
-        total_count_ok = f"""function_calls_total{{caller="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 0.0"""
+        total_count_ok = f"""function_calls_total{{caller_function="",caller_module="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="ok"}} 0.0"""
         assert total_count_ok in data
 
-        total_count_error = f"""function_calls_total{{caller="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="error"}} 0.0"""
+        total_count_error = f"""function_calls_total{{caller_function="",caller_module="",function="never_called_async_function",module="autometrics.test_decorator",objective_name="{objective_name}",objective_percentile="{success_rate.value}",result="error"}} 0.0"""
         assert total_count_error in data
