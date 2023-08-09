@@ -35,7 +35,8 @@ class PrometheusTracker:
             "function",
             "module",
             "result",
-            "caller",
+            "caller_module",
+            "caller_function",
             OBJECTIVE_NAME_PROMETHEUS,
             OBJECTIVE_PERCENTILE_PROMETHEUS,
         ],
@@ -66,7 +67,8 @@ class PrometheusTracker:
         self,
         func_name: str,
         module_name: str,
-        caller: str,
+        caller_module: str,
+        caller_function: str,
         objective: Optional[Objective] = None,
         exemplar: Optional[dict] = None,
         result: Result = Result.OK,
@@ -84,7 +86,8 @@ class PrometheusTracker:
             func_name,
             module_name,
             result.value,
-            caller,
+            caller_module,
+            caller_function,
             objective_name,
             percentile,
         ).inc(inc_by, exemplar)
@@ -133,7 +136,8 @@ class PrometheusTracker:
         start_time: float,
         function: str,
         module: str,
-        caller: str,
+        caller_module: str,
+        caller_function: str,
         result: Result = Result.OK,
         objective: Optional[Objective] = None,
         track_concurrency: Optional[bool] = False,
@@ -143,7 +147,15 @@ class PrometheusTracker:
         if os.getenv("AUTOMETRICS_EXEMPLARS") == "true":
             exemplar = get_exemplar()
 
-        self._count(function, module, caller, objective, exemplar, result)
+        self._count(
+            function,
+            module,
+            caller_module,
+            caller_function,
+            objective,
+            exemplar,
+            result,
+        )
         self._histogram(function, module, start_time, objective, exemplar)
 
         if track_concurrency:
@@ -156,6 +168,25 @@ class PrometheusTracker:
         objective: Optional[Objective] = None,
     ):
         """Initialize tracking metrics for a function call at zero."""
-        caller = ""
-        self._count(function, module, caller, objective, None, Result.OK, 0)
-        self._count(function, module, caller, objective, None, Result.ERROR, 0)
+        caller_module = ""
+        caller_function = ""
+        self._count(
+            function,
+            module,
+            caller_module,
+            caller_function,
+            objective,
+            None,
+            Result.OK,
+            0,
+        )
+        self._count(
+            function,
+            module,
+            caller_module,
+            caller_function,
+            objective,
+            None,
+            Result.ERROR,
+            0,
+        )
