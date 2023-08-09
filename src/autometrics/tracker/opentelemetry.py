@@ -24,12 +24,12 @@ from ..constants import (
     HISTOGRAM_NAME,
     BUILD_INFO_NAME,
     BUILD_INFO_DESCRIPTION,
+    SERVICE_NAME,
     OBJECTIVE_NAME,
     OBJECTIVE_PERCENTILE,
     OBJECTIVE_LATENCY_THRESHOLD,
 )
-
-FUNCTION_CALLS_DURATION_NAME = "function.calls.duration"
+from ..utils import get_service_name
 
 
 def get_objective_boundaries():
@@ -103,6 +103,7 @@ class OpenTelemetryTracker:
                 "caller.function": caller_function,
                 OBJECTIVE_NAME: objective_name,
                 OBJECTIVE_PERCENTILE: percentile,
+                SERVICE_NAME: get_service_name(),
             },
         )
 
@@ -130,6 +131,7 @@ class OpenTelemetryTracker:
             attributes={
                 "function": function,
                 "module": module,
+                SERVICE_NAME: get_service_name(),
                 OBJECTIVE_NAME: objective_name,
                 OBJECTIVE_PERCENTILE: percentile,
                 OBJECTIVE_LATENCY_THRESHOLD: threshold,
@@ -145,11 +147,15 @@ class OpenTelemetryTracker:
                     "commit": commit,
                     "version": version,
                     "branch": branch,
+                    SERVICE_NAME: get_service_name(),
                 },
             )
 
     def start(
-        self, function: str, module: str, track_concurrency: Optional[bool] = False
+        self,
+        function: str,
+        module: str,
+        track_concurrency: Optional[bool] = False,
     ):
         """Start tracking metrics for a function call."""
         if track_concurrency:
@@ -158,6 +164,7 @@ class OpenTelemetryTracker:
                 attributes={
                     "function": function,
                     "module": module,
+                    SERVICE_NAME: get_service_name(),
                 },
             )
 
@@ -195,6 +202,7 @@ class OpenTelemetryTracker:
                 attributes={
                     "function": function,
                     "module": module,
+                    SERVICE_NAME: get_service_name(),
                 },
             )
 

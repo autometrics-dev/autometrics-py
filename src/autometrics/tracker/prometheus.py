@@ -7,6 +7,7 @@ from ..constants import (
     COUNTER_NAME_PROMETHEUS,
     HISTOGRAM_NAME_PROMETHEUS,
     CONCURRENCY_NAME_PROMETHEUS,
+    SERVICE_NAME_PROMETHEUS,
     BUILD_INFO_NAME,
     COUNTER_DESCRIPTION,
     HISTOGRAM_DESCRIPTION,
@@ -23,6 +24,7 @@ from ..constants import (
 from .exemplar import get_exemplar
 from .tracker import Result
 from ..objectives import Objective
+from ..utils import get_service_name
 
 
 class PrometheusTracker:
@@ -34,6 +36,7 @@ class PrometheusTracker:
         [
             "function",
             "module",
+            SERVICE_NAME_PROMETHEUS,
             "result",
             "caller_module",
             "caller_function",
@@ -47,6 +50,7 @@ class PrometheusTracker:
         [
             "function",
             "module",
+            SERVICE_NAME_PROMETHEUS,
             OBJECTIVE_NAME_PROMETHEUS,
             OBJECTIVE_PERCENTILE_PROMETHEUS,
             OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
@@ -54,10 +58,18 @@ class PrometheusTracker:
         unit="seconds",
     )
     prom_gauge_build_info = Gauge(
-        BUILD_INFO_NAME, BUILD_INFO_DESCRIPTION, [COMMIT_KEY, VERSION_KEY, BRANCH_KEY]
+        BUILD_INFO_NAME,
+        BUILD_INFO_DESCRIPTION,
+        [COMMIT_KEY, VERSION_KEY, BRANCH_KEY, SERVICE_NAME_PROMETHEUS],
     )
     prom_gauge_concurrency = Gauge(
-        CONCURRENCY_NAME_PROMETHEUS, CONCURRENCY_DESCRIPTION, ["function", "module"]
+        CONCURRENCY_NAME_PROMETHEUS,
+        CONCURRENCY_DESCRIPTION,
+        [
+            "function",
+            "module",
+            SERVICE_NAME_PROMETHEUS,
+        ],
     )
 
     def __init__(self) -> None:
@@ -81,10 +93,12 @@ class PrometheusTracker:
             if objective is None or objective.success_rate is None
             else objective.success_rate.value
         )
+        service_name = get_service_name()
 
         self.prom_counter.labels(
             func_name,
             module_name,
+            service_name,
             result.value,
             caller_module,
             caller_function,
@@ -110,10 +124,12 @@ class PrometheusTracker:
         if latency is not None:
             threshold = latency[0].value
             percentile = latency[1].value
+        service_name = get_service_name()
 
         self.prom_histogram.labels(
             func_name,
             module_name,
+            service_name,
             objective_name,
             percentile,
             threshold,
@@ -122,14 +138,18 @@ class PrometheusTracker:
     def set_build_info(self, commit: str, version: str, branch: str):
         if not self._has_set_build_info:
             self._has_set_build_info = True
-            self.prom_gauge_build_info.labels(commit, version, branch).set(1)
+            service_name = get_service_name()
+            self.prom_gauge_build_info.labels(
+                commit, version, branch, service_name
+            ).set(1)
 
     def start(
         self, function: str, module: str, track_concurrency: Optional[bool] = False
     ):
         """Start tracking metrics for a function call."""
         if track_concurrency:
-            self.prom_gauge_concurrency.labels(function, module).inc()
+            service_name = get_service_name()
+            self.prom_gauge_concurrency.labels(function, module, service_name).inc()
 
     def finish(
         self,
@@ -159,7 +179,8 @@ class PrometheusTracker:
         self._histogram(function, module, start_time, objective, exemplar)
 
         if track_concurrency:
-            self.prom_gauge_concurrency.labels(function, module).dec()
+            service_name = get_service_name()
+            self.prom_gauge_concurrency.labels(function, module, service_name).dec()
 
     def initialize_counters(
         self,

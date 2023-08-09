@@ -5,11 +5,13 @@ HISTOGRAM_NAME = "function.calls.duration"
 CONCURRENCY_NAME = "function.calls.concurrent"
 # NOTE - The Rust implementation does not use `build.info`, instead opts for just `build_info`
 BUILD_INFO_NAME = "build_info"
+SERVICE_NAME = "service.name"
 
 
 COUNTER_NAME_PROMETHEUS = COUNTER_NAME.replace(".", "_")
 HISTOGRAM_NAME_PROMETHEUS = HISTOGRAM_NAME.replace(".", "_")
 CONCURRENCY_NAME_PROMETHEUS = CONCURRENCY_NAME.replace(".", "_")
+SERVICE_NAME_PROMETHEUS = SERVICE_NAME.replace(".", "_")
 
 COUNTER_DESCRIPTION = "Autometrics counter for tracking function calls"
 HISTOGRAM_DESCRIPTION = "Autometrics histogram for tracking function call duration"

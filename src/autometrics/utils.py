@@ -29,6 +29,21 @@ def get_function_name(func: Callable) -> str:
     return func.__qualname__ or func.__name__
 
 
+service_name = None
+
+
+def get_service_name():
+    global service_name
+    if service_name is not None:
+        return service_name
+    service_name = (
+        os.getenv("AUTOMETRICS_SERVICE_NAME")
+        or os.getenv("OTEL_SERVICE_NAME")
+        or __package__.rsplit(".", 1)[0]
+    )
+    return service_name
+
+
 def write_docs(func_name: str, module_name: str):
     """Write the prometheus query urls to the function docstring."""
     generator = Generator(func_name, module_name)

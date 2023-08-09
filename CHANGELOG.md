@@ -22,6 +22,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - When the `function.calls.duration` histogram is exported to Prometheus, it now
   includes the units (`function_calls_duration_seconds`) to be in line with
   Prometheus/OpenMetrics naming conventions. **Dashboards and alerting rules must be updated.**
+- The `caller` label on the `function.calls` metric was replaced with `caller.function`
+  and `caller.module`
+- All metrics now have a `service.name` label attached. This is set via runtime environment
+  variable (`AUTOMETRICS_SERVICE_NAME` or `OTEL_SERVICE_NAME`), or falls back to the package name.
 
 ### Deprecated
 

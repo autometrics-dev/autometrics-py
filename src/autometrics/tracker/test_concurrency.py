@@ -37,7 +37,7 @@ async def test_concurrency_tracking_prometheus(monkeypatch):
     data = blob.decode("utf-8")
 
     assert (
-        f"""# TYPE function_calls_concurrent gauge\nfunction_calls_concurrent{{function="sleep",module="autometrics.tracker.test_concurrency"}} 1.0"""
+        f"""# TYPE function_calls_concurrent gauge\nfunction_calls_concurrent{{function="sleep",module="autometrics.tracker.test_concurrency",service_name="autometrics"}} 1.0"""
         in data
     )
 
