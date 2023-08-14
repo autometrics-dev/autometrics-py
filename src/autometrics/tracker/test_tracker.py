@@ -44,10 +44,9 @@ def test_init_prometheus_tracker_set_build_info(monkeypatch):
     blob = generate_latest()
     assert blob is not None
     data = blob.decode("utf-8")
+    print(data)
 
-    prom_build_info = (
-        f"""build_info{{branch="{branch}",commit="{commit}",version="{version}"}} 1.0"""
-    )
+    prom_build_info = f"""build_info{{branch="{branch}",commit="{commit}",service_name="autometrics",version="{version}"}} 1.0"""
     assert prom_build_info in data
 
     monkeypatch.delenv("AUTOMETRICS_VERSION", raising=False)
@@ -79,9 +78,7 @@ def test_init_otel_tracker_set_build_info(monkeypatch):
     assert blob is not None
     data = blob.decode("utf-8")
 
-    prom_build_info = (
-        f"""build_info{{branch="{branch}",commit="{commit}",version="{version}"}} 1.0"""
-    )
+    prom_build_info = f"""build_info{{branch="{branch}",commit="{commit}",service_name="autometrics",version="{version}",service_name="autometrics"}} 1.0"""
     assert prom_build_info in data
 
     monkeypatch.delenv("AUTOMETRICS_VERSION", raising=False)

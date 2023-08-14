@@ -89,7 +89,7 @@ def api_handler():
 
 Autometrics keeps track of instrumented functions calling each other. If you have a function that calls another function, metrics for later will include `caller` label set to the name of the autometricised function that called it.
 
-#### Metrics Libraries
+## Metrics Libraries
 
 Configure the package that autometrics will use to produce metrics with the `AUTOMETRICS_TRACKER` environment variable.
 
@@ -115,6 +115,17 @@ Configure the labels by setting the following environment variables:
 | `branch`  | `AUTOMETRICS_BRANCH` or `BRANCH_NAME` | `""`          |
 
 This follows the method outlined in [Exposing the software version to Prometheus](https://www.robustperception.io/exposing-the-software-version-to-prometheus/).
+
+## Service name
+
+All metrics produced by Autometrics have a label called `service.name` (or `service_name` when exported to Prometheus) attached to identify the logical service they are part of.
+
+You may want to override the default service name, for example if you are running multiple instances of the same code base as separate services and want to differentiate between the metrics produced by each one.
+
+The service name is loaded from the following environment variables, in this order:
+
+1. `AUTOMETRICS_SERVICE_NAME` (at runtime)
+2. `OTEL_SERVICE_NAME` (at runtime)
 
 ## Exemplars
 
