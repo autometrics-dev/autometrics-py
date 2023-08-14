@@ -69,8 +69,6 @@ This is a default Django project with autometrics configured. You can find examp
 
 ## `starlette-otel-exemplars.py`
 
-This app shows how to use the OpenTelemetry integration to add exemplars to your metrics. In a distributed system, it allows you to track a request as it flows through your system by adding trace/span ids to it. We can catch these ids from OpenTelemetry and expose them to Prometheus as exemplars. Do note that exemplars are an experimental feature and you need to enable it in Prometheus with a `--enable-feature=exemplar-storage` flag. Run the example with a command:
-
-`AUTOMETRICS_TRACKER=prometheus AUTOMETRICS_EXEMPLARS=true uvicorn starlette-otel-exemplars:app --port 8080`
+This app shows how to use the OpenTelemetry integration to add exemplars to your metrics. In a distributed system, it allows you to track a request as it flows through your system by adding trace/span ids to it. We can catch these ids from OpenTelemetry and expose them to Prometheus as exemplars. Do note that exemplars are an experimental feature and you need to enable it in Prometheus with a `--enable-feature=exemplar-storage` flag.
 
 > Don't forget to configure Prometheus itself to scrape the metrics endpoint. Refer to the example `prometheus.yaml` file in the root of this project on how to set this up.

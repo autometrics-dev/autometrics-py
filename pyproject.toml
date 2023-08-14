@@ -7,12 +7,21 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/autometrics-dev/autometrics-py"
 homepage = "https://github.com/autometrics-dev/autometrics-py"
-keywords = ["metrics", "telemetry", "prometheus", "monitoring", "observability", "instrumentation"]
-# classifiers = [
-#     "Topic :: Software Development :: Build Tools",
-#     "Topic :: Software Development :: Libraries :: Python Modules"
-# ]
-packages = [{include = "autometrics", from = "src"}]
+keywords = [
+    "metrics",
+    "telemetry",
+    "prometheus",
+    "monitoring",
+    "observability",
+    "instrumentation",
+    "tracing",
+]
+classifiers = [
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Monitoring",
+]
+packages = [{ include = "autometrics", from = "src" }]
 
 [tool.poetry.dependencies]
 opentelemetry-api = "^1.17.0"
@@ -31,6 +40,7 @@ pyright = "^1.1.307"
 pytest = "^7.3.0"
 pytest-asyncio = "^0.21.0"
 black = "^23.3.0"
+pytest-xdist = "^3.3.1"
 
 [tool.poetry.group.examples]
 optional = true
@@ -39,7 +49,7 @@ optional = true
 anyio = "3.6.2"
 bleach = "6.0.0"
 build = "0.10.0"
-certifi = "2022.12.7"
+certifi = "2023.7.22"
 charset-normalizer = "3.1.0"
 click = "8.1.3"
 django = "^4.2"
@@ -57,7 +67,7 @@ more-itertools = "9.1.0"
 packaging = "23.0"
 pkginfo = "1.9.6"
 pydantic = "1.10.6"
-pygments = "2.14.0"
+pygments = "2.16.1"
 pyproject-hooks = "1.0.0"
 readme-renderer = "37.3"
 requests = "2.31.0"

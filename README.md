@@ -22,10 +22,10 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 - 💡 Writes Prometheus queries so you can understand the data generated without
   knowing PromQL
 - 🔗 Create links to live Prometheus charts directly into each function's docstring
-- [🔍 Identify commits](#identifying-commits-that-introduced-problems) that introduced errors or increased latency
+- [🔍 Identify commits](#build-info) that introduced errors or increased latency
 - [🚨 Define alerts](#alerts--slos) using SLO best practices directly in your source code
 - [📊 Grafana dashboards](#dashboards) work out of the box to visualize the performance of instrumented functions & SLOs
-- [⚙️ Configurable](#metrics-libraries) metric collection library (`opentelemetry` or `prometheus`)
+- [⚙️ Configurable](#settings) metric collection library (`opentelemetry` or `prometheus`)
 - [📍 Attach exemplars](#exemplars) to connect metrics with traces
 - ⚡ Minimal runtime overhead
 
@@ -89,14 +89,17 @@ def api_handler():
 
 Autometrics keeps track of instrumented functions calling each other. If you have a function that calls another function, metrics for later will include `caller` label set to the name of the autometricised function that called it.
 
-## Metrics Libraries
+## Settings
 
-Configure the package that autometrics will use to produce metrics with the `AUTOMETRICS_TRACKER` environment variable.
+Autometrics makes use of a number of environment variables to configure its behavior. All of them are also configurable with keyword arguments to the `init` function.
 
-- `opentelemetry` - Enabled by default, can also be explicitly set using the env var `AUTOMETRICS_TRACKER="OPEN_TELEMETERY"`. Look in `pyproject.toml` for the versions of the OpenTelemetry packages that will be used.
-- `prometheus` - Can be set using the env var `AUTOMETRICS_TRACKER="PROMETHEUS"`. Look in `pyproject.toml` for the version of the `prometheus-client` package that will be used.
+- `tracker` - Configure the package that autometrics will use to produce metrics. Default is `opentelemetry`, but you can also use `prometheus`. Look in `pyproject.toml` for the corresponding versions of packages that will be used.
+- `histogram_buckets` - Configure the buckets used for latency histograms. Default is `[0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1.0, 2.5, 5.0, 7.5, 10.0]`.
+- `enable_exemplars` - Enable [exemplar collection](#exemplars). Default is `False`.
+- `service_name` - Configure the [service name](#service-name).
+- `version`, `commit`, `branch` - Used to configure [build_info](#build-info).
 
-## Identifying commits that introduced problems
+## Identifying commits that introduced problems <span name="build-info" />
 
 > **NOTE** - As of writing, `build_info` will not work correctly when using the default tracker (`AUTOMETRICS_TRACKER=OPEN_TELEMETRY`).
 > This will be fixed once the following PR is merged on the opentelemetry-python project: https://github.com/open-telemetry/opentelemetry-python/pull/3306
@@ -126,6 +129,7 @@ The service name is loaded from the following environment variables, in this ord
 
 1. `AUTOMETRICS_SERVICE_NAME` (at runtime)
 2. `OTEL_SERVICE_NAME` (at runtime)
+3. First part of `__package__` (at runtime)
 
 ## Exemplars
 
@@ -136,6 +140,10 @@ Exemplars are a way to associate a metric sample to a trace by attaching `trace_
 
 To use exemplars, you need to first switch to a tracker that supports them by setting `AUTOMETRICS_TRACKER=prometheus` and enable
 exemplar collection by setting `AUTOMETRICS_EXEMPLARS=true`. You also need to enable exemplars in Prometheus by launching Prometheus with the `--enable-feature=exemplar-storage` flag.
+
+## Exporting metrics
+
+After collecting metrics with Autometrics, you need to export them to Prometheus. You can either add a separate route to your server and use the `generate_latest` function from the `prometheus_client` package, or you can use the `start_http_server` function from the same package to start a separate server that will expose the metrics. Autometrics also re-exports the `start_http_server` function with a preselected port 9464 for compatibility with other Autometrics packages.
 
 ## Development of the package
 

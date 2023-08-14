@@ -1,6 +1,8 @@
 import inspect
 import os
+
 from collections.abc import Callable
+from prometheus_client import start_wsgi_server, REGISTRY, CollectorRegistry
 
 from .prometheus_url import Generator
 
@@ -29,21 +31,6 @@ def get_function_name(func: Callable) -> str:
     return func.__qualname__ or func.__name__
 
 
-service_name = None
-
-
-def get_service_name():
-    global service_name
-    if service_name is not None:
-        return service_name
-    service_name = (
-        os.getenv("AUTOMETRICS_SERVICE_NAME")
-        or os.getenv("OTEL_SERVICE_NAME")
-        or __package__.rsplit(".", 1)[0]
-    )
-    return service_name
-
-
 def write_docs(func_name: str, module_name: str):
     """Write the prometheus query urls to the function docstring."""
     generator = Generator(func_name, module_name)
@@ -63,3 +50,10 @@ def append_docs_to_docstring(func, func_name, module_name):
         return write_docs(func_name, module_name)
     else:
         return f"{func.__doc__}\n{write_docs(func_name, module_name)}"
+
+
+def start_http_server(
+    port: int = 9464, addr: str = "0.0.0.0", registry: CollectorRegistry = REGISTRY
+):
+    """Starts a WSGI server for prometheus metrics as a daemon thread."""
+    start_wsgi_server(port, addr, registry)

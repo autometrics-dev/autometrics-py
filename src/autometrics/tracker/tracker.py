@@ -1,9 +1,8 @@
 from typing import Protocol, Optional
 from enum import Enum
-import os
-
 
 from ..objectives import Objective
+from ..settings import get_settings
 
 
 class Result(Enum):
@@ -68,11 +67,12 @@ def init_tracker(tracker_type: TrackerType) -> TrackMetrics:
 
         tracker_instance = PrometheusTracker()
 
+    settings = get_settings()
     # NOTE - Only set the build info when the tracker is initialized
     tracker_instance.set_build_info(
-        commit=os.getenv("AUTOMETRICS_COMMIT") or os.getenv("COMMIT_SHA") or "",
-        version=os.getenv("AUTOMETRICS_VERSION") or "",
-        branch=os.getenv("AUTOMETRICS_BRANCH") or os.getenv("BRANCH_NAME") or "",
+        commit=settings["commit"],
+        version=settings["version"],
+        branch=settings["branch"],
     )
 
     return tracker_instance
@@ -80,7 +80,8 @@ def init_tracker(tracker_type: TrackerType) -> TrackMetrics:
 
 def get_tracker_type() -> TrackerType:
     """Get the tracker type."""
-    tracker_type = os.getenv("AUTOMETRICS_TRACKER") or "opentelemetry"
+    tracker_type = get_settings()["tracker"]
+
     if tracker_type.lower() == "prometheus":
         return TrackerType.PROMETHEUS
     return TrackerType.OPENTELEMETRY

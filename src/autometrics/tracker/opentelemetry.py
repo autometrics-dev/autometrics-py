@@ -29,12 +29,7 @@ from ..constants import (
     OBJECTIVE_PERCENTILE,
     OBJECTIVE_LATENCY_THRESHOLD,
 )
-from ..utils import get_service_name
-
-
-def get_objective_boundaries():
-    """Get the objective latency boundaries as float values in seconds (instead of strings)"""
-    return list(map(lambda c: float(c.value), ObjectiveLatency))
+from ..settings import get_settings
 
 
 class OpenTelemetryTracker:
@@ -52,7 +47,7 @@ class OpenTelemetryTracker:
             description=HISTOGRAM_DESCRIPTION,
             instrument_name=HISTOGRAM_NAME,
             aggregation=ExplicitBucketHistogramAggregation(
-                boundaries=get_objective_boundaries()
+                boundaries=get_settings()["histogram_buckets"]
             ),
         )
         meter_provider = MeterProvider(metric_readers=[exporter], views=[view])
@@ -103,7 +98,7 @@ class OpenTelemetryTracker:
                 "caller.function": caller_function,
                 OBJECTIVE_NAME: objective_name,
                 OBJECTIVE_PERCENTILE: percentile,
-                SERVICE_NAME: get_service_name(),
+                SERVICE_NAME: get_settings()["service_name"],
             },
         )
 
@@ -131,7 +126,7 @@ class OpenTelemetryTracker:
             attributes={
                 "function": function,
                 "module": module,
-                SERVICE_NAME: get_service_name(),
+                SERVICE_NAME: get_settings()["service_name"],
                 OBJECTIVE_NAME: objective_name,
                 OBJECTIVE_PERCENTILE: percentile,
                 OBJECTIVE_LATENCY_THRESHOLD: threshold,
@@ -147,7 +142,7 @@ class OpenTelemetryTracker:
                     "commit": commit,
                     "version": version,
                     "branch": branch,
-                    SERVICE_NAME: get_service_name(),
+                    SERVICE_NAME: get_settings()["service_name"],
                 },
             )
 
@@ -164,7 +159,7 @@ class OpenTelemetryTracker:
                 attributes={
                     "function": function,
                     "module": module,
-                    SERVICE_NAME: get_service_name(),
+                    SERVICE_NAME: get_settings()["service_name"],
                 },
             )
 
@@ -184,7 +179,7 @@ class OpenTelemetryTracker:
         exemplar = None
         # Currently, exemplars are only supported by prometheus-client
         # https://github.com/autometrics-dev/autometrics-py/issues/41
-        # if os.getenv("AUTOMETRICS_EXEMPLARS") == "true":
+        # if get_settings()["exemplars"]:
         #     exemplar = get_exemplar()
         self.__count(
             function,
@@ -202,7 +197,7 @@ class OpenTelemetryTracker:
                 attributes={
                     "function": function,
                     "module": module,
-                    SERVICE_NAME: get_service_name(),
+                    SERVICE_NAME: get_settings()["service_name"],
                 },
             )
 

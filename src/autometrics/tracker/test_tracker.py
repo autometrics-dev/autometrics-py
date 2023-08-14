@@ -4,25 +4,31 @@ import pytest
 from .opentelemetry import OpenTelemetryTracker
 from .prometheus import PrometheusTracker
 
-from .tracker import default_tracker, init_tracker, TrackerType
+from .tracker import get_tracker, default_tracker
+
+from .. import init
 
 
 def test_default_tracker(monkeypatch):
     """Test the default tracker type."""
 
     monkeypatch.delenv("AUTOMETRICS_TRACKER", raising=False)
+    init()
     tracker = default_tracker()
     assert isinstance(tracker, OpenTelemetryTracker)
 
     monkeypatch.setenv("AUTOMETRICS_TRACKER", "prometheus")
+    init()
     tracker = default_tracker()
     assert isinstance(tracker, PrometheusTracker)
     monkeypatch.setenv("AUTOMETRICS_TRACKER", "PROMETHEUS")
+    init()
     tracker = default_tracker()
     assert isinstance(tracker, PrometheusTracker)
 
     # Should use open telemetry when the tracker is not recognized
     monkeypatch.setenv("AUTOMETRICS_TRACKER", "something_else")
+    init()
     tracker = default_tracker()
     assert isinstance(tracker, OpenTelemetryTracker)
 
@@ -33,12 +39,15 @@ def test_init_prometheus_tracker_set_build_info(monkeypatch):
     commit = "d6abce3"
     version = "1.0.1"
     branch = "main"
+    tracker = "prometheus"
 
     monkeypatch.setenv("AUTOMETRICS_COMMIT", commit)
     monkeypatch.setenv("AUTOMETRICS_VERSION", version)
     monkeypatch.setenv("AUTOMETRICS_BRANCH", branch)
+    monkeypatch.setenv("AUTOMETRICS_TRACKER", tracker)
+    init()
 
-    prom_tracker = init_tracker(TrackerType.PROMETHEUS)
+    prom_tracker = get_tracker()
     assert isinstance(prom_tracker, PrometheusTracker)
 
     blob = generate_latest()
@@ -70,8 +79,9 @@ def test_init_otel_tracker_set_build_info(monkeypatch):
     monkeypatch.setenv("AUTOMETRICS_COMMIT", commit)
     monkeypatch.setenv("AUTOMETRICS_VERSION", version)
     monkeypatch.setenv("AUTOMETRICS_BRANCH", branch)
+    init()
 
-    otel_tracker = init_tracker(TrackerType.OPENTELEMETRY)
+    otel_tracker = get_tracker()
     assert isinstance(otel_tracker, OpenTelemetryTracker)
 
     blob = generate_latest()
