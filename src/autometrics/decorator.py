@@ -1,8 +1,8 @@
 """Autometrics module."""
-from contextvars import ContextVar, Token
 import time
 import inspect
 
+from contextvars import ContextVar, Token
 from functools import wraps
 from typing import overload, TypeVar, Callable, Optional, Awaitable
 from typing_extensions import ParamSpec

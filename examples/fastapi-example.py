@@ -1,7 +1,8 @@
 import asyncio
-from fastapi import FastAPI, Response
 import uvicorn
+
 from autometrics import autometrics
+from fastapi import FastAPI, Response
 from prometheus_client import generate_latest
 
 app = FastAPI()

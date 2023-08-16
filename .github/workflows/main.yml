@@ -13,6 +13,8 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.8", "3.11", "pypy3.10"]
+    env:
+      FORCE_COLOR: 1
     steps:
       - uses: actions/checkout@v3
       - name: Install poetry
@@ -28,4 +30,4 @@ jobs:
       - name: Lint code
         run: poetry run pyright
       - name: Run tests
-        run: poetry run pytest
+        run: poetry run pytest -n auto

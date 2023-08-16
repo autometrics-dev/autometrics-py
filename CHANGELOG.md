@@ -12,20 +12,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
--
+- Added the `start_http_server`, which starts a separate HTTP server to expose
+  the metrics instead of using a separate endpoint in the existing server. (#77)
+- Added the `init` function that you can use to configure autometrics. (#77)
 
 ### Changed
 
 - Renamed the `function.calls.count` metric to `function.calls` (which is exported
   to Prometheus as `function_calls_total`) to be in line with OpenTelemetry and
-  OpenMetrics naming conventions. **Dashboards and alerting rules must be updated.**
+  OpenMetrics naming conventions. **Dashboards and alerting rules must be updated.** (#74)
 - When the `function.calls.duration` histogram is exported to Prometheus, it now
   includes the units (`function_calls_duration_seconds`) to be in line with
-  Prometheus/OpenMetrics naming conventions. **Dashboards and alerting rules must be updated.**
+  Prometheus/OpenMetrics naming conventions. **Dashboards and alerting rules must be updated.** (#74)
 - The `caller` label on the `function.calls` metric was replaced with `caller.function`
-  and `caller.module`
+  and `caller.module` (#75)
 - All metrics now have a `service.name` label attached. This is set via runtime environment
-  variable (`AUTOMETRICS_SERVICE_NAME` or `OTEL_SERVICE_NAME`), or falls back to the package name.
+  variable (`AUTOMETRICS_SERVICE_NAME` or `OTEL_SERVICE_NAME`), or falls back to the package name. (#76)
 
 ### Deprecated
 

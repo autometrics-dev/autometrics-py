@@ -1,4 +1,3 @@
-import os
 import time
 from typing import Optional
 from prometheus_client import Counter, Histogram, Gauge
@@ -24,7 +23,7 @@ from ..constants import (
 from .exemplar import get_exemplar
 from .tracker import Result
 from ..objectives import Objective
-from ..utils import get_service_name
+from ..settings import get_settings
 
 
 class PrometheusTracker:
@@ -56,6 +55,7 @@ class PrometheusTracker:
             OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
         ],
         unit="seconds",
+        buckets=get_settings()["histogram_buckets"],
     )
     prom_gauge_build_info = Gauge(
         BUILD_INFO_NAME,
@@ -93,7 +93,7 @@ class PrometheusTracker:
             if objective is None or objective.success_rate is None
             else objective.success_rate.value
         )
-        service_name = get_service_name()
+        service_name = get_settings()["service_name"]
 
         self.prom_counter.labels(
             func_name,
@@ -124,7 +124,7 @@ class PrometheusTracker:
         if latency is not None:
             threshold = latency[0].value
             percentile = latency[1].value
-        service_name = get_service_name()
+        service_name = get_settings()["service_name"]
 
         self.prom_histogram.labels(
             func_name,
@@ -138,7 +138,7 @@ class PrometheusTracker:
     def set_build_info(self, commit: str, version: str, branch: str):
         if not self._has_set_build_info:
             self._has_set_build_info = True
-            service_name = get_service_name()
+            service_name = get_settings()["service_name"]
             self.prom_gauge_build_info.labels(
                 commit, version, branch, service_name
             ).set(1)
@@ -148,7 +148,7 @@ class PrometheusTracker:
     ):
         """Start tracking metrics for a function call."""
         if track_concurrency:
-            service_name = get_service_name()
+            service_name = get_settings()["service_name"]
             self.prom_gauge_concurrency.labels(function, module, service_name).inc()
 
     def finish(
@@ -164,7 +164,7 @@ class PrometheusTracker:
     ):
         """Finish tracking metrics for a function call."""
         exemplar = None
-        if os.getenv("AUTOMETRICS_EXEMPLARS") == "true":
+        if get_settings()["enable_exemplars"]:
             exemplar = get_exemplar()
 
         self._count(
@@ -179,7 +179,7 @@ class PrometheusTracker:
         self._histogram(function, module, start_time, objective, exemplar)
 
         if track_concurrency:
-            service_name = get_service_name()
+            service_name = get_settings()["service_name"]
             self.prom_gauge_concurrency.labels(function, module, service_name).dec()
 
     def initialize_counters(

@@ -1,15 +1,15 @@
 from prometheus_client.exposition import generate_latest
 import pytest
 
-from . import init_tracker, TrackerType
-from .opentelemetry import OpenTelemetryTracker
+from . import TrackerType
 from ..decorator import autometrics
+from .. import init
 
 
 @pytest.mark.parametrize("tracker", TrackerType)
 def test_metrics_format(tracker):
     """Test that the metrics are formatted correctly."""
-    init_tracker(tracker)
+    init(tracker=tracker.value)
 
     @autometrics
     def test_function():
