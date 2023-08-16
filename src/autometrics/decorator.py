@@ -48,6 +48,8 @@ def autometrics(
     *,
     objective: Optional[Objective] = None,
     track_concurrency: Optional[bool] = False,
+    record_error_if: Optional[Callable[[T], bool]] = None,
+    record_success_if: Optional[Callable[[Exception], bool]] = None,
 ):
     """Decorator for tracking function calls and duration. Supports synchronous and async functions."""
 
@@ -130,14 +132,23 @@ def autometrics(
                 )
 
             except Exception as exception:
-                result = exception.__class__.__name__
-                track_result_error(
-                    start_time,
-                    function=func_name,
-                    module=module_name,
-                    caller_module=caller_module,
-                    caller_function=caller_function,
-                )
+                if (record_success_if and record_success_if(exception)):
+                    track_result_ok(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
+                else:
+                    result = exception.__class__.__name__
+                    track_result_error(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
                 # Reraise exception
                 raise exception
 
@@ -173,23 +184,41 @@ def autometrics(
                 if track_concurrency:
                     track_start(module=module_name, function=func_name)
                 result = await func(*args, **kwds)
-                track_result_ok(
-                    start_time,
-                    function=func_name,
-                    module=module_name,
-                    caller_module=caller_module,
-                    caller_function=caller_function,
-                )
+                if (record_error_if and record_error_if(result)):
+                    track_result_error(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
+                else:
+                    track_result_ok(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
 
             except Exception as exception:
-                result = exception.__class__.__name__
-                track_result_error(
-                    start_time,
-                    function=func_name,
-                    module=module_name,
-                    caller_module=caller_module,
-                    caller_function=caller_function,
-                )
+                if record_success_if and record_success_if(exception):
+                    track_result_ok(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
+                else:
+                    result = exception.__class__.__name__
+                    track_result_error(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
                 # Reraise exception
                 raise exception
 
