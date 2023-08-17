@@ -4,7 +4,7 @@ import inspect
 
 from contextvars import ContextVar, Token
 from functools import wraps
-from typing import overload, TypeVar, Callable, Optional, Awaitable
+from typing import Union, overload, TypeVar, Callable, Optional, Awaitable
 from typing_extensions import ParamSpec
 
 from .objectives import Objective
@@ -15,41 +15,66 @@ from .utils import (
     append_docs_to_docstring,
 )
 
-
 P = ParamSpec("P")
 T = TypeVar("T")
-
 
 caller_module_var: ContextVar[str] = ContextVar("caller.module", default="")
 caller_function_var: ContextVar[str] = ContextVar("caller.function", default="")
 
-
-# Bare decorator usage
-@overload
-def autometrics(func: Callable[P, T]) -> Callable[P, T]:
-    ...
-
-
-@overload
-def autometrics(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
-    ...
-
-
-# Decorator with arguments
+# Using the func parameter
+# i.e. using @autometrics() or autometrics(func, objective=...)
 @overload
 def autometrics(
-    *, objective: Optional[Objective] = None, track_concurrency: Optional[bool] = False
-) -> Callable:
-    ...
-
-
-def autometrics(
-    func: Optional[Callable] = None,
-    *,
+    func: Callable[P, T],
     objective: Optional[Objective] = None,
-    track_concurrency: Optional[bool] = False,
+    track_concurrency: bool = False,
     record_error_if: Optional[Callable[[T], bool]] = None,
     record_success_if: Optional[Callable[[Exception], bool]] = None,
+) -> Callable[P, T]:
+    ...
+
+@overload
+def autometrics(
+    func: Callable[P, Awaitable[T]],
+    objective: Optional[Objective] = None,
+    track_concurrency: bool = False,
+    record_error_if: Optional[Callable[[T], bool]] = None,
+    record_success_if: Optional[Callable[[Exception], bool]] = None,
+) -> Callable[P, Awaitable[T]]:
+    ...
+
+# Decorator with arguments (where decorated function is not async)
+@overload
+def autometrics(
+    func: None = None,
+    objective: Optional[Objective] = None,
+    track_concurrency: bool = False,
+    record_error_if: Optional[Callable[[T], bool]] = None,
+    record_success_if: Optional[Callable[[Exception], bool]] = None,
+) -> Callable[
+        [Callable[P, T]], Callable[P, T]
+    ]:
+    ...
+
+# Decorator with arguments (where decorated function is async)
+@overload
+def autometrics(
+    func: None = None,
+    objective: Optional[Objective] = None,
+    track_concurrency: bool = False,
+    record_error_if: Optional[Callable[[T], bool]] = None,
+    record_success_if: Optional[Callable[[Exception], bool]] = None,
+) -> Callable[
+        [Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]
+    ]:
+    ...
+
+def autometrics(
+    func = None,
+    objective = None,
+    track_concurrency = False,
+    record_error_if = None,
+    record_success_if = None,
 ):
     """Decorator for tracking function calls and duration. Supports synchronous and async functions."""
 
@@ -233,7 +258,15 @@ def autometrics(
         async_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
         return async_wrapper
 
-    def pick_decorator(func: Callable) -> Callable:
+    @overload
+    def pick_decorator(func: Callable[P, T]) -> Callable[P, T]:
+        ...
+
+    @overload
+    def pick_decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+        ...
+
+    def pick_decorator(func):
         """Pick the correct decorator based on the function type."""
         if inspect.iscoroutinefunction(func):
             return async_decorator(func)

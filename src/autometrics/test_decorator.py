@@ -3,11 +3,19 @@ import time
 import asyncio
 from prometheus_client.exposition import generate_latest
 import pytest
+from requests import HTTPError
 
 from .decorator import autometrics
 from .objectives import ObjectiveLatency, Objective, ObjectivePercentile
 from .tracker import set_tracker, TrackerType
 from .utils import get_function_name, get_module_name
+
+def basic_http_error_function(status_code=404):
+    """This is a basic function that raises an HTTPError. Unless the status_code parameter is set to None"""
+
+    if status_code is not None:
+        raise HTTPError("This is an http error", response=status_code)
+    return "Success!"
 
 
 def basic_function(sleep_duration: float = 0.0):
@@ -210,6 +218,40 @@ class TestDecoratorClass:
         assert duration_count in data
 
         duration_sum = f"""function_calls_duration_seconds_sum{{function="error_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
+        assert duration_sum in data
+
+    def test_record_success_if(self):
+        """This is a test that tests exceptions that may or may not be reported as an error"""
+        def record_success_if(exception: Exception):
+            return isinstance(exception, HTTPError)
+    
+        def record_error_if(result: str):
+            return result == "error"
+
+        wrapped_function = autometrics(func=basic_http_error_function, record_success_if=record_success_if, record_error_if=record_error_if)
+
+        with pytest.raises(HTTPError) as exception:
+            wrapped_function(status_code=404)
+            
+        assert "This is an http error" in str(exception.value)
+        assert exception.value.response == 404
+
+        # get the metrics
+        blob = generate_latest()
+        assert blob is not None
+        data = blob.decode("utf-8")
+
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="basic_http_error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok",service_name="autometrics"}} 1.0"""
+        assert total_count in data
+
+        for latency in ObjectiveLatency:
+            query = f"""function_calls_duration_seconds_bucket{{function="basic_http_error_function",le="{latency.value}",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
+            assert query in data
+
+        duration_count = f"""function_calls_duration_seconds_count{{function="basic_http_error_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
+        assert duration_count in data
+
+        duration_sum = f"""function_calls_duration_seconds_sum{{function="basic_http_error_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
         assert duration_sum in data
 
     @pytest.mark.asyncio
