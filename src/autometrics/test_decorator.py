@@ -10,6 +10,7 @@ from .objectives import ObjectiveLatency, Objective, ObjectivePercentile
 from .tracker import set_tracker, TrackerType
 from .utils import get_function_name, get_module_name
 
+
 def basic_http_error_function(status_code=404):
     """This is a basic function that raises an HTTPError. Unless the status_code parameter is set to None"""
 
@@ -222,17 +223,20 @@ class TestDecoratorClass:
 
     def test_record_success_if(self):
         """This is a test that tests exceptions that may or may not be reported as an error"""
+
         def record_success_if(exception: Exception):
             return isinstance(exception, HTTPError)
-    
+
         def record_error_if(result: str):
             return result == "error"
 
-        wrapped_function = autometrics(func=basic_http_error_function, record_success_if=record_success_if, record_error_if=record_error_if)
+        wrapped_function = autometrics(
+            record_success_if=record_success_if, record_error_if=record_error_if
+        )(basic_http_error_function)
 
         with pytest.raises(HTTPError) as exception:
             wrapped_function(status_code=404)
-            
+
         assert "This is an http error" in str(exception.value)
         assert exception.value.response == 404
 

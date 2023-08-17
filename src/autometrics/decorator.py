@@ -21,27 +21,22 @@ T = TypeVar("T")
 caller_module_var: ContextVar[str] = ContextVar("caller.module", default="")
 caller_function_var: ContextVar[str] = ContextVar("caller.function", default="")
 
+
 # Using the func parameter
 # i.e. using @autometrics() or autometrics(func, objective=...)
 @overload
 def autometrics(
     func: Callable[P, T],
-    objective: Optional[Objective] = None,
-    track_concurrency: bool = False,
-    record_error_if: Optional[Callable[[T], bool]] = None,
-    record_success_if: Optional[Callable[[Exception], bool]] = None,
 ) -> Callable[P, T]:
     ...
+
 
 @overload
 def autometrics(
     func: Callable[P, Awaitable[T]],
-    objective: Optional[Objective] = None,
-    track_concurrency: bool = False,
-    record_error_if: Optional[Callable[[T], bool]] = None,
-    record_success_if: Optional[Callable[[Exception], bool]] = None,
 ) -> Callable[P, Awaitable[T]]:
     ...
+
 
 # Decorator with arguments (where decorated function is not async)
 @overload
@@ -51,10 +46,9 @@ def autometrics(
     track_concurrency: bool = False,
     record_error_if: Optional[Callable[[T], bool]] = None,
     record_success_if: Optional[Callable[[Exception], bool]] = None,
-) -> Callable[
-        [Callable[P, T]], Callable[P, T]
-    ]:
+) -> Callable[[Callable[P, T]], Callable[P, T]]:
     ...
+
 
 # Decorator with arguments (where decorated function is async)
 @overload
@@ -64,17 +58,16 @@ def autometrics(
     track_concurrency: bool = False,
     record_error_if: Optional[Callable[[T], bool]] = None,
     record_success_if: Optional[Callable[[Exception], bool]] = None,
-) -> Callable[
-        [Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]
-    ]:
+) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]:
     ...
 
+
 def autometrics(
-    func = None,
-    objective = None,
-    track_concurrency = False,
-    record_error_if = None,
-    record_success_if = None,
+    func=None,
+    objective=None,
+    track_concurrency=False,
+    record_error_if=None,
+    record_success_if=None,
 ):
     """Decorator for tracking function calls and duration. Supports synchronous and async functions."""
 
@@ -157,7 +150,7 @@ def autometrics(
                 )
 
             except Exception as exception:
-                if (record_success_if and record_success_if(exception)):
+                if record_success_if and record_success_if(exception):
                     track_result_ok(
                         start_time,
                         function=func_name,
@@ -209,7 +202,7 @@ def autometrics(
                 if track_concurrency:
                     track_start(module=module_name, function=func_name)
                 result = await func(*args, **kwds)
-                if (record_error_if and record_error_if(result)):
+                if record_error_if and record_error_if(result):
                     track_result_error(
                         start_time,
                         function=func_name,
