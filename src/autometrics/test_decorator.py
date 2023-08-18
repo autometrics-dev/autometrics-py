@@ -1,6 +1,7 @@
 """Test the autometrics decorator."""
 import time
 import asyncio
+from typing import Optional
 from prometheus_client.exposition import generate_latest
 import pytest
 from requests import HTTPError
@@ -11,12 +12,13 @@ from .tracker import set_tracker, TrackerType
 from .utils import get_function_name, get_module_name
 
 
-def basic_http_error_function(status_code=404):
+def basic_http_error_function(status_code: Optional[int]=404):
     """This is a basic function that raises an HTTPError. Unless the status_code parameter is set to None"""
 
-    if status_code is not None:
-        raise HTTPError("This is an http error", response=status_code)
-    return "Success!"
+    if status_code is None:
+        return "status code not set"
+    
+    raise HTTPError("This is an http error", response=status_code)
 
 
 def basic_function(sleep_duration: float = 0.0):
@@ -228,7 +230,7 @@ class TestDecoratorClass:
             return isinstance(exception, HTTPError)
 
         def record_error_if(result: str):
-            return result == "error"
+            return result == "status code not set"
 
         wrapped_function = autometrics(
             record_success_if=record_success_if, record_error_if=record_error_if
@@ -257,6 +259,20 @@ class TestDecoratorClass:
 
         duration_sum = f"""function_calls_duration_seconds_sum{{function="basic_http_error_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
         assert duration_sum in data
+
+        result = wrapped_function(status_code=None)
+        assert result == "status code not set"
+
+        # get the metrics
+        blob = generate_latest()
+        assert blob is not None
+        data = blob.decode("utf-8")
+
+        # assert record_error_if(result) is True
+        # print(data)
+
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="basic_http_error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error",service_name="autometrics"}} 2.0"""
+        # assert total_count in data
 
     @pytest.mark.asyncio
     async def test_async_exception(self):

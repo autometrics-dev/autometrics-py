@@ -141,13 +141,22 @@ def autometrics(
                 if track_concurrency:
                     track_start(module=module_name, function=func_name)
                 result = func(*args, **kwds)
-                track_result_ok(
-                    start_time,
-                    function=func_name,
-                    module=module_name,
-                    caller_module=caller_module,
-                    caller_function=caller_function,
-                )
+                if record_error_if and record_error_if(result):
+                    track_result_error(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
+                else:
+                    track_result_ok(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
 
             except Exception as exception:
                 if record_success_if and record_success_if(exception):
