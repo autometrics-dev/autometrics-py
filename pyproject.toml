@@ -35,6 +35,9 @@ typing-extensions = "^4.5.0"
 [tool.poetry.group.dev]
 optional = true
 
+[tool.mypy]
+mypy_path = "src"
+
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.0"
 pytest-asyncio = "^0.21.0"
