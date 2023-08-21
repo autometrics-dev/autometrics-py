@@ -28,8 +28,8 @@ jobs:
       - name: Check code formatting
         run: poetry run black .
       - name: Lint lib code
-        run: poetry run mypy src 
+        run: poetry run mypy src --enable-incomplete-feature=Unpack
       - name: Lint lib examples
-        run: poetry run mypy examples 
+        run: poetry run mypy examples --enable-incomplete-feature=Unpack
       - name: Run tests
         run: poetry run pytest -n auto
