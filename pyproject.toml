@@ -36,11 +36,12 @@ typing-extensions = "^4.5.0"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-pyright = "^1.1.323"
+pyright = "=1.1.225"
 pytest = "^7.3.0"
 pytest-asyncio = "^0.21.0"
 black = "^23.3.0"
 pytest-xdist = "^3.3.1"
+mypy = "^1.5.1"
 
 [tool.poetry.group.examples]
 optional = true
@@ -83,6 +84,12 @@ uvicorn = "0.21.1"
 webencodings = "0.5.1"
 zipp = "3.15.0"
 locust = "^2.15.1"
+django-stubs = "4.2.3"
+
+
+[tool.poetry.group.development.dependencies]
+types-requests = "^2.31.0.2"
+django-stubs = "^4.2.3"
 
 [build-system]
 requires = ["poetry-core"]
