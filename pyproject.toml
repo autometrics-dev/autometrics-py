@@ -36,6 +36,7 @@ typing-extensions = "^4.5.0"
 optional = true
 
 [tool.mypy]
+namespace_packages = true
 mypy_path = "src"
 
 [tool.poetry.group.dev.dependencies]
