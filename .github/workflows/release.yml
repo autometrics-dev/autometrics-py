@@ -1,0 +1,38 @@
+# This workflow will only run on prs from the release/* branch that were merged
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - release/*
+
+jobs:
+  release:
+    # if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: .github/actions/get-release-version
+        id: release_version
+        with:
+          release_title: ${{ github.event.pull_request.title }}
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root --with dev
+      - name: Build
+        run: poetry build
+      # - name: Publish
+      #   run: poetry run twine upload dist/*
+      #   env:
+      #     TWINE_USERNAME: __token__
+      #     TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+          tag_name: ${{ steps.release_version.outputs.release_version }}
+          draft: true
