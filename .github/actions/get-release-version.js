@@ -1,7 +1,7 @@
-const input_title = process.env.INPUT_RELEASE_TITLE;
-const regex = /Release ([\d.]+)/gm;
+const branchName = process.env.GITHUB_REF;
+const regex = /release\/([\d.]+)/gm;
 
-const matches = regex.exec(input_title);
+const matches = regex.exec(branchName);
 const version = matches[1];
 if (version) {
   console.log(`::set-output name=version::${version}`);

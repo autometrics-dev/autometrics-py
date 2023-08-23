@@ -5,6 +5,9 @@ on:
     branches:
       - release/*
 
+permissions:
+  contents: write
+
 jobs:
   release:
     # if: github.event.pull_request.merged == true
