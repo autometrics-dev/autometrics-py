@@ -39,10 +39,10 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: dist/*
-          tag_name: ${{VERSION}}
+          tag_name: ${{env.VERSION}}
           draft: true
           generate_release_notes: true
-          name: Release ${{VERSION}}
+          name: Release ${{env.VERSION}}
       - name: Tag release
         run: |
           git config --local user.email "Github-actions[bot]@users.noreply.github.com"
