@@ -1,7 +1,4 @@
 name: Get version
-inputs:
-  release_title:
-    required: true
 runs:
   using: "node16"
   main: "get-release-version.js"

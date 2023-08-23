@@ -20,8 +20,6 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/get-release-version
         id: release_version
-        with:
-          release_title: ${{ github.event.pull_request.title }}
       - name: Install poetry
         run: pipx install poetry
       - uses: actions/setup-python@v4
@@ -41,10 +39,10 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: dist/*
-          tag_name: ${{ steps.release_version.outputs.release_version }}
+          tag_name: ${{VERSION}}
           draft: true
           generate_release_notes: true
-          name: Release ${{ steps.release_version.outputs.release_version }}
+          name: Release ${{VERSION}}
       - name: Tag release
         run: |
           git config --local user.email "Github-actions[bot]@users.noreply.github.com"
