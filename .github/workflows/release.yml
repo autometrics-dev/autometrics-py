@@ -1,11 +1,8 @@
 # This workflow will only run on prs from the release/* branch that were merged
 name: Release
 on:
-  # pull_request:
-  #   types: [closed]
-  #   branches:
-  #     - release/*
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - release/*
 
@@ -14,7 +11,7 @@ permissions:
 
 jobs:
   release:
-    # if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -30,11 +27,6 @@ jobs:
         run: poetry install --no-interaction --no-root --with dev
       - name: Build
         run: poetry build
-      # - name: Publish
-      #   run: poetry run twine upload dist/*
-      #   env:
-      #     TWINE_USERNAME: __token__
-      #     TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
@@ -45,7 +37,12 @@ jobs:
           name: Release ${{ steps.release_version.outputs.version}}
       - name: Tag release
         run: |
-          git config --local user.email "Github-actions[bot]@users.noreply.github.com"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git tag ${{ steps.release_version.outputs.version }}
           git push origin ${{ steps.release_version.outputs.version }}
+      # - name: Publish
+      #   run: poetry run twine upload dist/*
+      #   env:
+      #     TWINE_USERNAME: __token__
+      #     TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
