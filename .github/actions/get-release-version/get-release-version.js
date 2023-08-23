@@ -6,7 +6,7 @@ const version = matches[1];
 if (version) {
   const fs = require("fs");
 
-  fs.appendFileSync(process.env.GITHUB_OUTPUTS, `version=${version}`, {
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}`, {
     encoding: "utf8",
   });
 } else {
