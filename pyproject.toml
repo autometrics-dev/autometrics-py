@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "autometrics"
-version = "0.8"
+version = "0.9"
 description = "Easily add metrics to your system – and actually understand them using automatically customized Prometheus queries"
 authors = ["Fiberplane <info@fiberplane.com>"]
 license = "MIT OR Apache-2.0"
