@@ -1,7 +1,11 @@
 # This workflow will only run on prs from the release/* branch that were merged
+name: Release
 on:
-  pull_request:
-    types: [closed]
+  # pull_request:
+  #   types: [closed]
+  #   branches:
+  #     - release/*
+  push:
     branches:
       - release/*
 
