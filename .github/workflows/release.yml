@@ -2,9 +2,10 @@
 name: Release
 on:
   pull_request:
-    types: [closed]
+    types:
+      - closed
     branches:
-      - release/*
+      - "release/**"
 
 permissions:
   contents: write
