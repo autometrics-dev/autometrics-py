@@ -21,7 +21,7 @@ jobs:
         run: pipx install poetry
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.11
           cache: poetry
       - name: Install dependencies
         run: poetry install --no-interaction --no-root --with dev
@@ -31,6 +31,8 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          git switch main
+          git pull
           git tag ${{ steps.release_version.outputs.version }}
           git push origin ${{ steps.release_version.outputs.version }}
       - name: Create release
@@ -40,7 +42,7 @@ jobs:
           tag_name: ${{ steps.release_version.outputs.version}}
           draft: true
           generate_release_notes: true
-          name: Release ${{ steps.release_version.outputs.version}}
+          name: ${{ steps.release_version.outputs.version}}
       # - name: Publish
       #   run: poetry run twine upload dist/*
       #   env:

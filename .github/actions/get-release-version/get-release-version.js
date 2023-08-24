@@ -2,8 +2,8 @@ const branchName = process.env.GITHUB_REF;
 const regex = /release\/([\d.]+)/gm;
 
 const matches = regex.exec(branchName);
-const version = matches[1];
-if (version) {
+if (matches && matches.length == 2) {
+  const [_, version] = matches;
   const fs = require("fs");
 
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}`, {
