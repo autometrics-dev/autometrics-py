@@ -1,0 +1,4 @@
+name: Get version
+runs:
+  using: "node16"
+  main: "get-release-version.js"
