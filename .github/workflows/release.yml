@@ -1,18 +1,11 @@
-# This workflow will only run on prs from the release/* branch that were merged
 name: Release
-on:
-  pull_request:
-    types:
-      - closed
-    branches:
-      - "release/**"
+on: [workflow_dispatch]
 
 permissions:
   contents: write
 
 jobs:
   release:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -32,8 +25,8 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git switch main
-          git pull
+          git fetch origin main
+          git checkout main
           git tag ${{ steps.release_version.outputs.version }}
           git push origin ${{ steps.release_version.outputs.version }}
       - name: Create release
@@ -41,11 +34,10 @@ jobs:
         with:
           files: dist/*
           tag_name: ${{ steps.release_version.outputs.version}}
-          draft: true
           generate_release_notes: true
           name: ${{ steps.release_version.outputs.version}}
-      # - name: Publish
-      #   run: poetry run twine upload dist/*
-      #   env:
-      #     TWINE_USERNAME: __token__
-      #     TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      - name: Publish
+        run: poetry run twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
