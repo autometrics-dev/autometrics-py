@@ -1,4 +1,4 @@
-name: Release
+name: Release and publish
 on: [workflow_dispatch]
 
 permissions:
@@ -25,8 +25,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git fetch origin main
-          git checkout main
           git tag ${{ steps.release_version.outputs.version }}
           git push origin ${{ steps.release_version.outputs.version }}
       - name: Create release
