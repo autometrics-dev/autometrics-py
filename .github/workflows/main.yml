@@ -24,7 +24,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: poetry
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root --with dev --with examples
+        run: poetry install --no-interaction --no-root --with dev,examples
       - name: Check code formatting
         run: poetry run black .
       - name: Lint lib code

@@ -20,6 +20,7 @@ classifiers = [
     "Topic :: Software Development :: Build Tools",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Monitoring",
+    "Typing :: Typed"
 ]
 packages = [{ include = "autometrics", from = "src" }]
 
