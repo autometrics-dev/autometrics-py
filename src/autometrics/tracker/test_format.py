@@ -3,7 +3,7 @@ import pytest
 
 from . import TrackerType
 from ..decorator import autometrics
-from .. import init
+from ..init import init
 
 
 @pytest.mark.parametrize("tracker", TrackerType)
