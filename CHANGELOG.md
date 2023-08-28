@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
--
+- Added support for `record_error_if` and `record_success_if`
 
 ### Changed
 
