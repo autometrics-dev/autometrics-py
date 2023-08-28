@@ -10,7 +10,7 @@ from .prometheus_url import Generator
 def get_module_name(func: Callable) -> str:
     """Get the name of the module that contains the function."""
     module = inspect.getmodule(func)
-    if module is None:
+    if module is None or module.__name__ == "__main__":
         return get_filename_as_module(func)
     return module.__name__
 
