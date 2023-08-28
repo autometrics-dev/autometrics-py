@@ -24,10 +24,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: poetry
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root --with dev
+        run: poetry install --no-interaction --no-root --with dev,examples
       - name: Check code formatting
         run: poetry run black .
-      - name: Lint code
-        run: poetry run pyright
+      - name: Lint lib code
+        run: poetry run mypy src --enable-incomplete-feature=Unpack
+      - name: Lint lib examples
+        run: poetry run mypy examples --enable-incomplete-feature=Unpack
       - name: Run tests
         run: poetry run pytest -n auto

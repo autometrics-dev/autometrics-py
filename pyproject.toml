@@ -20,11 +20,11 @@ classifiers = [
     "Topic :: Software Development :: Build Tools",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Monitoring",
+    "Typing :: Typed"
 ]
 packages = [{ include = "autometrics", from = "src" }]
 
 [tool.poetry.dependencies]
-opentelemetry-api = "^1.17.0"
 opentelemetry-exporter-prometheus = "^1.12.0rc1"
 opentelemetry-sdk = "^1.17.0"
 prometheus-client = "^0.16.0 || ^0.17.0"
@@ -35,12 +35,28 @@ typing-extensions = "^4.5.0"
 [tool.poetry.group.dev]
 optional = true
 
+[tool.mypy]
+namespace_packages = true
+mypy_path = "src"
+enable_incomplete_feature = "Unpack"
+
+# This override is needed because with certain flavors of python and
+# mypy you can get the following error:
+# opentelemetry/attributes/__init__.py:14: error: invalid syntax
+# Which at the time of writing is a line that states ignore types:
+# `# type: ignore`
+[[tool.mypy.overrides]]
+module = [
+  "opentelemetry.attributes",
+]
+follow_imports = "skip"
+
 [tool.poetry.group.dev.dependencies]
-pyright = "^1.1.307"
 pytest = "^7.3.0"
 pytest-asyncio = "^0.21.0"
 black = "^23.3.0"
 pytest-xdist = "^3.3.1"
+mypy = "^1.5.1"
 twine = "4.0.2"
 
 [tool.poetry.group.examples]
@@ -83,6 +99,13 @@ uvicorn = "0.21.1"
 webencodings = "0.5.1"
 zipp = "3.15.0"
 locust = "^2.15.1"
+django-stubs = "4.2.3"
+
+
+
+[tool.poetry.group.development.dependencies]
+types-requests = "^2.31.0.2"
+django-stubs = "^4.2.3"
 
 [build-system]
 requires = ["poetry-core"]

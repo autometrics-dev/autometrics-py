@@ -4,7 +4,7 @@ import inspect
 
 from contextvars import ContextVar, Token
 from functools import wraps
-from typing import overload, TypeVar, Callable, Optional, Awaitable
+from typing import overload, TypeVar, Callable, Optional, Awaitable, Union, Coroutine
 from typing_extensions import ParamSpec
 
 from .objectives import Objective
@@ -15,39 +15,60 @@ from .utils import (
     append_docs_to_docstring,
 )
 
-
-P = ParamSpec("P")
-T = TypeVar("T")
-
+Params = ParamSpec("Params")
+R = TypeVar("R")
+Y = TypeVar("Y")
+S = TypeVar("S")
 
 caller_module_var: ContextVar[str] = ContextVar("caller.module", default="")
 caller_function_var: ContextVar[str] = ContextVar("caller.function", default="")
 
 
-# Bare decorator usage
-@overload
-def autometrics(func: Callable[P, T]) -> Callable[P, T]:
-    ...
-
-
-@overload
-def autometrics(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
-    ...
-
-
-# Decorator with arguments
+# Decorator with arguments (where decorated function returns an awaitable)
 @overload
 def autometrics(
-    *, objective: Optional[Objective] = None, track_concurrency: Optional[bool] = False
-) -> Callable:
-    ...
-
-
-def autometrics(
-    func: Optional[Callable] = None,
+    func: None = None,
     *,
     objective: Optional[Objective] = None,
     track_concurrency: Optional[bool] = False,
+    record_error_if: Callable[[R], bool],
+    record_success_if: Optional[Callable[[Exception], bool]] = None,
+) -> Union[
+    Callable[
+        [Callable[Params, Coroutine[Y, S, R]]], Callable[Params, Coroutine[Y, S, R]]
+    ],
+    Callable[[Callable[Params, R]], Callable[Params, R]],
+]:
+    ...
+
+
+# Decorator with arguments (where decorated function returns an awaitable)
+@overload
+def autometrics(
+    func: None = None,
+    *,
+    objective: Optional[Objective] = None,
+    track_concurrency: Optional[bool] = False,
+    record_success_if: Optional[Callable[[Exception], bool]] = None,
+) -> Callable[[Callable[Params, R]], Callable[Params, R]]:
+    ...
+
+
+# Using the func parameter
+# i.e. using @autometrics()
+@overload
+def autometrics(
+    func: Callable[Params, R],
+) -> Callable[Params, R]:
+    ...
+
+
+def autometrics(
+    func=None,
+    objective=None,
+    track_concurrency=None,
+    record_error_if=None,
+    record_success_if=None,
 ):
     """Decorator for tracking function calls and duration. Supports synchronous and async functions."""
 
@@ -100,7 +121,7 @@ def autometrics(
             result=Result.ERROR,
         )
 
-    def sync_decorator(func: Callable[P, T]) -> Callable[P, T]:
+    def sync_decorator(func: Callable[Params, R]) -> Callable[Params, R]:
         """Helper for decorating synchronous functions, to track calls and duration."""
 
         module_name = get_module_name(func)
@@ -108,7 +129,7 @@ def autometrics(
         register_function_info(func_name, module_name)
 
         @wraps(func)
-        def sync_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
+        def sync_wrapper(*args: Params.args, **kwds: Params.kwargs) -> R:
             start_time = time.time()
             caller_module = caller_module_var.get()
             caller_function = caller_function_var.get()
@@ -121,23 +142,40 @@ def autometrics(
                 if track_concurrency:
                     track_start(module=module_name, function=func_name)
                 result = func(*args, **kwds)
-                track_result_ok(
-                    start_time,
-                    function=func_name,
-                    module=module_name,
-                    caller_module=caller_module,
-                    caller_function=caller_function,
-                )
+                if record_error_if and record_error_if(result):
+                    track_result_error(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
+                else:
+                    track_result_ok(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
 
             except Exception as exception:
-                result = exception.__class__.__name__
-                track_result_error(
-                    start_time,
-                    function=func_name,
-                    module=module_name,
-                    caller_module=caller_module,
-                    caller_function=caller_function,
-                )
+                if record_success_if and record_success_if(exception):
+                    track_result_ok(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
+                else:
+                    track_result_error(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
                 # Reraise exception
                 raise exception
 
@@ -152,7 +190,9 @@ def autometrics(
         sync_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
         return sync_wrapper
 
-    def async_decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+    def async_decorator(
+        func: Callable[Params, Awaitable[R]]
+    ) -> Callable[Params, Awaitable[R]]:
         """Helper for decorating async functions, to track calls and duration."""
 
         module_name = get_module_name(func)
@@ -160,7 +200,7 @@ def autometrics(
         register_function_info(func_name, module_name)
 
         @wraps(func)
-        async def async_wrapper(*args: P.args, **kwds: P.kwargs) -> T:
+        async def async_wrapper(*args: Params.args, **kwds: Params.kwargs) -> R:
             start_time = time.time()
             caller_module = caller_module_var.get()
             caller_function = caller_function_var.get()
@@ -173,23 +213,40 @@ def autometrics(
                 if track_concurrency:
                     track_start(module=module_name, function=func_name)
                 result = await func(*args, **kwds)
-                track_result_ok(
-                    start_time,
-                    function=func_name,
-                    module=module_name,
-                    caller_module=caller_module,
-                    caller_function=caller_function,
-                )
+                if record_error_if and record_error_if(result):
+                    track_result_error(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
+                else:
+                    track_result_ok(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
 
             except Exception as exception:
-                result = exception.__class__.__name__
-                track_result_error(
-                    start_time,
-                    function=func_name,
-                    module=module_name,
-                    caller_module=caller_module,
-                    caller_function=caller_function,
-                )
+                if record_success_if and record_success_if(exception):
+                    track_result_ok(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
+                else:
+                    track_result_error(
+                        start_time,
+                        function=func_name,
+                        module=module_name,
+                        caller_module=caller_module,
+                        caller_function=caller_function,
+                    )
                 # Reraise exception
                 raise exception
 
@@ -204,7 +261,7 @@ def autometrics(
         async_wrapper.__doc__ = append_docs_to_docstring(func, func_name, module_name)
         return async_wrapper
 
-    def pick_decorator(func: Callable) -> Callable:
+    def pick_decorator(func):
         """Pick the correct decorator based on the function type."""
         if inspect.iscoroutinefunction(func):
             return async_decorator(func)

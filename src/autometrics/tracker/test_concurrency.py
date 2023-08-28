@@ -2,7 +2,6 @@ from prometheus_client.exposition import generate_latest
 import asyncio
 import pytest
 
-
 from .tracker import set_tracker, TrackerType
 
 from ..decorator import autometrics
@@ -10,7 +9,7 @@ from ..utils import get_function_name, get_module_name
 
 
 @autometrics(track_concurrency=True)
-async def sleep(time):
+async def sleep(time: float):
     await asyncio.sleep(time)
 
 

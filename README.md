@@ -162,7 +162,7 @@ poetry install --with examples
 Code in this repository is:
 
 - formatted using [black](https://black.readthedocs.io/en/stable/).
-- contains type definitions (which are linted by [pyright](https://microsoft.github.io/pyright/))
+- contains type definitions (which are linted by [mypy](https://www.mypy-lang.org/))
 - tested using [pytest](https://docs.pytest.org/)
 
 In order to run these tools locally you have to install them, you can install them using poetry:
@@ -176,8 +176,8 @@ After that you can run the tools individually
 ```sh
 # Formatting using black
 poetry run black .
-# Lint using pyright
-poetry run pyright
+# Lint using mypy
+poetry run mypy .
 # Run the tests using pytest
 poetry run pytest
 # Run a single test, and clear the cache

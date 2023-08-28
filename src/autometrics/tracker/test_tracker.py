@@ -6,7 +6,7 @@ from .prometheus import PrometheusTracker
 
 from .tracker import get_tracker, default_tracker
 
-from .. import init
+from ..init import init
 
 
 def test_default_tracker(monkeypatch):

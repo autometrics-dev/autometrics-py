@@ -1,13 +1,37 @@
 """Test the autometrics decorator."""
 import time
 import asyncio
+from typing import Optional, Coroutine
 from prometheus_client.exposition import generate_latest
 import pytest
+from requests import HTTPError
 
 from .decorator import autometrics
 from .objectives import ObjectiveLatency, Objective, ObjectivePercentile
 from .tracker import set_tracker, TrackerType
 from .utils import get_function_name, get_module_name
+
+HTTP_ERROR_TEXT = "This is an http error"
+CODE_NOT_SET_TEXT = "status code not set"
+
+
+def basic_http_error_function(status_code: Optional[int] = 404):
+    """This is a basic function that raises an HTTPError. Unless the status_code parameter is set to None"""
+
+    if status_code is None:
+        return CODE_NOT_SET_TEXT
+
+    raise HTTPError(HTTP_ERROR_TEXT, response=status_code)
+
+
+async def async_http_error_function(status_code: Optional[int] = 404):
+    """This is a basic function that raises an HTTPError. Unless the status_code parameter is set to None"""
+    await asyncio.sleep(0.2)
+
+    if status_code is None:
+        return CODE_NOT_SET_TEXT
+
+    raise HTTPError(HTTP_ERROR_TEXT, response=status_code)
 
 
 def basic_function(sleep_duration: float = 0.0):
@@ -24,6 +48,7 @@ def error_function():
 async def basic_async_function(sleep_duration: float = 1.0):
     """This is a basic async function."""
     await asyncio.sleep(sleep_duration)
+
     return True
 
 
@@ -161,8 +186,7 @@ class TestDecoratorClass:
         sleep_duration = 0.25
 
         # Test that the function is *still* async after we wrapped it
-        assert asyncio.iscoroutinefunction(wrapped_function) == True
-
+        assert asyncio.iscoroutinefunction(wrapped_function) is True
         await wrapped_function(sleep_duration)
 
         # get the metrics
@@ -212,6 +236,115 @@ class TestDecoratorClass:
         duration_sum = f"""function_calls_duration_seconds_sum{{function="error_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
         assert duration_sum in data
 
+    def test_record_success_if(self):
+        """This is a test that tests exceptions that may or may not be reported as an error"""
+
+        def record_success_if(exception: Exception):
+            return isinstance(exception, HTTPError)
+
+        def record_error_if(result: str):
+            return result == CODE_NOT_SET_TEXT
+
+        wrapped_function = autometrics(
+            record_success_if=record_success_if, record_error_if=record_error_if
+        )(basic_http_error_function)
+
+        with pytest.raises(HTTPError) as exception:
+            wrapped_function(status_code=404)
+
+        assert HTTP_ERROR_TEXT in str(exception.value)
+        assert exception.value.response == 404
+
+        # get the metrics
+        blob = generate_latest()
+        assert blob is not None
+        data = blob.decode("utf-8")
+
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="basic_http_error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok",service_name="autometrics"}} 1.0"""
+        assert total_count in data
+
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="basic_http_error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error",service_name="autometrics"}} 0.0"""
+        assert total_count in data
+
+        for latency in ObjectiveLatency:
+            query = f"""function_calls_duration_seconds_bucket{{function="basic_http_error_function",le="{latency.value}",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
+            assert query in data
+
+        duration_count = f"""function_calls_duration_seconds_count{{function="basic_http_error_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
+        assert duration_count in data
+
+        duration_sum = f"""function_calls_duration_seconds_sum{{function="basic_http_error_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
+        assert duration_sum in data
+
+        # Calling the test function with None should result in no exception but it should still be marked as an error according to the metrics
+        result = wrapped_function(status_code=None)
+        assert result == CODE_NOT_SET_TEXT
+
+        # get the metrics
+        blob = generate_latest()
+        assert blob is not None
+        data = blob.decode("utf-8")
+
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="basic_http_error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok",service_name="autometrics"}} 1.0"""
+        assert total_count in data
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="basic_http_error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error",service_name="autometrics"}} 1.0"""
+        assert total_count in data
+
+    @pytest.mark.asyncio
+    async def test_async_record_success_or_ok_if(self):
+        """This is a test that tests exceptions that may or may not be reported as an error"""
+
+        def record_success_if(exception: Exception):
+            return isinstance(exception, HTTPError)
+
+        def record_error_if(result: str):
+            return result == CODE_NOT_SET_TEXT
+
+        wrapped_function = autometrics(
+            record_success_if=record_success_if, record_error_if=record_error_if
+        )(async_http_error_function)
+
+        with pytest.raises(HTTPError) as exception:
+            await wrapped_function(status_code=404)
+
+        assert HTTP_ERROR_TEXT in str(exception.value)
+        assert exception.value.response == 404
+
+        # get the metrics
+        blob = generate_latest()
+        assert blob is not None
+        data = blob.decode("utf-8")
+
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="async_http_error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok",service_name="autometrics"}} 1.0"""
+        assert total_count in data
+
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="async_http_error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error",service_name="autometrics"}} 0.0"""
+        assert total_count in data
+
+        for latency in ObjectiveLatency:
+            query = f"""function_calls_duration_seconds_bucket{{function="async_http_error_function",le="{latency.value}",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
+            assert query in data
+
+        duration_count = f"""function_calls_duration_seconds_count{{function="async_http_error_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
+        assert duration_count in data
+
+        duration_sum = f"""function_calls_duration_seconds_sum{{function="async_http_error_function",module="autometrics.test_decorator",objective_latency_threshold="",objective_name="",objective_percentile="",service_name="autometrics"}}"""
+        assert duration_sum in data
+
+        # Calling the test function with None should result in no exception but it should still be marked as an error according to the metrics
+        result = await wrapped_function(status_code=None)
+        assert result == CODE_NOT_SET_TEXT
+
+        # get the metrics
+        blob = generate_latest()
+        assert blob is not None
+        data = blob.decode("utf-8")
+
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="async_http_error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="ok",service_name="autometrics"}} 1.0"""
+        assert total_count in data
+        total_count = f"""function_calls_total{{caller_function="",caller_module="",function="async_http_error_function",module="autometrics.test_decorator",objective_name="",objective_percentile="",result="error",service_name="autometrics"}} 1.0"""
+        assert total_count in data
+
     @pytest.mark.asyncio
     async def test_async_exception(self):
         """This is a test that covers exceptions."""
@@ -219,7 +352,7 @@ class TestDecoratorClass:
         wrapped_function = autometrics(error_async_function)
 
         # Test that the function is *still* async after we wrap it
-        assert asyncio.iscoroutinefunction(wrapped_function) == True
+        assert asyncio.iscoroutinefunction(wrapped_function) is True
 
         with pytest.raises(RuntimeError) as exception:
             await wrapped_function()
