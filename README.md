@@ -156,7 +156,7 @@ This allows you to drill down into the metrics for functions that are _called by
 
 In the example above, this means that you could investigate the latency of the database queries that `get_users` makes, which is rather useful.
 
-## Settings
+## Settings and Configuration
 
 Autometrics makes use of a number of environment variables to configure its behavior. All of them are also configurable with keyword arguments to the `init` function.
 
@@ -168,17 +168,20 @@ Autometrics makes use of a number of environment variables to configure its beha
 
 ## Identifying commits that introduced problems <span name="build-info" />
 
-> **NOTE** - As of writing, `build_info` will not work correctly when using the default tracker (`AUTOMETRICS_TRACKER=opentelemetry`).
-> If you wish to use `build_info`, you must use the `prometheus` tracker instead (`AUTOMETRICS_TRACKER=prometheus`).
->
-> This issue will be fixed once the following PR is merged and released on the opentelemetry-python project: https://github.com/open-telemetry/opentelemetry-python/pull/3306
->
-> autometrics-py will track support for build_info using the OpenTelemetry tracker via #38
-
 Autometrics makes it easy to identify if a specific version or commit introduced errors or increased latencies.
 
-It uses a separate metric (`build_info`) to track the version and, optionally, git commit of your service. It then writes queries that group metrics by the `version`, `commit` and `branch` labels so you can spot correlations between those and potential issues.
-Configure the labels by setting the following environment variables:
+> **NOTE** - As of writing, `build_info` will not work correctly when using the default setting of `AUTOMETRICS_TRACKER=opentelemetry`. If you wish to use `build_info`, you must use the `prometheus` tracker instead (`AUTOMETRICS_TRACKER=prometheus`).
+>
+> The issue will be fixed once the following PR is merged and released on the opentelemetry-python project: https://github.com/open-telemetry/opentelemetry-python/pull/3306
+>
+> autometrics-py will track support for build_info using the OpenTelemetry tracker via [this issue](https://github.com/autometrics-dev/autometrics-py/issues/38)
+
+
+The library uses a separate metric (`build_info`) to track the version and, optionally, the git commit of your service. 
+
+It then writes queries that group metrics by the `version`, `commit` and `branch` labels so you can spot correlations between code changes and potential issues.
+
+Configure these labels by setting the following environment variables:
 
 | Label     | Run-Time Environment Variables        | Default value |
 | --------- | ------------------------------------- | ------------- |
