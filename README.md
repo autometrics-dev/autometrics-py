@@ -33,7 +33,7 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 
 1. Add `autometrics` to your project's dependencies:
     ```shell
-    pip install autometrics # or add to your requirements.txt
+    pip install autometrics
     ```
 
 2. Instrument your functions with the `@autometrics` decorator
@@ -53,15 +53,18 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
     from prometheus_client import generate_latest
     
     # Set up a metrics endpoint for Prometheus to scrape
-    # `generate_latest` returns the latest metrics data in the Prometheus text format
+    #   `generate_latest` returns metrics data in the Prometheus text format
     @app.get("/metrics")
     def metrics():
         return Response(generate_latest())
     ```
 
 4. Run Prometheus locally with the [Autometrics CLI](https://docs.autometrics.dev/local-development#getting-started-with-am) or [configure it manually](https://github.com/autometrics-dev#5-configuring-prometheus) to scrape your metrics endpoint
+    ```sh
+    am start :8080 # or whichever port your app runs on
+    ```
   
-5. (Optional) If you have Grafana, import the [Autometrics dashboards](https://github.com/autometrics-dev/autometrics-shared#dashboards) for an overview and detailed view of the function metrics
+5. (Optional) If you have Grafana, import the [Autometrics dashboards](https://github.com/autometrics-dev/autometrics-shared#dashboards) for an overview and detailed view of all the function metrics you've collected
 
 ## Using autometrics-py
 
