@@ -61,7 +61,7 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 
 4. Run Prometheus locally with the [Autometrics CLI](https://docs.autometrics.dev/local-development#getting-started-with-am) or [configure it manually](https://github.com/autometrics-dev#5-configuring-prometheus) to scrape your metrics endpoint
     ```sh
-    am start :8080 # or whichever port your app runs on
+    am start :8080 # Replace `8080` with the port that your app runs on
     ```
   
 5. (Optional) If you have Grafana, import the [Autometrics dashboards](https://github.com/autometrics-dev/autometrics-shared#dashboards) for an overview and detailed view of all the function metrics you've collected
