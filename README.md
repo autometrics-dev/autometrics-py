@@ -66,7 +66,7 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
   
 5. (Optional) If you have Grafana, import the [Autometrics dashboards](https://github.com/autometrics-dev/autometrics-shared#dashboards) for an overview and detailed view of all the function metrics you've collected
 
-## Using autometrics-py
+## Using `autometrics-py``
 
 - You can import the library in your code and use the decorator for any function:
 
@@ -79,15 +79,15 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 
     ```
 
-- You can also track the number of concurrent calls to a function by using the `track_concurrency` argument: `@autometrics(track_concurrency=True)`. 
-
-    > Note: Concurrency tracking is only supported when you set with the environment variable `AUTOMETRICS_TRACKER=prometheus`.
-
-- To access the PromQL queries for your decorated functions, run `help(yourfunction)` or `print(yourfunction.__doc__)`.
-
 - To show tooltips over decorated functions in VSCode, with links to Prometheus queries, try installing [the VSCode extension](https://marketplace.visualstudio.com/items?itemName=Fiberplane.autometrics).
 
-    > Note that we cannot support tooltips without a VSCode extension due to behavior of the [static analyzer](https://github.com/davidhalter/jedi/issues/1921) used in VSCode.
+    > **Note**: We cannot support tooltips without a VSCode extension due to behavior of the [static analyzer](https://github.com/davidhalter/jedi/issues/1921) used in VSCode.
+
+- You can also track the number of concurrent calls to a function by using the `track_concurrency` argument: `@autometrics(track_concurrency=True)`. 
+
+    > **Note**: Concurrency tracking is only supported when you set with the environment variable `AUTOMETRICS_TRACKER=prometheus`.
+
+- To access the PromQL queries for your decorated functions, run `help(yourfunction)` or `print(yourfunction.__doc__)`.
 
 ## Dashboards
 
@@ -95,32 +95,17 @@ Autometrics provides [Grafana dashboards](https://github.com/autometrics-dev/aut
 
 ## Alerts / SLOs
 
-Autometrics makes it easy to add Prometheus alerts using Service-Level Objectives (SLOs) to a function or group of functions.
-
-> Not sure what SLOs are? [Check out our docs](https://docs.autometrics.dev/slo) for an introduction.
-
-In order to receive alerts you need to add a set of rules to your Prometheus set up. (These are configured automatically when you use the [Autometrics CLI](https://docs.autometrics.dev/local-development#getting-started-with-am) to run Prometheus.) 
-
-> You can find out more about the autometrics alerting rules here: [Prometheus alerting rules](https://github.com/autometrics-dev/autometrics-shared#prometheus-recording--alerting-rules). 
-
-Once the alerting rules are in Prometheus, you're ready to go.
-
-To use autometrics SLOs and alerts, create one or multiple `Objective`s based on the function(s) success rate and/or latency, as shown below. The `Objective` can be passed as an argument to the `autometrics` decorator, which will include the given function in that objective.
+Autometrics makes it easy to add intelligent alerting to your code, in order to catch increases in the error rate or latency across multiple functions.
 
 ```python
 from autometrics import autometrics
 from autometrics.objectives import Objective, ObjectiveLatency, ObjectivePercentile
 
 # Create an objective for a high success rate
+# Here, we want our API to have a success rate of 99.9%
 API_SLO_HIGH_SUCCESS = Objective(
     "My API SLO for High Success Rate (99.9%)",
     success_rate=ObjectivePercentile.P99_9,
-)
-
-# Or you can also create an objective for low latency
-API_SLO_LOW_LATENCY = Objective(
-    "My API SLO for Low Latency (99th percentile < 250ms)",
-    latency=(ObjectiveLatency.Ms250, ObjectivePercentile.P99),
 )
 
 @autometrics(objective=API_SLO_HIGH_SUCCESS)
@@ -128,11 +113,47 @@ def api_handler():
   # ...
 ```
 
+The library uses the concept of Service-Level Objectives (SLOs) to define the acceptable error rate and latency for groups of functions. Alerts will fire depending on the SLOs you set.
+
+> Not sure what SLOs are? [Check out our docs](https://docs.autometrics.dev/slo) for an introduction.
+
+In order to receive alerts, **you need to add a special set of rules to your Prometheus setup**. These are configured automatically when you use the [Autometrics CLI](https://docs.autometrics.dev/local-development#getting-started-with-am) to run Prometheus.
+
+> Already running Prometheus yourself? [Read about how to load the autometrics alerting rules into Prometheus here](https://github.com/autometrics-dev/autometrics-shared#prometheus-recording--alerting-rules). 
+
+Once the alerting rules are in Prometheus, you're ready to go.
+
+To use autometrics SLOs and alerts, create one or multiple `Objective`s based on the function(s) success rate and/or latency, as shown above. 
+
+The `Objective` can be passed as an argument to the `autometrics` decorator, which will include the given function in that objective.
+
+The example above used a success rate objective. (I.e., we wanted to be alerted when the error rate started to increase.) 
+
+You can also create an objective for the latency of your functions like so:
+
+```python
+from autometrics import autometrics
+from autometrics.objectives import Objective, ObjectiveLatency, ObjectivePercentile
+
+# Create an objective for low latency
+#   - Functions with this objective should have a 99th percentile latency of less than 250ms
+API_SLO_LOW_LATENCY = Objective(
+    "My API SLO for Low Latency (99th percentile < 250ms)",
+    latency=(ObjectiveLatency.Ms250, ObjectivePercentile.P99),
+)
+
+@autometrics(objective=API_SLO_LOW_LATENCY)
+def api_handler():
+  # ...
+```
+
 ## The `caller` Label
 
-Autometrics keeps track of instrumented functions that call each other. If you have a function `get_users` that calls another function `db.query`, the metrics for latter will include a label `caller="get_users"`.
+Autometrics keeps track of instrumented functions that call each other. So, if you have a function `get_users` that calls another function `db.query`, then the metrics for latter will include a label `caller="get_users"`.
 
-This allows you to drill down into the metrics for the functions that a given function calls. In this example, you could investigate the latency of the database queries that `get_users` makes.
+This allows you to drill down into the metrics for functions that are _called by_ your instrumented functions, provided both of those functions are decorated with `@autometrics`.
+
+In the example above, this means that you could investigate the latency of the database queries that `get_users` makes, which is rather useful.
 
 ## Settings
 
