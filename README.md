@@ -6,7 +6,7 @@
 > A Python port of the Rust
 > [autometrics-rs](https://github.com/fiberplane/autometrics-rs) library
 
-**Autometrics is a library that exports a decorator that makes it easy to understand the error rate, response time, and production usage of any function in your code.** Jump straight from your IDE to live Prometheus charts for each HTTP/RPC handler, database method, or other piece of application logic.
+**Autometrics is a library that makes it easy to understand the error rate, response time, and production usage of any function in your code.** Jump straight from your IDE to live Prometheus charts for each HTTP/RPC handler, database method, or other piece of application logic.
 
 Autometrics for Python provides:
 
@@ -17,7 +17,7 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 
 ## Features
 
-- ✨ `autometrics` decorator instruments any function or class method to track the
+- ✨ `@autometrics` decorator instruments any function or class method to track the
   most useful metrics
 - 💡 Writes Prometheus queries so you can understand the data generated without
   knowing PromQL
@@ -76,13 +76,15 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 
     ```
 
-- You can also track the number of concurrent calls to a function by using the `track_concurrency` argument: `@autometrics(track_concurrency=True)`. Note: this currently only supported by the `prometheus` tracker, set with the environment variable `AUTOMETRICS_TRACKER=prometheus`.
+- You can also track the number of concurrent calls to a function by using the `track_concurrency` argument: `@autometrics(track_concurrency=True)`. 
+
+    > Note: Concurrency tracking is only supported when you set with the environment variable `AUTOMETRICS_TRACKER=prometheus`.
 
 - To access the PromQL queries for your decorated functions, run `help(yourfunction)` or `print(yourfunction.__doc__)`.
 
 - To show tooltips over decorated functions in VSCode, with links to Prometheus queries, try installing [the VSCode extension](https://marketplace.visualstudio.com/items?itemName=Fiberplane.autometrics).
 
-> Note that we cannot support tooltips without a VSCode extension due to behavior of the [static analyzer](https://github.com/davidhalter/jedi/issues/1921) used in VSCode.
+    > Note that we cannot support tooltips without a VSCode extension due to behavior of the [static analyzer](https://github.com/davidhalter/jedi/issues/1921) used in VSCode.
 
 ## Dashboards
 
