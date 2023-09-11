@@ -166,6 +166,22 @@ Autometrics makes use of a number of environment variables to configure its beha
 - `service_name` - Configure the [service name](#service-name).
 - `version`, `commit`, `branch` - Used to configure [build_info](#build-info).
 
+Below is an example of initializing autometrics with build_info, as well as the `prometheus` tracker. (Note that you can also do this with environment variables.)
+
+```python
+from autometrics import autometrics, init
+from git_utils import get_git_commit, get_git_branch
+
+VERSION = "0.0.1"
+
+init(
+  tracker="prometheus",
+  version=VERSION,
+  commit=get_git_commit(),
+  branch=get_git_branch()
+)
+```
+
 ## Identifying commits that introduced problems <span name="build-info" />
 
 Autometrics makes it easy to identify if a specific version or commit introduced errors or increased latencies.
