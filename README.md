@@ -166,7 +166,7 @@ Autometrics makes use of a number of environment variables to configure its beha
 - `service_name` - Configure the [service name](#service-name).
 - `version`, `commit`, `branch` - Used to configure [build_info](#build-info).
 
-Below is an example of initializing autometrics with build_info, as well as the `prometheus` tracker. (Note that you can also do this with environment variables.)
+Below is an example of initializing autometrics with build information, as well as the `prometheus` tracker. (Note that you can also accomplish the same confiugration with environment variables.)
 
 ```python
 from autometrics import autometrics, init
