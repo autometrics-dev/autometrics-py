@@ -87,6 +87,8 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 
 - To access the PromQL queries for your decorated functions, run `help(yourfunction)` or `print(yourfunction.__doc__)`.
 
+    > For these queries to work, include a `.env` file in your project with your prometheus endpoint `PROMETHEUS_URL=your endpoint`. If this is not defined, the default endpoint will be `http://localhost:9090/`
+
 ## Dashboards
 
 Autometrics provides [Grafana dashboards](https://github.com/autometrics-dev/autometrics-shared#dashboards) that will work for any project instrumented with the library.
