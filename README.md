@@ -6,12 +6,9 @@
 > A Python port of the Rust
 > [autometrics-rs](https://github.com/fiberplane/autometrics-rs) library
 
-**Autometrics is a library that makes it easy to understand the error rate, response time, and production usage of any function in your code.** Jump straight from your IDE to live Prometheus charts for each HTTP/RPC handler, database method, or other piece of application logic.
+Metrics are a powerful and cost-efficient tool for understanding the health and performance of your code in production. But it's hard to decide what metrics to track and even harder to write queries to understand the data.
 
-Autometrics for Python provides:
-
-1. A decorator that can create [Prometheus](https://prometheus.io/) metrics for your functions and class methods throughout your code base.
-2. A helper function that will write corresponding Prometheus queries for you in a Markdown file.
+Autometrics provides a decorator that makes it trivial to instrument any function with the most useful metrics: request rate, error rate, and latency. It standardizes these metrics and then generates powerful Prometheus queries based on your function details to help you quickly identify and debug issues in production.
 
 See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for more details on the ideas behind autometrics.
 
