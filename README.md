@@ -6,18 +6,15 @@
 > A Python port of the Rust
 > [autometrics-rs](https://github.com/fiberplane/autometrics-rs) library
 
-**Autometrics is a library that exports a decorator that makes it easy to understand the error rate, response time, and production usage of any function in your code.** Jump straight from your IDE to live Prometheus charts for each HTTP/RPC handler, database method, or other piece of application logic.
+Metrics are a powerful and cost-efficient tool for understanding the health and performance of your code in production. But it's hard to decide what metrics to track and even harder to write queries to understand the data.
 
-Autometrics for Python provides:
-
-1. A decorator that can create [Prometheus](https://prometheus.io/) metrics for your functions and class methods throughout your code base.
-2. A helper function that will write corresponding Prometheus queries for you in a Markdown file.
+Autometrics provides a decorator that makes it trivial to instrument any function with the most useful metrics: request rate, error rate, and latency. It standardizes these metrics and then generates powerful Prometheus queries based on your function details to help you quickly identify and debug issues in production.
 
 See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for more details on the ideas behind autometrics.
 
 ## Features
 
-- ✨ `autometrics` decorator instruments any function or class method to track the
+- ✨ `@autometrics` decorator instruments any function or class method to track the
   most useful metrics
 - 💡 Writes Prometheus queries so you can understand the data generated without
   knowing PromQL
@@ -29,30 +26,68 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 - [📍 Attach exemplars](#exemplars) to connect metrics with traces
 - ⚡ Minimal runtime overhead
 
-## Using autometrics-py
+## Quickstart
 
-- Set up a [Prometheus instance](https://prometheus.io/download/)
-- Configure prometheus to scrape your application ([check our instructions if you need help](https://github.com/autometrics-dev#5-configuring-prometheus))
-- Include a .env file with your prometheus endpoint `PROMETHEUS_URL=your endpoint`. If this is not defined, the default endpoint will be `http://localhost:9090/`
-- `pip install autometrics`
-- Import the library in your code and use the decorator for any function:
+1. Add `autometrics` to your project's dependencies:
+    ```shell
+    pip install autometrics
+    ```
 
-```py
-from autometrics import autometrics
+2. Instrument your functions with the `@autometrics` decorator
 
-@autometrics
-def sayHello:
-   return "hello"
+    ```python
+    from autometrics import autometrics
 
-```
+    @autometrics
+    def my_function():
+      # ...
+    ```
 
-- You can also track the number of concurrent calls to a function by using the `track_concurrency` argument: `@autometrics(track_concurrency=True)`. Note: currently only supported by the `prometheus` tracker.
+3. Export the metrics for Prometheus
+    ```python
+    # This example uses FastAPI, but you can use any web framework
+    from fastapi import FastAPI, Response
+    from prometheus_client import generate_latest
+    
+    # Set up a metrics endpoint for Prometheus to scrape
+    #   `generate_latest` returns metrics data in the Prometheus text format
+    @app.get("/metrics")
+    def metrics():
+        return Response(generate_latest())
+    ```
 
-- To access the PromQL queries for your decorated functions, run `help(yourfunction)` or `print(yourfunction.__doc__)`.
+4. Run Prometheus locally with the [Autometrics CLI](https://docs.autometrics.dev/local-development#getting-started-with-am) or [configure it manually](https://github.com/autometrics-dev#5-configuring-prometheus) to scrape your metrics endpoint
+    ```sh
+     # Replace `8080` with the port that your app runs on
+     am start :8080 
+    ```
+  
+5. (Optional) If you have Grafana, import the [Autometrics dashboards](https://github.com/autometrics-dev/autometrics-shared#dashboards) for an overview and detailed view of all the function metrics you've collected
+
+## Using `autometrics-py`
+
+- You can import the library in your code and use the decorator for any function:
+
+    ```py
+    from autometrics import autometrics
+
+    @autometrics
+    def sayHello:
+      return "hello"
+
+    ```
 
 - To show tooltips over decorated functions in VSCode, with links to Prometheus queries, try installing [the VSCode extension](https://marketplace.visualstudio.com/items?itemName=Fiberplane.autometrics).
 
-> Note that we cannot support tooltips without a VSCode extension due to behavior of the [static analyzer](https://github.com/davidhalter/jedi/issues/1921) used in VSCode.
+    > **Note**: We cannot support tooltips without a VSCode extension due to behavior of the [static analyzer](https://github.com/davidhalter/jedi/issues/1921) used in VSCode.
+
+- You can also track the number of concurrent calls to a function by using the `track_concurrency` argument: `@autometrics(track_concurrency=True)`. 
+
+    > **Note**: Concurrency tracking is only supported when you set with the environment variable `AUTOMETRICS_TRACKER=prometheus`.
+
+- To access the PromQL queries for your decorated functions, run `help(yourfunction)` or `print(yourfunction.__doc__)`.
+
+    > For these queries to work, include a `.env` file in your project with your prometheus endpoint `PROMETHEUS_URL=your endpoint`. If this is not defined, the default endpoint will be `http://localhost:9090/`
 
 ## Dashboards
 
@@ -60,26 +95,17 @@ Autometrics provides [Grafana dashboards](https://github.com/autometrics-dev/aut
 
 ## Alerts / SLOs
 
-Autometrics makes it easy to add Prometheus alerts using Service-Level Objectives (SLOs) to a function or group of functions.
-
-In order to receive alerts you need to add a set of rules to your Prometheus set up. You can find out more about those rules here: [Prometheus alerting rules](https://github.com/autometrics-dev/autometrics-shared#prometheus-recording--alerting-rules). Once added, most of the recording rules are dormant. They are enabled by specific metric labels that can be automatically attached by autometrics.
-
-To use autometrics SLOs and alerts, create one or multiple `Objective`s based on the function(s) success rate and/or latency, as shown below. The `Objective` can be passed as an argument to the `autometrics` decorator to include the given function in that objective.
+Autometrics makes it easy to add intelligent alerting to your code, in order to catch increases in the error rate or latency across multiple functions.
 
 ```python
 from autometrics import autometrics
 from autometrics.objectives import Objective, ObjectiveLatency, ObjectivePercentile
 
 # Create an objective for a high success rate
+# Here, we want our API to have a success rate of 99.9%
 API_SLO_HIGH_SUCCESS = Objective(
     "My API SLO for High Success Rate (99.9%)",
     success_rate=ObjectivePercentile.P99_9,
-)
-
-# Or you can also create an objective for low latency
-API_SLO_LOW_LATENCY = Objective(
-    "My API SLO for Low Latency (99th percentile < 250ms)",
-    latency=(ObjectiveLatency.Ms250, ObjectivePercentile.P99),
 )
 
 @autometrics(objective=API_SLO_HIGH_SUCCESS)
@@ -87,9 +113,49 @@ def api_handler():
   # ...
 ```
 
-Autometrics keeps track of instrumented functions calling each other. If you have a function that calls another function, metrics for later will include `caller` label set to the name of the autometricised function that called it.
+The library uses the concept of Service-Level Objectives (SLOs) to define the acceptable error rate and latency for groups of functions. Alerts will fire depending on the SLOs you set.
 
-## Settings
+> Not sure what SLOs are? [Check out our docs](https://docs.autometrics.dev/slo) for an introduction.
+
+In order to receive alerts, **you need to add a special set of rules to your Prometheus setup**. These are configured automatically when you use the [Autometrics CLI](https://docs.autometrics.dev/local-development#getting-started-with-am) to run Prometheus.
+
+> Already running Prometheus yourself? [Read about how to load the autometrics alerting rules into Prometheus here](https://github.com/autometrics-dev/autometrics-shared#prometheus-recording--alerting-rules). 
+
+Once the alerting rules are in Prometheus, you're ready to go.
+
+To use autometrics SLOs and alerts, create one or multiple `Objective`s based on the function(s) success rate and/or latency, as shown above. 
+
+The `Objective` can be passed as an argument to the `autometrics` decorator, which will include the given function in that objective.
+
+The example above used a success rate objective. (I.e., we wanted to be alerted when the error rate started to increase.) 
+
+You can also create an objective for the latency of your functions like so:
+
+```python
+from autometrics import autometrics
+from autometrics.objectives import Objective, ObjectiveLatency, ObjectivePercentile
+
+# Create an objective for low latency
+#   - Functions with this objective should have a 99th percentile latency of less than 250ms
+API_SLO_LOW_LATENCY = Objective(
+    "My API SLO for Low Latency (99th percentile < 250ms)",
+    latency=(ObjectiveLatency.Ms250, ObjectivePercentile.P99),
+)
+
+@autometrics(objective=API_SLO_LOW_LATENCY)
+def api_handler():
+  # ...
+```
+
+## The `caller` Label
+
+Autometrics keeps track of instrumented functions that call each other. So, if you have a function `get_users` that calls another function `db.query`, then the metrics for latter will include a label `caller="get_users"`.
+
+This allows you to drill down into the metrics for functions that are _called by_ your instrumented functions, provided both of those functions are decorated with `@autometrics`.
+
+In the example above, this means that you could investigate the latency of the database queries that `get_users` makes, which is rather useful.
+
+## Settings and Configuration
 
 Autometrics makes use of a number of environment variables to configure its behavior. All of them are also configurable with keyword arguments to the `init` function.
 
@@ -99,17 +165,38 @@ Autometrics makes use of a number of environment variables to configure its beha
 - `service_name` - Configure the [service name](#service-name).
 - `version`, `commit`, `branch` - Used to configure [build_info](#build-info).
 
-## Identifying commits that introduced problems <span name="build-info" />
+Below is an example of initializing autometrics with build information, as well as the `prometheus` tracker. (Note that you can also accomplish the same confiugration with environment variables.)
 
-> **NOTE** - As of writing, `build_info` will not work correctly when using the default tracker (`AUTOMETRICS_TRACKER=OPEN_TELEMETRY`).
-> This will be fixed once the following PR is merged on the opentelemetry-python project: https://github.com/open-telemetry/opentelemetry-python/pull/3306
->
-> autometrics-py will track support for build_info using the OpenTelemetry tracker via #38
+```python
+from autometrics import autometrics, init
+from git_utils import get_git_commit, get_git_branch
+
+VERSION = "0.0.1"
+
+init(
+  tracker="prometheus",
+  version=VERSION,
+  commit=get_git_commit(),
+  branch=get_git_branch()
+)
+```
+
+## Identifying commits that introduced problems <span name="build-info" />
 
 Autometrics makes it easy to identify if a specific version or commit introduced errors or increased latencies.
 
-It uses a separate metric (`build_info`) to track the version and, optionally, git commit of your service. It then writes queries that group metrics by the `version`, `commit` and `branch` labels so you can spot correlations between those and potential issues.
-Configure the labels by setting the following environment variables:
+> **NOTE** - As of writing, `build_info` will not work correctly when using the default setting of `AUTOMETRICS_TRACKER=opentelemetry`. If you wish to use `build_info`, you must use the `prometheus` tracker instead (`AUTOMETRICS_TRACKER=prometheus`).
+>
+> The issue will be fixed once the following PR is merged and released on the opentelemetry-python project: https://github.com/open-telemetry/opentelemetry-python/pull/3306
+>
+> autometrics-py will track support for build_info using the OpenTelemetry tracker via [this issue](https://github.com/autometrics-dev/autometrics-py/issues/38)
+
+
+The library uses a separate metric (`build_info`) to track the version and, optionally, the git commit of your service. 
+
+It then writes queries that group metrics by the `version`, `commit` and `branch` labels so you can spot correlations between code changes and potential issues.
+
+Configure these labels by setting the following environment variables:
 
 | Label     | Run-Time Environment Variables        | Default value |
 | --------- | ------------------------------------- | ------------- |
@@ -121,9 +208,9 @@ This follows the method outlined in [Exposing the software version to Prometheus
 
 ## Service name
 
-All metrics produced by Autometrics have a label called `service.name` (or `service_name` when exported to Prometheus) attached to identify the logical service they are part of.
+All metrics produced by Autometrics have a label called `service.name` (or `service_name` when exported to Prometheus) attached, in order to identify the logical service they are part of.
 
-You may want to override the default service name, for example if you are running multiple instances of the same code base as separate services and want to differentiate between the metrics produced by each one.
+You may want to override the default service name, for example if you are running multiple instances of the same code base as separate services, and you want to differentiate between the metrics produced by each one.
 
 The service name is loaded from the following environment variables, in this order:
 
@@ -133,7 +220,7 @@ The service name is loaded from the following environment variables, in this ord
 
 ## Exemplars
 
-> **NOTE** - As of writing, exemplars aren't supported by the default tracker (`AUTOMETRICS_TRACKER=OPEN_TELEMETRY`).
+> **NOTE** - As of writing, exemplars aren't supported by the default tracker (`AUTOMETRICS_TRACKER=opentelemetry`).
 > You can track the progress of this feature here: https://github.com/autometrics-dev/autometrics-py/issues/41
 
 Exemplars are a way to associate a metric sample to a trace by attaching `trace_id` and `span_id` to it. You can then use this information to jump from a metric to a trace in your tracing system (for example Jaeger). If you have an OpenTelemetry tracer configured, autometrics will automatically pick up the current span from it.
