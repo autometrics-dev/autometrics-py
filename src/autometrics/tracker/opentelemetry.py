@@ -10,10 +10,11 @@ from opentelemetry.metrics import (
 )
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.view import View, ExplicitBucketHistogramAggregation
+from opentelemetry.sdk.metrics.export import MetricReader
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
 
-from .exemplar import get_exemplar
-from .tracker import Result
+from ..exemplar import get_exemplar
+from .types import Result
 from ..objectives import Objective, ObjectiveLatency
 from ..constants import (
     CONCURRENCY_NAME,
@@ -40,8 +41,7 @@ class OpenTelemetryTracker:
     __up_down_counter_build_info_instance: UpDownCounter
     __up_down_counter_concurrency_instance: UpDownCounter
 
-    def __init__(self):
-        exporter = PrometheusMetricReader("")
+    def __init__(self, reader: Optional[MetricReader] = None):
         view = View(
             name=HISTOGRAM_NAME,
             description=HISTOGRAM_DESCRIPTION,
@@ -50,7 +50,8 @@ class OpenTelemetryTracker:
                 boundaries=get_settings()["histogram_buckets"]
             ),
         )
-        meter_provider = MeterProvider(metric_readers=[exporter], views=[view])
+        readers = [reader or PrometheusMetricReader("")]
+        meter_provider = MeterProvider(metric_readers=readers, views=[view])
         set_meter_provider(meter_provider)
         meter = meter_provider.get_meter(name="autometrics")
         self.__counter_instance = meter.create_counter(
@@ -106,12 +107,10 @@ class OpenTelemetryTracker:
         self,
         function: str,
         module: str,
-        start_time: float,
+        duration: float,
         objective: Optional[Objective],
         exemplar: Optional[dict],
     ):
-        duration = time.time() - start_time
-
         objective_name = "" if objective is None else objective.name
         latency = None if objective is None else objective.latency
         percentile = ""
@@ -165,7 +164,7 @@ class OpenTelemetryTracker:
 
     def finish(
         self,
-        start_time: float,
+        duration: float,
         function: str,
         module: str,
         caller_module: str,
@@ -190,7 +189,7 @@ class OpenTelemetryTracker:
             exemplar,
             result,
         )
-        self.__histogram(function, module, start_time, objective, exemplar)
+        self.__histogram(function, module, duration, objective, exemplar)
         if track_concurrency:
             self.__up_down_counter_concurrency_instance.add(
                 -1.0,

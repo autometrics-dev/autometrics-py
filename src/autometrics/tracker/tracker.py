@@ -1,58 +1,16 @@
-from typing import Protocol, Optional
+from typing import Protocol, Optional, cast
 from enum import Enum
+from opentelemetry.sdk.metrics.export import MetricReader
 
-from ..objectives import Objective
-from ..settings import get_settings
-
-
-class Result(Enum):
-    """Result of the function call."""
-
-    OK = "ok"
-    ERROR = "error"
+from .types import TrackerType, TrackMetrics
+from .temporary import TemporaryTracker
+from ..exposition import PrometheusExporterOptions, get_exporter
+from ..settings import get_settings, AutometricsSettings
 
 
-class TrackMetrics(Protocol):
-    """Protocol for tracking metrics."""
-
-    def set_build_info(self, commit: str, version: str, branch: str):
-        """Observe the build info. Should only be called once per tracker instance"""
-
-    def start(
-        self, function: str, module: str, track_concurrency: Optional[bool] = False
-    ):
-        """Start tracking metrics for a function call."""
-
-    def finish(
-        self,
-        start_time: float,
-        function: str,
-        module: str,
-        caller_module: str,
-        caller_function: str,
-        result: Result = Result.OK,
-        objective: Optional[Objective] = None,
-        track_concurrency: Optional[bool] = False,
-    ):
-        """Finish tracking metrics for a function call."""
-
-    def initialize_counters(
-        self,
-        function: str,
-        module: str,
-        objective: Optional[Objective] = None,
-    ):
-        """Initialize (counter) metrics for a function at zero."""
-
-
-class TrackerType(Enum):
-    """Type of tracker."""
-
-    OPENTELEMETRY = "opentelemetry"
-    PROMETHEUS = "prometheus"
-
-
-def init_tracker(tracker_type: TrackerType) -> TrackMetrics:
+def init_tracker(
+    tracker_type: TrackerType, settings: AutometricsSettings
+) -> TrackMetrics:
     """Create a tracker"""
 
     tracker_instance: TrackMetrics
@@ -60,14 +18,22 @@ def init_tracker(tracker_type: TrackerType) -> TrackMetrics:
         # pylint: disable=import-outside-toplevel
         from .opentelemetry import OpenTelemetryTracker
 
-        tracker_instance = OpenTelemetryTracker()
+        exporter: Optional[MetricReader] = None
+        if settings["exporter"]:
+            exporter = get_exporter(settings["exporter"])
+        tracker_instance = OpenTelemetryTracker(exporter)
     elif tracker_type == TrackerType.PROMETHEUS:
         # pylint: disable=import-outside-toplevel
         from .prometheus import PrometheusTracker
 
-        tracker_instance = PrometheusTracker()
+        if settings["exporter"]:
+            from prometheus_client import start_http_server
 
-    settings = get_settings()
+            if settings["exporter"]["type"] != "prometheus-client":
+                raise Exception("Invalid exporter type for Prometheus tracker")
+            exporter_settings = cast(PrometheusExporterOptions, settings["exporter"])
+            start_http_server(exporter_settings["port"], exporter_settings["address"])
+        tracker_instance = PrometheusTracker()
     # NOTE - Only set the build info when the tracker is initialized
     tracker_instance.set_build_info(
         commit=settings["commit"],
@@ -78,22 +44,7 @@ def init_tracker(tracker_type: TrackerType) -> TrackMetrics:
     return tracker_instance
 
 
-def get_tracker_type() -> TrackerType:
-    """Get the tracker type."""
-    tracker_type = get_settings()["tracker"]
-
-    if tracker_type.lower() == "prometheus":
-        return TrackerType.PROMETHEUS
-    return TrackerType.OPENTELEMETRY
-
-
-def default_tracker():
-    """Setup the default tracker."""
-    preferred_tracker = get_tracker_type()
-    return init_tracker(preferred_tracker)
-
-
-tracker: TrackMetrics = default_tracker()
+tracker: TrackMetrics = TemporaryTracker()
 
 
 def get_tracker() -> TrackMetrics:
@@ -104,4 +55,6 @@ def get_tracker() -> TrackMetrics:
 def set_tracker(tracker_type: TrackerType):
     """Set the tracker type."""
     global tracker
-    tracker = init_tracker(tracker_type)
+    settings = get_settings()
+    settings["tracker"] = tracker_type
+    tracker = init_tracker(tracker_type, settings)

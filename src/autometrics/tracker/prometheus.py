@@ -20,8 +20,8 @@ from ..constants import (
     BRANCH_KEY,
 )
 
-from .exemplar import get_exemplar
-from .tracker import Result
+from ..exemplar import get_exemplar
+from .types import Result
 from ..objectives import Objective
 from ..settings import get_settings
 
@@ -110,12 +110,11 @@ class PrometheusTracker:
         self,
         func_name: str,
         module_name: str,
-        start_time: float,
+        duration: float,
         objective: Optional[Objective] = None,
         exemplar: Optional[dict] = None,
     ):
         """Observe the duration of the function call."""
-        duration = time.time() - start_time
 
         objective_name = "" if objective is None else objective.name
         latency = None if objective is None else objective.latency
@@ -153,7 +152,7 @@ class PrometheusTracker:
 
     def finish(
         self,
-        start_time: float,
+        duration: float,
         function: str,
         module: str,
         caller_module: str,
@@ -176,7 +175,7 @@ class PrometheusTracker:
             exemplar,
             result,
         )
-        self._histogram(function, module, start_time, objective, exemplar)
+        self._histogram(function, module, duration, objective, exemplar)
 
         if track_concurrency:
             service_name = get_settings()["service_name"]

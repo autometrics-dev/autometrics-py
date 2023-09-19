@@ -8,29 +8,35 @@ readme = "README.md"
 repository = "https://github.com/autometrics-dev/autometrics-py"
 homepage = "https://github.com/autometrics-dev/autometrics-py"
 keywords = [
-    "metrics",
-    "telemetry",
-    "prometheus",
-    "monitoring",
-    "observability",
-    "instrumentation",
-    "tracing",
+  "metrics",
+  "telemetry",
+  "prometheus",
+  "monitoring",
+  "observability",
+  "instrumentation",
+  "tracing",
 ]
 classifiers = [
-    "Topic :: Software Development :: Build Tools",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: System :: Monitoring",
-    "Typing :: Typed"
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: System :: Monitoring",
+  "Typing :: Typed",
 ]
 packages = [{ include = "autometrics", from = "src" }]
 
 [tool.poetry.dependencies]
 opentelemetry-exporter-prometheus = "^1.12.0rc1"
+opentelemetry-exporter-otlp-proto-http = { version = "^1.20.0", optional = true }
+opentelemetry-exporter-otlp-proto-grpc = { version = "^1.20.0", optional = true }
 opentelemetry-sdk = "^1.17.0"
 prometheus-client = "^0.16.0 || ^0.17.0"
 python = "^3.8"
 python-dotenv = "^1.0.0"
 typing-extensions = "^4.5.0"
+
+[tool.poetry.extras]
+exporter-otlp-proto-http = ["opentelemetry-exporter-otlp-proto-http"]
+exporter-otlp-proto-grpc = ["opentelemetry-exporter-otlp-proto-grpc"]
 
 [tool.poetry.group.dev]
 optional = true
@@ -46,9 +52,7 @@ enable_incomplete_feature = "Unpack"
 # Which at the time of writing is a line that states ignore types:
 # `# type: ignore`
 [[tool.mypy.overrides]]
-module = [
-  "opentelemetry.attributes",
-]
+module = ["opentelemetry.attributes"]
 follow_imports = "skip"
 
 [tool.poetry.group.dev.dependencies]
@@ -100,7 +104,6 @@ webencodings = "0.5.1"
 zipp = "3.15.0"
 locust = "^2.15.1"
 django-stubs = "4.2.3"
-
 
 
 [tool.poetry.group.development.dependencies]
