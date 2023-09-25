@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Union, Optional, Protocol, List, Literal
+from typing import Union, Optional, Protocol, List, Literal, Tuple
 
 from ..objectives import Objective
 
@@ -52,8 +52,8 @@ class TrackerType(Enum):
 
 
 TrackerMessage = Union[
-    tuple[Literal["start"], str, str, Optional[bool]],
-    tuple[
+    Tuple[Literal["start"], str, str, Optional[bool]],
+    Tuple[
         Literal["finish"],
         float,
         str,
@@ -64,6 +64,6 @@ TrackerMessage = Union[
         Optional[Objective],
         Optional[bool],
     ],
-    tuple[Literal["initialize_counters"], str, str, Optional[Objective]],
+    Tuple[Literal["initialize_counters"], str, str, Optional[Objective]],
 ]
 MessageQueue = List[TrackerMessage]

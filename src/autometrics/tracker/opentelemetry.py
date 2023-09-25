@@ -1,5 +1,5 @@
 import time
-from typing import Optional
+from typing import Dict, Optional, Mapping
 
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.metrics import (
@@ -13,6 +13,7 @@ from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.view import View, ExplicitBucketHistogramAggregation
 from opentelemetry.sdk.metrics.export import MetricReader
 from opentelemetry.sdk.resources import Resource
+from opentelemetry.util.types import AttributeValue
 
 from ..exemplar import get_exemplar
 from .types import Result
@@ -33,6 +34,18 @@ from ..constants import (
 )
 from ..settings import get_settings
 
+LabelValue = AttributeValue
+Attributes = Dict[str, LabelValue]
+
+
+def get_resource_attrs() -> Attributes:
+    attrs: Attributes = {}
+    if get_settings()["service_name"] is not None:
+        attrs[ResourceAttributes.SERVICE_NAME] = get_settings()["service_name"]
+    if get_settings()["version"] is not None:
+        attrs[ResourceAttributes.SERVICE_VERSION] = get_settings()["version"]
+    return attrs
+
 
 class OpenTelemetryTracker:
     """Tracker for OpenTelemetry."""
@@ -51,12 +64,7 @@ class OpenTelemetryTracker:
                 boundaries=get_settings()["histogram_buckets"]
             ),
         )
-        attrs = {}
-        if get_settings()["service_name"] is not None:
-            attrs[ResourceAttributes.SERVICE_NAME] = get_settings()["service_name"]
-        if get_settings()["version"] is not None:
-            attrs[ResourceAttributes.SERVICE_VERSION] = get_settings()["version"]
-        resource = Resource.create(attrs)
+        resource = Resource.create(get_resource_attrs())
         readers = [reader or PrometheusMetricReader("")]
         meter_provider = MeterProvider(
             views=[view],

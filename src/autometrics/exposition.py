@@ -1,4 +1,4 @@
-from typing import cast, Literal, TypedDict, Optional, Union
+from typing import cast, Dict, Literal, TypedDict, Optional, Union
 from opentelemetry.sdk.metrics.export import (
     AggregationTemporality,
     MetricReader,
@@ -19,11 +19,11 @@ class OTLPExporterOptions(TypedDict):
     type: Literal["otlp-proto-http", "otlp-proto-grpc"]
     endpoint: str
     insecure: bool
-    headers: dict[str, str]
+    headers: Dict[str, str]
     credentials: ChannelCredentials
     push_interval: int
     timeout: int
-    preferred_temporality: dict[type, AggregationTemporality]
+    preferred_temporality: Dict[type, AggregationTemporality]
 
 
 class OTELPrometheusExporterOptions(TypedDict):
