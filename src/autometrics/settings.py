@@ -1,11 +1,16 @@
 import os
 
 from opentelemetry.sdk.metrics.export import MetricReader
-from typing import List, TypedDict, Optional
+from typing import Any, Dict, List, TypedDict, Optional, Union
 from typing_extensions import Unpack
 
 from .tracker.types import TrackerType
-from .exposition import ExporterOptions
+from .exposition import (
+    ExporterOptions,
+    PrometheusExporterOptions,
+    OTELPrometheusExporterOptions,
+    OTLPExporterOptions,
+)
 from .objectives import ObjectiveLatency
 
 
@@ -27,7 +32,7 @@ class AutometricsOptions(TypedDict, total=False):
 
     histogram_buckets: List[float]
     tracker: str
-    exporter: ExporterOptions
+    exporter: Dict[str, str]
     enable_exemplars: bool
     service_name: str
     commit: str
@@ -52,6 +57,10 @@ def init_settings(**overrides: Unpack[AutometricsOptions]) -> AutometricsSetting
         if tracker_setting.lower() == "prometheus"
         else TrackerType.OPENTELEMETRY
     )
+    exporter: Optional[ExporterOptions] = None
+    exporter_option = overrides.get("exporter")
+    if exporter_option is not None:
+        exporter = get_exporter_settings(exporter_option)
 
     config: AutometricsSettings = {
         "histogram_buckets": overrides.get("histogram_buckets")
@@ -60,7 +69,7 @@ def init_settings(**overrides: Unpack[AutometricsOptions]) -> AutometricsSetting
             "enable_exemplars", os.getenv("AUTOMETRICS_EXEMPLARS") == "true"
         ),
         "tracker": tracker_type,
-        "exporter": overrides.get("exporter"),
+        "exporter": exporter,
         "service_name": overrides.get(
             "service_name",
             os.getenv(
@@ -112,3 +121,32 @@ def validate_settings(settings: AutometricsSettings):
                 raise ValueError(
                     "OTLP exporter is not supported with Prometheus tracker"
                 )
+
+
+def get_exporter_settings(exporter_options: Dict[str, Any]) -> ExporterOptions:
+    """Get the exporter settings from the user supplied options."""
+    if exporter_options["type"] == "prometheus-client":
+        return PrometheusExporterOptions(
+            type="prometheus-client",
+            address=exporter_options["address"],
+            port=exporter_options["port"],
+            prefix=exporter_options["prefix"],
+        )
+    if ["otlp-proto-http", "otlp-proto-grpc"].count(exporter_options["type"]) > 0:
+        return OTLPExporterOptions(
+            type=exporter_options["type"],
+            endpoint=exporter_options["endpoint"],
+            insecure=exporter_options["insecure"],
+            headers=exporter_options["headers"],
+            credentials=exporter_options["credentials"],
+            push_interval=exporter_options["push_interval"],
+            timeout=exporter_options["timeout"],
+            preferred_temporality=exporter_options["preferred_temporality"],
+        )
+
+    if exporter_options["type"] == "otel-prometheus":
+        return OTELPrometheusExporterOptions(
+            type="otel-prometheus",
+            prefix=exporter_options["prefix"],
+        )
+    raise ValueError(f"Unsupported exporter type: {exporter_options['type']}")
