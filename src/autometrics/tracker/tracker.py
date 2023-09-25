@@ -1,11 +1,25 @@
-from typing import Protocol, Optional, cast
-from enum import Enum
+from typing import Optional, cast
 from opentelemetry.sdk.metrics.export import MetricReader
 
 from .types import TrackerType, TrackMetrics
 from .temporary import TemporaryTracker
 from ..exposition import PrometheusExporterOptions, get_exporter
-from ..settings import get_settings, AutometricsSettings
+from ..settings import AutometricsSettings
+
+
+_tracker: TrackMetrics = TemporaryTracker()
+
+
+def get_tracker() -> TrackMetrics:
+    """Get the tracker type."""
+    global _tracker
+    return _tracker
+
+
+def set_tracker(new_tracker: TrackMetrics):
+    """Set the tracker type."""
+    global _tracker
+    _tracker = new_tracker
 
 
 def init_tracker(
@@ -26,7 +40,7 @@ def init_tracker(
         # pylint: disable=import-outside-toplevel
         from .prometheus import PrometheusTracker
 
-        if settings["exporter"]:
+        if settings["exporter"] and not isinstance(settings["exporter"], MetricReader):
             from prometheus_client import start_http_server
 
             if settings["exporter"]["type"] != "prometheus-client":
@@ -41,20 +55,5 @@ def init_tracker(
         branch=settings["branch"],
     )
 
+    set_tracker(tracker_instance)
     return tracker_instance
-
-
-tracker: TrackMetrics = TemporaryTracker()
-
-
-def get_tracker() -> TrackMetrics:
-    """Get the tracker type."""
-    return tracker
-
-
-def set_tracker(tracker_type: TrackerType):
-    """Set the tracker type."""
-    global tracker
-    settings = get_settings()
-    settings["tracker"] = tracker_type
-    tracker = init_tracker(tracker_type, settings)

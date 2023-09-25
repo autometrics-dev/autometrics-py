@@ -1,17 +1,18 @@
 import time
 from typing import Optional
 
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.metrics import (
-    Meter,
     Counter,
     Histogram,
     UpDownCounter,
     set_meter_provider,
 )
+from opentelemetry.semconv.resource import ResourceAttributes
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.view import View, ExplicitBucketHistogramAggregation
 from opentelemetry.sdk.metrics.export import MetricReader
-from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from opentelemetry.sdk.resources import Resource
 
 from ..exemplar import get_exemplar
 from .types import Result
@@ -50,8 +51,18 @@ class OpenTelemetryTracker:
                 boundaries=get_settings()["histogram_buckets"]
             ),
         )
+        attrs = {}
+        if get_settings()["service_name"] is not None:
+            attrs[ResourceAttributes.SERVICE_NAME] = get_settings()["service_name"]
+        if get_settings()["version"] is not None:
+            attrs[ResourceAttributes.SERVICE_VERSION] = get_settings()["version"]
+        resource = Resource.create(attrs)
         readers = [reader or PrometheusMetricReader("")]
-        meter_provider = MeterProvider(metric_readers=readers, views=[view])
+        meter_provider = MeterProvider(
+            views=[view],
+            resource=resource,
+            metric_readers=readers,
+        )
         set_meter_provider(meter_provider)
         meter = meter_provider.get_meter(name="autometrics")
         self.__counter_instance = meter.create_counter(
@@ -174,7 +185,6 @@ class OpenTelemetryTracker:
         track_concurrency: Optional[bool] = False,
     ):
         """Finish tracking metrics for a function call."""
-
         exemplar = None
         # Currently, exemplars are only supported by prometheus-client
         # https://github.com/autometrics-dev/autometrics-py/issues/41

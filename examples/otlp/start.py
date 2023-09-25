@@ -2,7 +2,9 @@ import time
 from autometrics import autometrics, init
 
 init(
-    exporter={"type": "otlp-proto-grpc", "endpoint": "http://localhost:4317"},
+    exporter={
+        "type": "otlp-proto-http",
+    },
     service_name="my-service",
 )
 

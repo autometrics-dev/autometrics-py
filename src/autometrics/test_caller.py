@@ -3,10 +3,12 @@ from functools import wraps
 from prometheus_client.exposition import generate_latest
 
 from .decorator import autometrics
+from .initialization import init
 
 
 def test_caller_detection():
     """This is a test to see if the caller is properly detected."""
+    init()
 
     def dummy_decorator(func):
         @wraps(func)

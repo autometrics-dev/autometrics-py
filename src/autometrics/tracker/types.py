@@ -1,10 +1,7 @@
 from enum import Enum
-from typing import Literal, Optional, Protocol
+from typing import Union, Optional, Protocol, List, Literal
 
 from ..objectives import Objective
-
-TrackerMessage = tuple[Literal["start", "finish", "initialize_counters"], ...]
-MessageQueue = list[TrackerMessage]
 
 
 class Result(Enum):
@@ -46,12 +43,27 @@ class TrackMetrics(Protocol):
     ):
         """Initialize (counter) metrics for a function at zero."""
 
-    def replay_queue(self, queue: MessageQueue):
-        """Replay a queue of messages"""
-
 
 class TrackerType(Enum):
     """Type of tracker."""
 
     OPENTELEMETRY = "opentelemetry"
     PROMETHEUS = "prometheus"
+
+
+TrackerMessage = Union[
+    tuple[Literal["start"], str, str, Optional[bool]],
+    tuple[
+        Literal["finish"],
+        float,
+        str,
+        str,
+        str,
+        str,
+        Result,
+        Optional[Objective],
+        Optional[bool],
+    ],
+    tuple[Literal["initialize_counters"], str, str, Optional[Objective]],
+]
+MessageQueue = List[TrackerMessage]

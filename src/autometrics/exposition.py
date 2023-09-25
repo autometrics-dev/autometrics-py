@@ -8,7 +8,7 @@ from opentelemetry.exporter.prometheus import PrometheusMetricReader
 
 # GRPC is optional so we'll only type it if it's available
 try:
-    from grpc import ChannelCredentials
+    from grpc import ChannelCredentials  # type: ignore
 except ImportError:
     ChannelCredentials = None
 
@@ -65,7 +65,7 @@ def get_exporter(config: ExporterOptions) -> MetricReader:
                 endpoint=config.get("endpoint", None),
                 headers=config.get("headers", None),
                 timeout=config.get("timeout", None),
-                preferred_temporality=config.get("preferred_temporality", None),
+                preferred_temporality=config.get("preferred_temporality", {}),
             )
             http_reader = PeriodicExportingMetricReader(
                 http_exporter,
@@ -88,7 +88,7 @@ def get_exporter(config: ExporterOptions) -> MetricReader:
                 credentials=config.get("credentials", None),
                 headers=config.get("headers", None),
                 timeout=config.get("timeout", None),
-                preferred_temporality=config.get("preferred_temporality", None),
+                preferred_temporality=config.get("preferred_temporality", {}),
             )
             grpc_reader = PeriodicExportingMetricReader(
                 grpc_exporter,

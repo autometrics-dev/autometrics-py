@@ -7,8 +7,9 @@ import pytest
 from requests import HTTPError
 
 from .decorator import autometrics
+from .initialization import init
 from .objectives import ObjectiveLatency, Objective, ObjectivePercentile
-from .tracker import set_tracker, TrackerType
+from .tracker import TrackerType
 from .utils import get_function_name, get_module_name
 
 HTTP_ERROR_TEXT = "This is an http error"
@@ -71,10 +72,10 @@ async def never_called_async_function():
 tracker_types = [TrackerType.PROMETHEUS, TrackerType.OPENTELEMETRY]
 
 
-@pytest.fixture(scope="class", params=tracker_types)
+@pytest.fixture(params=tracker_types)
 def setup_tracker_type(request):
     """Force the use of a specific metrics tracker"""
-    set_tracker(request.param)
+    init(tracker=request.param.value)
 
 
 @pytest.mark.usefixtures("setup_tracker_type")

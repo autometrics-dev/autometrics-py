@@ -3,13 +3,13 @@ import pytest
 
 from . import TrackerType
 from ..decorator import autometrics
-from ..init import init
+from ..initialization import init
 
 
 @pytest.mark.parametrize("tracker", TrackerType)
 def test_metrics_format(tracker):
     """Test that the metrics are formatted correctly."""
-    init(tracker=tracker.value)
+    init(tracker=tracker.value, version="1.0")
 
     @autometrics
     def test_function():
