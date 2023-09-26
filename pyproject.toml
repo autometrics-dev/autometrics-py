@@ -25,7 +25,10 @@ classifiers = [
 packages = [{ include = "autometrics", from = "src" }]
 
 [tool.poetry.dependencies]
-opentelemetry-exporter-prometheus = "^1.12.0rc1"
+# The prometheus exporter is pinned to a beta version because of how opentelemetry-python has been releasing it.
+# Technically, the version 1.12.0rc1 is the "latest" on pypi, but it's not the latest release.
+# 0.41b0 includes the fix for exporting gauge values (previously they were always turned into counters).
+opentelemetry-exporter-prometheus = "0.41b0"
 opentelemetry-sdk = "^1.17.0"
 prometheus-client = "^0.16.0 || ^0.17.0"
 python = "^3.8"

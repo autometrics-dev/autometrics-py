@@ -1387,18 +1387,18 @@ importlib-metadata = ">=6.0,<7.0"
 
 [[package]]
 name = "opentelemetry-exporter-prometheus"
-version = "1.12.0rc1"
+version = "0.41b0"
 description = "Prometheus Metric Exporter for OpenTelemetry"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "opentelemetry-exporter-prometheus-1.12.0rc1.tar.gz", hash = "sha256:f10c6c243d69d5b63f755885b36a4ce8ef2cdf3e737c4e6bf00f32e87668f0a9"},
-    {file = "opentelemetry_exporter_prometheus-1.12.0rc1-py3-none-any.whl", hash = "sha256:1f0c8f93d62e1575313966ceb8abf11e9a46e1839fda9ee4269b06d40494280f"},
+    {file = "opentelemetry_exporter_prometheus-0.41b0-py3-none-any.whl", hash = "sha256:ca996f3bc15b0cbf3abd798e786095a202650202a5c0edd9e34bb9186a247b79"},
+    {file = "opentelemetry_exporter_prometheus-0.41b0.tar.gz", hash = "sha256:0cc58d5d10040e69090637803b97e120f558467037c88988742c80a627e7f1ed"},
 ]
 
 [package.dependencies]
-opentelemetry-api = ">=1.10.0"
-opentelemetry-sdk = ">=1.10.0"
+opentelemetry-api = ">=1.12,<2.0"
+opentelemetry-sdk = ">=1.12,<2.0"
 prometheus-client = ">=0.5.0,<1.0.0"
 
 [[package]]
@@ -2353,4 +2353,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "b50f133668cffe99e6c147dba74e91b335a7258ce4d0d8028c084c2374567871"
+content-hash = "38bcfd234dc0bed4061d27f11aca9dbad1b04e392fcbde6046d6c535d355d2d2"
