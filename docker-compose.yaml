@@ -7,6 +7,8 @@ volumes:
 services:
   am:
     image: autometrics/am:latest
+    extra_hosts:
+      - host.docker.internal:host-gateway
     ports:
       - "6789:6789"
     container_name: am
