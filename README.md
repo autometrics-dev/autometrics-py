@@ -296,7 +296,7 @@ Code in this repository is:
 In order to run these tools locally you have to install them, you can install them using poetry:
 
 ```sh
-poetry install --with dev
+poetry install --with dev --all-extras
 ```
 
 After that you can run the tools individually
