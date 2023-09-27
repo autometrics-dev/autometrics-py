@@ -1,8 +1,7 @@
-version: '3.9'
+version: "3.9"
 
 volumes:
   app-logs:
-
 
 services:
   am:
@@ -11,9 +10,10 @@ services:
       - host.docker.internal:host-gateway
     ports:
       - "6789:6789"
+      - "9090:9090"
     container_name: am
-    command: "start host.docker.internal:8080"
-    environment: 
+    command: "start host.docker.internal:9464"
+    environment:
       - LISTEN_ADDRESS=0.0.0.0:6789
     restart: unless-stopped
     volumes:
@@ -31,4 +31,4 @@ services:
       - "55679:55679"
     restart: unless-stopped
   push-gateway:
-    image: ghcr.io/zapier/prom-aggregation-gateway:v0.7.0
+    image: ghcr.io/zapier/prom-aggregation-gateway:latest

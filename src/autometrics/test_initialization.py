@@ -1,6 +1,7 @@
 import pytest
 
 from autometrics import init
+from autometrics.exposition import PrometheusClientExporterOptions
 from autometrics.tracker.opentelemetry import OpenTelemetryTracker
 from autometrics.tracker.prometheus import PrometheusTracker
 from autometrics.tracker.tracker import get_tracker
@@ -124,3 +125,51 @@ def test_double_init():
     init()
     with pytest.raises(RuntimeError):
         init()
+
+
+def test_init_with_exporter():
+    """Test that setting exporter works correctly"""
+    init(
+        tracker="prometheus",
+        exporter={
+            "type": "prometheus-client",
+        },
+    )
+    settings = get_settings()
+    assert settings == {
+        "histogram_buckets": [
+            0.005,
+            0.01,
+            0.025,
+            0.05,
+            0.075,
+            0.1,
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            2.5,
+            5.0,
+            7.5,
+            10.0,
+        ],
+        "enable_exemplars": False,
+        "tracker": TrackerType.PROMETHEUS,
+        "exporter": PrometheusClientExporterOptions(type="prometheus-client"),
+        "service_name": "autometrics",
+        "commit": "",
+        "branch": "",
+        "version": "",
+    }
+    tracker = get_tracker()
+    assert isinstance(tracker, PrometheusTracker)
+
+
+def test_init_exporter_validation():
+    with pytest.raises(ValueError):
+        init(
+            tracker="opentelemetry",
+            exporter={
+                "type": "prometheus-client",
+            },
+        )

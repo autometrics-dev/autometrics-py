@@ -240,31 +240,33 @@ exemplar collection by setting `AUTOMETRICS_EXEMPLARS=true`. You also need to en
 
 ## Exporting metrics
 
-There are multiple ways to export metrics from your application, depending on your setup. 
+There are multiple ways to export metrics from your application, depending on your setup. You can see examples of how to do this in the [examples/export_metrics](https://github.com/autometrics-dev/autometrics-py/tree/main/examples/export_metrics) directory of this repository.
 
 If you use the `prometheus` tracker, you have two options.
 
 1. Create a route inside your app and respond with `generate_latest()`
-  ```python
-  # This example uses FastAPI, but you can use any web framework
-  from fastapi import FastAPI, Response
-  from prometheus_client import generate_latest
 
-  # Set up a metrics endpoint for Prometheus to scrape
-  @app.get("/metrics")
-  def metrics():
-      return Response(generate_latest())
-  ```
+```python
+# This example uses FastAPI, but you can use any web framework
+from fastapi import FastAPI, Response
+from prometheus_client import generate_latest
+
+# Set up a metrics endpoint for Prometheus to scrape
+@app.get("/metrics")
+def metrics():
+    return Response(generate_latest())
+```
 
 2. Specify `prometheus-client` as the exporter type, and a separate server will be started to expose metrics from your app:
-  ```python
-  exporter = {
-      "type": "prometheus-client",
-      "address": "localhost",
-      "port": 9464
-  }
-  init(tracker="prometheus", service_name="my-service", exporter=exporter)
-  ```
+
+```python
+exporter = {
+    "type": "prometheus-client",
+    "address": "localhost",
+    "port": 9464
+}
+init(tracker="prometheus", service_name="my-service", exporter=exporter)
+```
 
 For the OpenTelemetry tracker, you have more options, including a custom metric reader. By default, when using this tracker, autometrics
 will export metrics to the Prometheus registry via `prometheus-client`, from which you can export via one of the ways described above.

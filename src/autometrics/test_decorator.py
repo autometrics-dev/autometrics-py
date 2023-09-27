@@ -4,7 +4,7 @@ import asyncio
 from typing import Optional, Coroutine
 from prometheus_client.exposition import generate_latest
 import pytest
-from requests import HTTPError
+from requests import HTTPError, Response
 
 from .decorator import autometrics
 from .initialization import init
@@ -22,7 +22,9 @@ def basic_http_error_function(status_code: Optional[int] = 404):
     if status_code is None:
         return CODE_NOT_SET_TEXT
 
-    raise HTTPError(HTTP_ERROR_TEXT, response=status_code)
+    response = Response()
+    response.status_code = status_code
+    raise HTTPError(HTTP_ERROR_TEXT, response=response)
 
 
 async def async_http_error_function(status_code: Optional[int] = 404):
@@ -32,7 +34,9 @@ async def async_http_error_function(status_code: Optional[int] = 404):
     if status_code is None:
         return CODE_NOT_SET_TEXT
 
-    raise HTTPError(HTTP_ERROR_TEXT, response=status_code)
+    response = Response()
+    response.status_code = status_code
+    raise HTTPError(HTTP_ERROR_TEXT, response=response)
 
 
 def basic_function(sleep_duration: float = 0.0):
@@ -254,7 +258,7 @@ class TestDecoratorClass:
             wrapped_function(status_code=404)
 
         assert HTTP_ERROR_TEXT in str(exception.value)
-        assert exception.value.response == 404
+        assert exception.value.response.status_code == 404
 
         # get the metrics
         blob = generate_latest()
@@ -309,7 +313,7 @@ class TestDecoratorClass:
             await wrapped_function(status_code=404)
 
         assert HTTP_ERROR_TEXT in str(exception.value)
-        assert exception.value.response == 404
+        assert exception.value.response.status_code == 404
 
         # get the metrics
         blob = generate_latest()

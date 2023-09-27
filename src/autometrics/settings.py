@@ -1,16 +1,10 @@
 import os
 
-from opentelemetry.sdk.metrics.export import MetricReader
-from typing import Any, Dict, List, TypedDict, Optional, Union
+from typing import cast, Dict, List, TypedDict, Optional, Union
 from typing_extensions import Unpack
 
 from .tracker.types import TrackerType
-from .exposition import (
-    ExporterOptions,
-    PrometheusExporterOptions,
-    OTELPrometheusExporterOptions,
-    OTLPExporterOptions,
-)
+from .exposition import ExporterOptions
 from .objectives import ObjectiveLatency
 
 
@@ -32,7 +26,7 @@ class AutometricsOptions(TypedDict, total=False):
 
     histogram_buckets: List[float]
     tracker: str
-    exporter: Dict[str, str]
+    exporter: Dict[str, Union[str, int, bool]]
     enable_exemplars: bool
     service_name: str
     commit: str
@@ -59,8 +53,8 @@ def init_settings(**overrides: Unpack[AutometricsOptions]) -> AutometricsSetting
     )
     exporter: Optional[ExporterOptions] = None
     exporter_option = overrides.get("exporter")
-    if exporter_option is not None:
-        exporter = get_exporter_settings(exporter_option)
+    if exporter_option:
+        exporter = cast(ExporterOptions, exporter_option)
 
     config: AutometricsSettings = {
         "histogram_buckets": overrides.get("histogram_buckets")
@@ -103,50 +97,16 @@ def get_settings() -> AutometricsSettings:
 def validate_settings(settings: AutometricsSettings):
     """Ensure that the settings are valid. For example, we don't support Prometheus exporter with OpenTelemetry tracker."""
     if settings["exporter"]:
-        if settings["tracker"] == TrackerType.OPENTELEMETRY and not isinstance(
-            settings["exporter"], MetricReader
-        ):
-            if settings["exporter"]["type"] == "prometheus":
+        exporter_type = settings["exporter"]["type"]
+        if settings["tracker"] == TrackerType.OPENTELEMETRY:
+            if not exporter_type.startswith("otel") and not exporter_type.startswith(
+                "otlp"
+            ):
                 raise ValueError(
-                    "Prometheus exporter is not supported with OpenTelemetry tracker"
+                    f"Exporter type {exporter_type} is not supported with OpenTelemetry tracker."
                 )
         if settings["tracker"] == TrackerType.PROMETHEUS:
-            if isinstance(settings["exporter"], MetricReader):
+            if not exporter_type.startswith("prometheus"):
                 raise ValueError(
-                    "OpenTelemetry exporter is not supported with Prometheus tracker"
+                    f"Exporter type {exporter_type} is not supported with Prometheus tracker."
                 )
-            if (
-                settings["exporter"]["type"] in ["otlp-proto-http", "otlp-proto-grpc"]
-            ) or (isinstance(settings["exporter"], MetricReader)):
-                raise ValueError(
-                    "OTLP exporter is not supported with Prometheus tracker"
-                )
-
-
-def get_exporter_settings(exporter_options: Dict[str, Any]) -> ExporterOptions:
-    """Get the exporter settings from the user supplied options."""
-    if exporter_options["type"] == "prometheus-client":
-        return PrometheusExporterOptions(
-            type="prometheus-client",
-            address=exporter_options["address"],
-            port=exporter_options["port"],
-            prefix=exporter_options["prefix"],
-        )
-    if ["otlp-proto-http", "otlp-proto-grpc"].count(exporter_options["type"]) > 0:
-        return OTLPExporterOptions(
-            type=exporter_options["type"],
-            endpoint=exporter_options["endpoint"],
-            insecure=exporter_options["insecure"],
-            headers=exporter_options["headers"],
-            credentials=exporter_options["credentials"],
-            push_interval=exporter_options["push_interval"],
-            timeout=exporter_options["timeout"],
-            preferred_temporality=exporter_options["preferred_temporality"],
-        )
-
-    if exporter_options["type"] == "otel-prometheus":
-        return OTELPrometheusExporterOptions(
-            type="otel-prometheus",
-            prefix=exporter_options["prefix"],
-        )
-    raise ValueError(f"Unsupported exporter type: {exporter_options['type']}")

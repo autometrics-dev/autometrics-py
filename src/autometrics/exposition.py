@@ -1,10 +1,12 @@
-from typing import cast, Dict, Literal, TypedDict, Optional, Union
 from opentelemetry.sdk.metrics.export import (
     AggregationTemporality,
     MetricReader,
     PeriodicExportingMetricReader,
 )
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from pydantic import ConfigDict, TypeAdapter
+from typing import Dict, Literal, Optional, Union
+from typing_extensions import TypedDict
 
 # GRPC is optional so we'll only type it if it's available
 try:
@@ -13,10 +15,16 @@ except ImportError:
     ChannelCredentials = None
 
 
-class OTLPExporterOptions(TypedDict):
-    """Configuration for OTLP exporters."""
+class OtlpGrpcExporterBase(TypedDict):
+    """Base type for OTLP GRPC exporter configuration."""
 
-    type: Literal["otlp-proto-http", "otlp-proto-grpc"]
+    type: Literal["otlp-proto-grpc"]
+
+
+class OtlpGrpcExporterOptions(OtlpGrpcExporterBase, total=False):
+    """Configuration for OTLP GRPC exporter."""
+
+    __pydantic_config__ = ConfigDict(arbitrary_types_allowed=True)  # type: ignore
     endpoint: str
     insecure: bool
     headers: Dict[str, str]
@@ -26,36 +34,104 @@ class OTLPExporterOptions(TypedDict):
     preferred_temporality: Dict[type, AggregationTemporality]
 
 
-class OTELPrometheusExporterOptions(TypedDict):
+OtlpGrpcExporterValidator = TypeAdapter(OtlpGrpcExporterOptions)
+
+
+class OtlpHttpExporterBase(TypedDict):
+    """Base type for OTLP HTTP exporter configuration."""
+
+    type: Literal["otlp-proto-http"]
+
+
+class OtlpHttpExporterOptions(OtlpHttpExporterBase, total=False):
+    """Configuration for OTLP HTTP exporter."""
+
+    endpoint: str
+    headers: Dict[str, str]
+    push_interval: int
+    timeout: int
+    preferred_temporality: Dict[type, AggregationTemporality]
+
+
+OtlpHttpExporterValidator = TypeAdapter(OtlpHttpExporterOptions)
+
+
+class OtelPrometheusExporterBase(TypedDict):
+    """Base type for OTLP Prometheus exporter configuration."""
+
     type: Literal["otel-prometheus"]
+
+
+class OtelPrometheusExporterOptions(OtelPrometheusExporterBase, total=False):
+    """Configuration for OpenTelemetry Prometheus exporter."""
+
     prefix: str
 
 
-class PrometheusExporterOptions(TypedDict):
-    """Configuration for Prometheus exporter."""
+OtelPrometheusValidator = TypeAdapter(OtelPrometheusExporterOptions)
+
+
+class OtelCustomExporterBase(TypedDict):
+    """Base type for OTLP Prometheus exporter configuration."""
+
+    type: Literal["otel-custom"]
+
+
+class OtelCustomExporterOptions(OtelCustomExporterBase, total=False):
+    """Configuration for OpenTelemetry Prometheus exporter."""
+
+    __pydantic_config__ = ConfigDict(arbitrary_types_allowed=True)  # type: ignore
+    exporter: MetricReader
+
+
+OtelCustomValidator = TypeAdapter(OtelCustomExporterOptions)
+
+
+class PrometheusClientExporterBase(TypedDict):
+    """Base type for Prometheus exporter configuration."""
 
     type: Literal["prometheus-client"]
+
+
+class PrometheusClientExporterOptions(PrometheusClientExporterBase, total=False):
+    """Configuration for Prometheus exporter."""
+
     address: str
     port: int
     prefix: str
 
 
+PrometheusExporterValidator = TypeAdapter(PrometheusClientExporterOptions)
+
+
 ExporterOptions = Union[
-    OTLPExporterOptions,
-    OTELPrometheusExporterOptions,
-    PrometheusExporterOptions,
-    MetricReader,
+    PrometheusClientExporterOptions,
+    OtlpGrpcExporterOptions,
+    OtlpHttpExporterOptions,
+    OtelPrometheusExporterOptions,
+    OtelCustomExporterOptions,
 ]
+ExporterOptionsValidator = TypeAdapter(ExporterOptions)
 
 
-def get_exporter(config: ExporterOptions) -> MetricReader:
-    if isinstance(config, MetricReader):
-        return config
+def create_exporter(config: ExporterOptions) -> Optional[MetricReader]:
+    """Create an exporter based on the configuration."""
+    if config["type"] == "prometheus-client":
+        from prometheus_client import start_http_server
+
+        config = PrometheusExporterValidator.validate_python(config)
+        start_http_server(
+            config.get("port", 9464),
+            config.get("address", "0.0.0.0"),
+        )
+        return None
     if config["type"] == "otel-prometheus":
-        config = cast(OTELPrometheusExporterOptions, config)
-        return PrometheusMetricReader(config.get("prefix", ""))
+        config = OtelPrometheusValidator.validate_python(config)
+        return PrometheusMetricReader(
+            config.get("prefix", ""),
+        )
     if config["type"] == "otlp-proto-http":
-        config = cast(OTLPExporterOptions, config)
+        config = OtlpHttpExporterValidator.validate_python(config)
         try:
             from opentelemetry.exporter.otlp.proto.http.metric_exporter import (
                 OTLPMetricExporter as OTLPHTTPMetricExporter,
@@ -76,11 +152,11 @@ def get_exporter(config: ExporterOptions) -> MetricReader:
         except ImportError:
             raise ImportError("OTLP exporter (HTTP) not installed")
     if config["type"] == "otlp-proto-grpc":
-        config = cast(OTLPExporterOptions, config)
+        config = OtlpGrpcExporterValidator.validate_python(config)
         try:
-            from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import (
+            from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import ( # type: ignore
                 OTLPMetricExporter as OTLPGRPCMetricExporter,
-            )
+            )  
 
             grpc_exporter = OTLPGRPCMetricExporter(
                 endpoint=config.get("endpoint", None),
@@ -98,5 +174,8 @@ def get_exporter(config: ExporterOptions) -> MetricReader:
             return grpc_reader
         except ImportError:
             raise ImportError("OTLP exporter (GRPC) not installed")
+    if config["type"] == "otel-custom":
+        config = OtelCustomValidator.validate_python(config)
+        return config.get("exporter", None)
     else:
         raise ValueError("Invalid exporter type")

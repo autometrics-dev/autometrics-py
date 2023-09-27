@@ -3,7 +3,7 @@ from opentelemetry.sdk.metrics.export import MetricReader
 
 from .types import TrackerType, TrackMetrics
 from .temporary import TemporaryTracker
-from ..exposition import PrometheusExporterOptions, get_exporter
+from ..exposition import create_exporter
 from ..settings import AutometricsSettings
 
 
@@ -34,19 +34,14 @@ def init_tracker(
 
         exporter: Optional[MetricReader] = None
         if settings["exporter"]:
-            exporter = get_exporter(settings["exporter"])
+            exporter = create_exporter(settings["exporter"])
         tracker_instance = OpenTelemetryTracker(exporter)
     elif tracker_type == TrackerType.PROMETHEUS:
         # pylint: disable=import-outside-toplevel
         from .prometheus import PrometheusTracker
 
-        if settings["exporter"] and not isinstance(settings["exporter"], MetricReader):
-            from prometheus_client import start_http_server
-
-            if settings["exporter"]["type"] != "prometheus-client":
-                raise Exception("Invalid exporter type for Prometheus tracker")
-            exporter_settings = cast(PrometheusExporterOptions, settings["exporter"])
-            start_http_server(exporter_settings["port"], exporter_settings["address"])
+        if settings["exporter"]:
+            exporter = create_exporter(settings["exporter"])
         tracker_instance = PrometheusTracker()
     # NOTE - Only set the build info when the tracker is initialized
     tracker_instance.set_build_info(
