@@ -16,6 +16,8 @@ except ImportError:
     ChannelCredentials = None
 
 
+# All of these are split into two parts because having
+# a wall of Optional[...] is not very readable and Required[...] is 3.11+
 class OtlpGrpcExporterBase(TypedDict):
     """Base type for OTLP GRPC exporter configuration."""
 
@@ -114,13 +116,11 @@ ExporterOptions = Union[
     OtelPrometheusExporterOptions,
     OtelCustomExporterOptions,
 ]
-ExporterOptionsValidator = TypeAdapter(ExporterOptions)
 
 
 def create_exporter(config: ExporterOptions) -> Optional[MetricReader]:
     """Create an exporter based on the configuration."""
     if config["type"] == "prometheus-client":
-
         config = PrometheusExporterValidator.validate_python(config)
         start_http_server(
             config.get("port", 9464),
@@ -160,9 +160,9 @@ def create_exporter(config: ExporterOptions) -> Optional[MetricReader]:
     if config["type"] == "otlp-proto-grpc":
         config = OtlpGrpcExporterValidator.validate_python(config)
         try:
-            from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import ( # type: ignore
+            from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import (  # type: ignore
                 OTLPMetricExporter as OTLPGRPCMetricExporter,
-            )  
+            )
 
             grpc_exporter = OTLPGRPCMetricExporter(
                 endpoint=config.get("endpoint", None),
