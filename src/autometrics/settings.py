@@ -1,6 +1,6 @@
 import os
 
-from typing import cast, Dict, List, TypedDict, Optional, Union
+from typing import cast, Dict, List, TypedDict, Optional, Any
 from typing_extensions import Unpack
 
 from .tracker.types import TrackerType
@@ -26,7 +26,7 @@ class AutometricsOptions(TypedDict, total=False):
 
     histogram_buckets: List[float]
     tracker: str
-    exporter: Dict[str, Union[str, int, bool]]
+    exporter: Dict[str, Any]
     enable_exemplars: bool
     service_name: str
     commit: str

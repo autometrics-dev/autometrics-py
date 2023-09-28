@@ -11,6 +11,7 @@ init(
     tracker="opentelemetry",
     exporter={
         "type": "otel-prometheus",
+        "port": 9464,
     },
     service_name="my-service",
 )

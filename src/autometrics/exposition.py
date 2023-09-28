@@ -4,6 +4,7 @@ from opentelemetry.sdk.metrics.export import (
     PeriodicExportingMetricReader,
 )
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from prometheus_client import start_http_server
 from pydantic import ConfigDict, TypeAdapter
 from typing import Dict, Literal, Optional, Union
 from typing_extensions import TypedDict
@@ -65,6 +66,8 @@ class OtelPrometheusExporterBase(TypedDict):
 class OtelPrometheusExporterOptions(OtelPrometheusExporterBase, total=False):
     """Configuration for OpenTelemetry Prometheus exporter."""
 
+    address: str
+    port: int
     prefix: str
 
 
@@ -117,7 +120,6 @@ ExporterOptionsValidator = TypeAdapter(ExporterOptions)
 def create_exporter(config: ExporterOptions) -> Optional[MetricReader]:
     """Create an exporter based on the configuration."""
     if config["type"] == "prometheus-client":
-        from prometheus_client import start_http_server
 
         config = PrometheusExporterValidator.validate_python(config)
         start_http_server(
@@ -127,6 +129,10 @@ def create_exporter(config: ExporterOptions) -> Optional[MetricReader]:
         return None
     if config["type"] == "otel-prometheus":
         config = OtelPrometheusValidator.validate_python(config)
+        start_http_server(
+            config.get("port", 9464),
+            config.get("address", "0.0.0.0"),
+        )
         return PrometheusMetricReader(
             config.get("prefix", ""),
         )
