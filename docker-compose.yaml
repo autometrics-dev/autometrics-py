@@ -12,7 +12,7 @@ services:
       - "6789:6789"
       - "9090:9090"
     container_name: am
-    command: "start http://otel-collector:9464/metrics"
+    command: "start http://otel-collector:9464/metrics host.docker.internal:9464"
     environment:
       - LISTEN_ADDRESS=0.0.0.0:6789
     restart: unless-stopped
@@ -28,7 +28,6 @@ services:
       - "4317:4317"
       - "4318:4318"
       - "8888:8888" # expose container metrics in prometheus format
-      - "9464:9464" # expose the collected metrics in prometheus format
       - "55680:55680"
       - "55679:55679"
     restart: unless-stopped
