@@ -5,7 +5,7 @@ from autometrics import autometrics, init
 # This example uses the gRPC transport, available settings are similar to the OpenTelemetry
 # Python SDK. By default, the OTLP exporter will send metrics to localhost:4317.
 # If you don't have an OTLP collector running, you can run Tilt or Docker Compose
-# to start one up. See the README for more details.
+# to start one up.
 
 init(
     exporter={
