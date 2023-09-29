@@ -59,21 +59,21 @@ class OtlpHttpExporterOptions(OtlpHttpExporterBase, total=False):
 OtlpHttpExporterValidator = TypeAdapter(OtlpHttpExporterOptions)
 
 
-class OtelPrometheusExporterBase(TypedDict):
+class PrometheusExporterBase(TypedDict):
     """Base type for OTLP Prometheus exporter configuration."""
 
-    type: Literal["otel-prometheus"]
+    type: Literal["prometheus"]
 
 
-class OtelPrometheusExporterOptions(OtelPrometheusExporterBase, total=False):
-    """Configuration for OpenTelemetry Prometheus exporter."""
+class PrometheusExporterOptions(PrometheusExporterBase, total=False):
+    """Configuration for Prometheus exporter."""
 
     address: str
     port: int
     prefix: str
 
 
-OtelPrometheusValidator = TypeAdapter(OtelPrometheusExporterOptions)
+PrometheusValidator = TypeAdapter(PrometheusExporterOptions)
 
 
 class OtelCustomExporterBase(TypedDict):
@@ -92,43 +92,18 @@ class OtelCustomExporterOptions(OtelCustomExporterBase, total=False):
 OtelCustomValidator = TypeAdapter(OtelCustomExporterOptions)
 
 
-class PrometheusClientExporterBase(TypedDict):
-    """Base type for Prometheus exporter configuration."""
-
-    type: Literal["prometheus-client"]
-
-
-class PrometheusClientExporterOptions(PrometheusClientExporterBase, total=False):
-    """Configuration for Prometheus exporter."""
-
-    address: str
-    port: int
-    prefix: str
-
-
-PrometheusExporterValidator = TypeAdapter(PrometheusClientExporterOptions)
-
-
 ExporterOptions = Union[
-    PrometheusClientExporterOptions,
     OtlpGrpcExporterOptions,
     OtlpHttpExporterOptions,
-    OtelPrometheusExporterOptions,
+    PrometheusExporterOptions,
     OtelCustomExporterOptions,
 ]
 
 
 def create_exporter(config: ExporterOptions) -> Optional[MetricReader]:
     """Create an exporter based on the configuration."""
-    if config["type"] == "prometheus-client":
-        config = PrometheusExporterValidator.validate_python(config)
-        start_http_server(
-            config.get("port", 9464),
-            config.get("address", "0.0.0.0"),
-        )
-        return None
-    if config["type"] == "otel-prometheus":
-        config = OtelPrometheusValidator.validate_python(config)
+    if config["type"] == "prometheus":
+        config = PrometheusValidator.validate_python(config)
         start_http_server(
             config.get("port", 9464),
             config.get("address", "0.0.0.0"),

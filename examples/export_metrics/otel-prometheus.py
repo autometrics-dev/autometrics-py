@@ -10,7 +10,7 @@ from autometrics import autometrics, init
 init(
     tracker="opentelemetry",
     exporter={
-        "type": "otel-prometheus",
+        "type": "prometheus",
         "port": 9464,
     },
     service_name="my-service",

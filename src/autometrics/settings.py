@@ -95,18 +95,11 @@ def get_settings() -> AutometricsSettings:
 
 
 def validate_settings(settings: AutometricsSettings):
-    """Ensure that the settings are valid. For example, we don't support Prometheus exporter with OpenTelemetry tracker."""
+    """Ensure that the settings are valid. For example, we don't support OpenTelemetry exporters with Prometheus tracker."""
     if settings["exporter"]:
         exporter_type = settings["exporter"]["type"]
-        if settings["tracker"] == TrackerType.OPENTELEMETRY:
-            if not exporter_type.startswith("otel") and not exporter_type.startswith(
-                "otlp"
-            ):
-                raise ValueError(
-                    f"Exporter type {exporter_type} is not supported with OpenTelemetry tracker."
-                )
         if settings["tracker"] == TrackerType.PROMETHEUS:
-            if not exporter_type.startswith("prometheus"):
+            if exporter_type != "prometheus":
                 raise ValueError(
                     f"Exporter type {exporter_type} is not supported with Prometheus tracker."
                 )

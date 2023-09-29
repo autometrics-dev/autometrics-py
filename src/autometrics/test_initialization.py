@@ -1,7 +1,7 @@
 import pytest
 
 from autometrics import init
-from autometrics.exposition import PrometheusClientExporterOptions
+from autometrics.exposition import PrometheusExporterOptions
 from autometrics.tracker.opentelemetry import OpenTelemetryTracker
 from autometrics.tracker.prometheus import PrometheusTracker
 from autometrics.tracker.tracker import get_tracker
@@ -132,7 +132,7 @@ def test_init_with_exporter():
     init(
         tracker="prometheus",
         exporter={
-            "type": "prometheus-client",
+            "type": "prometheus",
         },
     )
     settings = get_settings()
@@ -155,7 +155,7 @@ def test_init_with_exporter():
         ],
         "enable_exemplars": False,
         "tracker": TrackerType.PROMETHEUS,
-        "exporter": PrometheusClientExporterOptions(type="prometheus-client"),
+        "exporter": PrometheusExporterOptions(type="prometheus"),
         "service_name": "autometrics",
         "commit": "",
         "branch": "",
@@ -168,8 +168,8 @@ def test_init_with_exporter():
 def test_init_exporter_validation():
     with pytest.raises(ValueError):
         init(
-            tracker="opentelemetry",
+            tracker="prometheus",
             exporter={
-                "type": "prometheus-client",
+                "type": "otel-custom",
             },
         )

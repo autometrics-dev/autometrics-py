@@ -10,7 +10,7 @@ from autometrics import autometrics, init
 init(
     tracker="prometheus",
     exporter={
-        "type": "prometheus-client",
+        "type": "prometheus",
         "port": 9464,
     },
     service_name="my-service",

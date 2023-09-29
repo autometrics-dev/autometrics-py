@@ -240,9 +240,9 @@ exemplar collection by setting `AUTOMETRICS_EXEMPLARS=true`. You also need to en
 
 ## Exporting metrics
 
-There are multiple ways to export metrics from your application, depending on your setup. You can see examples of how to do this in the [examples/export_metrics](https://github.com/autometrics-dev/autometrics-py/tree/main/examples/export_metrics) directory of this repository.
+There are multiple ways to export metrics from your application, depending on your setup. You can see examples of how to do this in the [examples/export_metrics](https://github.com/autometrics-dev/autometrics-py/tree/main/examples/export_metrics) directory.
 
-If you use the `prometheus` tracker, you have two options.
+If you want to export metrics to Prometheus, you have two options in case of both `opentelemetry` and `prometheus` trackers:
 
 1. Create a route inside your app and respond with `generate_latest()`
 
@@ -257,21 +257,18 @@ def metrics():
     return Response(generate_latest())
 ```
 
-2. Specify `prometheus-client` as the exporter type, and a separate server will be started to expose metrics from your app:
+2. Specify `prometheus` as the exporter type, and a separate server will be started to expose metrics from your app:
 
 ```python
 exporter = {
-    "type": "prometheus-client",
+    "type": "prometheus",
     "address": "localhost",
     "port": 9464
 }
 init(tracker="prometheus", service_name="my-service", exporter=exporter)
 ```
 
-For the OpenTelemetry tracker, you have more options, including a custom metric reader. By default, when using this tracker, autometrics
-will export metrics to the Prometheus registry via `prometheus-client`, from which you can export via one of the ways described above.
-
-You can also specify the exporter type to be `otlp-proto-http` or `otlp-proto-grpc`, and metrics will be exported to a remote OpenTelemetry collector via the specified protocol. You will need to install the respective extra dependency in order for this to work, which you can do when you install autometrics:
+For the OpenTelemetry tracker, you have more options, including a custom metric reader. You can specify the exporter type to be `otlp-proto-http` or `otlp-proto-grpc`, and metrics will be exported to a remote OpenTelemetry collector via the specified protocol. You will need to install the respective extra dependency in order for this to work, which you can do when you install autometrics:
 
 ```sh
 pip install autometrics[exporter-otlp-proto-http]
@@ -285,6 +282,17 @@ exporter = {
     "type": "otlp-proto-grpc",
     "address": "http://localhost:4317",
     "insecure": True
+}
+init(tracker="opentelemetry", service_name="my-service", exporter=exporter)
+```
+
+To use a custom metric reader you can specify the exporter type to be `otel-custom` and provide a custom metric reader:
+
+```python
+my_custom_metric_reader = PrometheusMetricReader("")
+exporter = {
+    "type": "otel-custom",
+    "reader": my_custom_metric_reader
 }
 init(tracker="opentelemetry", service_name="my-service", exporter=exporter)
 ```
