@@ -13,10 +13,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Added support for `record_error_if` and `record_success_if`
+- Added OTLP exporters for OpenTelemetry tracker (#89)
 
 ### Changed
 
--
+- [💥 Breaking change] `init` function is now required to be called before using autometrics (#89)
+- Prometheus exporters are now configured via `init` function (#89)
 
 ### Deprecated
 
@@ -32,7 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Security
 
--
+- Updated FastAPI and Pydantic dependencies in the examples group (#89)
 
 ## [0.9](https://github.com/autometrics-dev/autometrics-py/releases/tag/0.8) - 2023-07-24
 
