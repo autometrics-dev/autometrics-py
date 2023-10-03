@@ -86,14 +86,14 @@ def autometrics(
         )
 
     def track_result_ok(
-        start_time: float,
+        duration: float,
         function: str,
         module: str,
         caller_module: str,
         caller_function: str,
     ):
         get_tracker().finish(
-            start_time,
+            duration,
             function=function,
             module=module,
             caller_module=caller_module,
@@ -104,14 +104,14 @@ def autometrics(
         )
 
     def track_result_error(
-        start_time: float,
+        duration: float,
         function: str,
         module: str,
         caller_module: str,
         caller_function: str,
     ):
         get_tracker().finish(
-            start_time,
+            duration,
             function=function,
             module=module,
             caller_module=caller_module,
@@ -130,11 +130,11 @@ def autometrics(
 
         @wraps(func)
         def sync_wrapper(*args: Params.args, **kwds: Params.kwargs) -> R:
-            start_time = time.time()
             caller_module = caller_module_var.get()
             caller_function = caller_function_var.get()
             context_token_module: Optional[Token] = None
             context_token_function: Optional[Token] = None
+            start_time = time.time()
 
             try:
                 context_token_module = caller_module_var.set(module_name)
@@ -142,9 +142,10 @@ def autometrics(
                 if track_concurrency:
                     track_start(module=module_name, function=func_name)
                 result = func(*args, **kwds)
+                duration = time.time() - start_time
                 if record_error_if and record_error_if(result):
                     track_result_error(
-                        start_time,
+                        duration,
                         function=func_name,
                         module=module_name,
                         caller_module=caller_module,
@@ -152,7 +153,7 @@ def autometrics(
                     )
                 else:
                     track_result_ok(
-                        start_time,
+                        duration,
                         function=func_name,
                         module=module_name,
                         caller_module=caller_module,
@@ -160,9 +161,10 @@ def autometrics(
                     )
 
             except Exception as exception:
+                duration = time.time() - start_time
                 if record_success_if and record_success_if(exception):
                     track_result_ok(
-                        start_time,
+                        duration,
                         function=func_name,
                         module=module_name,
                         caller_module=caller_module,
@@ -170,7 +172,7 @@ def autometrics(
                     )
                 else:
                     track_result_error(
-                        start_time,
+                        duration,
                         function=func_name,
                         module=module_name,
                         caller_module=caller_module,
@@ -201,11 +203,11 @@ def autometrics(
 
         @wraps(func)
         async def async_wrapper(*args: Params.args, **kwds: Params.kwargs) -> R:
-            start_time = time.time()
             caller_module = caller_module_var.get()
             caller_function = caller_function_var.get()
             context_token_module: Optional[Token] = None
             context_token_function: Optional[Token] = None
+            start_time = time.time()
 
             try:
                 context_token_module = caller_module_var.set(module_name)
@@ -213,9 +215,10 @@ def autometrics(
                 if track_concurrency:
                     track_start(module=module_name, function=func_name)
                 result = await func(*args, **kwds)
+                duration = time.time() - start_time
                 if record_error_if and record_error_if(result):
                     track_result_error(
-                        start_time,
+                        duration,
                         function=func_name,
                         module=module_name,
                         caller_module=caller_module,
@@ -223,7 +226,7 @@ def autometrics(
                     )
                 else:
                     track_result_ok(
-                        start_time,
+                        duration,
                         function=func_name,
                         module=module_name,
                         caller_module=caller_module,
@@ -231,9 +234,10 @@ def autometrics(
                     )
 
             except Exception as exception:
+                duration = time.time() - start_time
                 if record_success_if and record_success_if(exception):
                     track_result_ok(
-                        start_time,
+                        duration,
                         function=func_name,
                         module=module_name,
                         caller_module=caller_module,
@@ -241,7 +245,7 @@ def autometrics(
                     )
                 else:
                     track_result_error(
-                        start_time,
+                        duration,
                         function=func_name,
                         module=module_name,
                         caller_module=caller_module,

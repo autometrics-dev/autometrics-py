@@ -2,9 +2,8 @@ from prometheus_client.exposition import generate_latest
 import asyncio
 import pytest
 
-from .tracker import set_tracker, TrackerType
-
 from ..decorator import autometrics
+from ..initialization import init
 from ..utils import get_function_name, get_module_name
 
 
@@ -15,9 +14,7 @@ async def sleep(time: float):
 
 @pytest.mark.asyncio
 async def test_concurrency_tracking_prometheus(monkeypatch):
-    # HACK - We need to set the tracker explicitly here, instead of using `init_tracker`
-    #        because the library was already initialized with the OpenTelemetry tracker
-    set_tracker(TrackerType.PROMETHEUS)
+    init(tracker="prometheus")
 
     func_name = get_function_name(sleep)
     module_name = get_module_name(sleep)

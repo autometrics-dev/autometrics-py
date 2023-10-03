@@ -1,0 +1,23 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+exporters:
+  logging:
+    loglevel: debug
+  prometheus:
+    endpoint: "0.0.0.0:9464" # This is where Prometheus will scrape the metrics from.
+    # namespace: <namespace>   # Replace with your namespace.
+
+
+processors:
+  batch:
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: []
+      exporters: [logging, prometheus]

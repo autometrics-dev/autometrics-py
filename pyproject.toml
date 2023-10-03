@@ -8,29 +8,36 @@ readme = "README.md"
 repository = "https://github.com/autometrics-dev/autometrics-py"
 homepage = "https://github.com/autometrics-dev/autometrics-py"
 keywords = [
-    "metrics",
-    "telemetry",
-    "prometheus",
-    "monitoring",
-    "observability",
-    "instrumentation",
-    "tracing",
+  "metrics",
+  "telemetry",
+  "prometheus",
+  "monitoring",
+  "observability",
+  "instrumentation",
+  "tracing",
 ]
 classifiers = [
-    "Topic :: Software Development :: Build Tools",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: System :: Monitoring",
-    "Typing :: Typed"
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: System :: Monitoring",
+  "Typing :: Typed",
 ]
 packages = [{ include = "autometrics", from = "src" }]
 
 [tool.poetry.dependencies]
 opentelemetry-exporter-prometheus = "^1.12.0rc1"
+opentelemetry-exporter-otlp-proto-http = { version = "^1.20.0", optional = true }
+opentelemetry-exporter-otlp-proto-grpc = { version = "^1.20.0", optional = true }
 opentelemetry-sdk = "^1.17.0"
 prometheus-client = "^0.16.0 || ^0.17.0"
+pydantic = "^2.4.1"
 python = "^3.8"
 python-dotenv = "^1.0.0"
 typing-extensions = "^4.5.0"
+
+[tool.poetry.extras]
+exporter-otlp-proto-http = ["opentelemetry-exporter-otlp-proto-http"]
+exporter-otlp-proto-grpc = ["opentelemetry-exporter-otlp-proto-grpc"]
 
 [tool.poetry.group.dev]
 optional = true
@@ -46,10 +53,11 @@ enable_incomplete_feature = "Unpack"
 # Which at the time of writing is a line that states ignore types:
 # `# type: ignore`
 [[tool.mypy.overrides]]
-module = [
-  "opentelemetry.attributes",
-]
+module = ["opentelemetry.attributes"]
 follow_imports = "skip"
+
+[tool.pytest.ini_options]
+usefixtures = "reset_environment"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.0"
@@ -59,11 +67,13 @@ pytest-xdist = "^3.3.1"
 mypy = "^1.5.1"
 twine = "4.0.2"
 
+
+
 [tool.poetry.group.examples]
 optional = true
 
 [tool.poetry.group.examples.dependencies]
-anyio = "3.6.2"
+anyio = "3.7.1"
 bleach = "6.0.0"
 build = "0.10.0"
 certifi = "2023.7.22"
@@ -71,7 +81,7 @@ charset-normalizer = "3.1.0"
 click = "8.1.3"
 django = "^4.2"
 docutils = "0.19"
-fastapi = "0.97.0"
+fastapi = "^0.103.1"
 h11 = "0.14.0"
 idna = "3.4"
 # pinned importlib-metadat to version ~6.0.0 because of opentelemetry-api
@@ -83,7 +93,6 @@ mdurl = "0.1.2"
 more-itertools = "9.1.0"
 packaging = "23.0"
 pkginfo = "1.9.6"
-pydantic = "1.10.6"
 pygments = "2.16.1"
 pyproject-hooks = "1.0.0"
 readme-renderer = "37.3"
