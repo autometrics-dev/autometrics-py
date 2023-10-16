@@ -12,13 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Added support for `record_error_if` and `record_success_if`
-- Added OTLP exporters for OpenTelemetry tracker (#89)
+-
 
 ### Changed
 
-- [💥 Breaking change] `init` function is now required to be called before using autometrics (#89)
-- Prometheus exporters are now configured via `init` function (#89)
+-
 
 ### Deprecated
 
@@ -31,6 +29,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 -
+
+### Security
+
+-
+
+## [0.10]
+
+### Added
+
+- Added support for `record_error_if` and `record_success_if` (#79)
+- Added OTLP exporters for OpenTelemetry tracker (#89)
+
+### Changed
+
+- [💥 Breaking change] `init` function is now required to be called before using autometrics (#89)
+- Prometheus exporters are now configured via `init` function (#89)
 
 ### Security
 
