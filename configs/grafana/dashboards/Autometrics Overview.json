@@ -1,0 +1,356 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "target": {
+            "limit": 100,
+            "matchAny": false,
+            "tags": [],
+            "type": "dashboard"
+          },
+          "type": "dashboard"
+        }
+      ]
+    },
+    "description": "",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 20,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+      {
+        "collapsed": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "Sc9Taxa4z"
+        },
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 8,
+        "panels": [],
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "Sc9Taxa4z"
+            },
+            "refId": "A"
+          }
+        ],
+        "title": "Autometrics-Instrumented Functions",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "description": "Calls per second is calculated as the average over a 5-minute window",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "Calls per Second",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "none"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 1
+        },
+        "id": 4,
+        "options": {
+          "legend": {
+            "calcs": [
+              "lastNotNull",
+              "max"
+            ],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true,
+            "sortBy": "Max",
+            "sortDesc": true
+          },
+          "tooltip": {
+            "mode": "multi",
+            "sort": "desc"
+          }
+        },
+        "pluginVersion": "9.4.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "editorMode": "code",
+            "expr": "sum by (function, module, service_name, version, commit) (\n  rate(\n    {\n      __name__=~\"function_calls(_count)?(_total)?\", \n      function=~\"${functions_top_request_rate}\"\n    }[5m]\n  )\n  * on(instance, job) group_left(version, commit) (last_over_time(build_info[$__rate_interval]) or on (instance, job) up)\n)",
+            "format": "time_series",
+            "instant": false,
+            "interval": "",
+            "legendFormat": "",
+            "refId": "A"
+          }
+        ],
+        "title": "Request Rate (Top $num_function_limit)",
+        "transformations": [],
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "description": "",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic",
+              "seriesBy": "max"
+            },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "Error Rate",
+              "axisPlacement": "auto",
+              "axisSoftMax": 1,
+              "axisSoftMin": 0,
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "percentunit"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 9
+        },
+        "id": 2,
+        "options": {
+          "legend": {
+            "calcs": [
+              "lastNotNull",
+              "max"
+            ],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true,
+            "sortBy": "Max",
+            "sortDesc": true
+          },
+          "tooltip": {
+            "mode": "multi",
+            "sort": "desc"
+          }
+        },
+        "pluginVersion": "9.4.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "editorMode": "code",
+            "expr": "(\n  sum by(function, module, service_name, version, commit) (\n    rate(\n      {\n        __name__=~\"function_calls(_count)?(_total)?\", \n        result=\"error\", \n        function=~\"${functions_top_error_rate}\"\n      }[5m]\n    )\n    * on(instance, job) group_left(version, commit) (last_over_time(build_info[$__rate_interval]) or on (instance, job) up)\n  )) / (\n  sum by(function, module, service_name, version, commit) (\n    rate(\n      {\n        __name__=~\"function_calls(_count)?(_total)?\", \n        function=~\"${functions_top_error_rate}\"\n      }[5m]\n    )\n    * on(instance, job) group_left(version, commit) (last_over_time(build_info[$__rate_interval]) or on (instance, job) up)\n  ))",
+            "interval": "",
+            "legendFormat": "",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Error Rate (Top $num_function_limit)",
+        "type": "timeseries"
+      }
+    ],
+    "refresh": "5m",
+    "revision": 1,
+    "schemaVersion": 38,
+    "style": "dark",
+    "tags": [
+      "autometrics"
+    ],
+    "templating": {
+      "list": [
+        {
+          "allValue": "",
+          "current": {},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "definition": "query_result(topk($num_function_limit, sum by (function, module, service_name) (rate({__name__=~\"function_calls(_count)?(_total)?\"}[$__range]))))\n",
+          "hide": 2,
+          "includeAll": true,
+          "multi": true,
+          "name": "functions_top_request_rate",
+          "options": [],
+          "query": {
+            "query": "query_result(topk($num_function_limit, sum by (function, module, service_name) (rate({__name__=~\"function_calls(_count)?(_total)?\"}[$__range]))))\n",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 2,
+          "regex": "/function=\"(\\w+)\"/",
+          "skipUrlSync": false,
+          "sort": 4,
+          "type": "query"
+        },
+        {
+          "current": {
+            "selected": false,
+            "text": "10",
+            "value": "10"
+          },
+          "hide": 0,
+          "label": "Top Functions to Display",
+          "name": "num_function_limit",
+          "options": [
+            {
+              "selected": true,
+              "text": "10",
+              "value": "10"
+            }
+          ],
+          "query": "10",
+          "skipUrlSync": false,
+          "type": "textbox"
+        },
+        {
+          "allValue": "",
+          "current": {},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "definition": "query_result(topk($num_function_limit, sum by (function, module, service_name) (rate({__name__=~\"function_calls(_count)?(_total)?\", result=\"error\"}[$__range])) / (sum by (function, module, service_name) (rate({__name__=~\"function_calls(_count)?(_total)?\"}[$__range])))))\n",
+          "hide": 2,
+          "includeAll": true,
+          "multi": true,
+          "name": "functions_top_error_rate",
+          "options": [],
+          "query": {
+            "query": "query_result(topk($num_function_limit, sum by (function, module, service_name) (rate({__name__=~\"function_calls(_count)?(_total)?\", result=\"error\"}[$__range])) / (sum by (function, module, service_name) (rate({__name__=~\"function_calls(_count)?(_total)?\"}[$__range])))))\n",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 2,
+          "regex": "/function=\"(\\w+)\"/",
+          "skipUrlSync": false,
+          "sort": 4,
+          "type": "query"
+        }
+      ]
+    },
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Autometrics Overview",
+    "uid": "autometrics-overview",
+    "version": 1,
+    "weekStart": ""
+  }

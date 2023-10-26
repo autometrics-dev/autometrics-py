@@ -1,7 +1,7 @@
 import asyncio
 import uvicorn
 
-from autometrics import autometrics
+from autometrics import autometrics, init
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 from prometheus_client import generate_latest
@@ -86,5 +86,8 @@ def get_pretty_flower(flower_name: str):
     return f"A {flower_name} is pretty"
 
 
+init(service_name="fastapi-example")
+
+
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8080)
+    uvicorn.run(app, host="0.0.0.0", port=8080)

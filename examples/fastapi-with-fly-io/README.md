@@ -54,7 +54,7 @@ After this we're ready to add some code. Create a file named `app.py` in your fa
 
 ```python
 import time
-from autometrics import autometrics
+from autometrics import autometrics, init
 # Import below is needed for the service level objective (SLO) support
 from autometrics.objectives import Objective, ObjectiveLatency, ObjectivePercentile
 from fastapi import FastAPI, Response
@@ -104,11 +104,13 @@ def do_something():
     # This function doesn't do much
     print("done")
 
-# In order for prometheus to get the data we'll set
+# Before starting the server, we need to initialize the autometrics
+# by calling init(). In order for prometheus to get the data
+# we'll also pass the configuration that will set
 # up a separate endpoint that exposes data in a format
 # that prometheus can understand.
 # This metrics server will run on port 8008
-start_http_server(8008)
+init(exporter={"type": "prometheus", "port": 8008})
 
 # If the app is not run by fly.io in a container but using python
 # directly we enter this flow and it is run on port 8080

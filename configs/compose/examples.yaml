@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  django:
+    container_name: django
+    build:
+      context: ../..
+      dockerfile: configs/docker/base.Dockerfile
+      args:
+        PORT: 9464
+        COPY_PATH: examples/django_example
+        COMMAND: ./run_example.sh
+    ports:
+      - "9464:9464"
+  fastapi:
+    container_name: fastapi
+    build:
+      context: ../..
+      dockerfile: configs/docker/base.Dockerfile
+      args:
+        PORT: 8080
+        COPY_PATH: examples/fastapi-example.py
+        COMMAND: poetry run python3 fastapi-example.py
+    ports:
+      - "9465:8080"
+  starlette:
+    container_name: starlette
+    build:
+      context: ../..
+      dockerfile: configs/docker/base.Dockerfile
+      args:
+        PORT: 8080
+        COPY_PATH: examples/starlette-otel-exemplars.py
+        COMMAND: poetry run python3 starlette-otel-exemplars.py
+    ports:
+      - "9466:8080"
+  otlp:
+    container_name: otlp
+    build:
+      context: ../..
+      dockerfile: configs/docker/base.Dockerfile
+      args:
+        COPY_PATH: examples/export_metrics/otlp-http.py
+        COMMAND: poetry run python3 otlp-http.py

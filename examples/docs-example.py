@@ -1,4 +1,6 @@
-from autometrics import autometrics
+from autometrics import autometrics, init
+
+init()
 
 
 @autometrics
