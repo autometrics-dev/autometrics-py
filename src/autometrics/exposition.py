@@ -70,7 +70,6 @@ class PrometheusExporterOptions(PrometheusExporterBase, total=False):
 
     address: str
     port: int
-    prefix: str
 
 
 PrometheusValidator = TypeAdapter(PrometheusExporterOptions)
@@ -108,9 +107,7 @@ def create_exporter(config: ExporterOptions) -> Optional[MetricReader]:
             config.get("port", 9464),
             config.get("address", "0.0.0.0"),
         )
-        return PrometheusMetricReader(
-            config.get("prefix", ""),
-        )
+        return PrometheusMetricReader()
     if config["type"] == "otlp-proto-http":
         config = OtlpHttpExporterValidator.validate_python(config)
         try:
