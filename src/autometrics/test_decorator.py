@@ -4,11 +4,12 @@ import asyncio
 from typing import Optional, Coroutine
 from prometheus_client.exposition import generate_latest
 import pytest
-from requests import HTTPError
+from requests import HTTPError, Response
 
 from .decorator import autometrics
+from .initialization import init
 from .objectives import ObjectiveLatency, Objective, ObjectivePercentile
-from .tracker import set_tracker, TrackerType
+from .tracker import TrackerType
 from .utils import get_function_name, get_module_name
 
 HTTP_ERROR_TEXT = "This is an http error"
@@ -21,7 +22,9 @@ def basic_http_error_function(status_code: Optional[int] = 404):
     if status_code is None:
         return CODE_NOT_SET_TEXT
 
-    raise HTTPError(HTTP_ERROR_TEXT, response=status_code)
+    response = Response()
+    response.status_code = status_code
+    raise HTTPError(HTTP_ERROR_TEXT, response=response)
 
 
 async def async_http_error_function(status_code: Optional[int] = 404):
@@ -31,7 +34,9 @@ async def async_http_error_function(status_code: Optional[int] = 404):
     if status_code is None:
         return CODE_NOT_SET_TEXT
 
-    raise HTTPError(HTTP_ERROR_TEXT, response=status_code)
+    response = Response()
+    response.status_code = status_code
+    raise HTTPError(HTTP_ERROR_TEXT, response=response)
 
 
 def basic_function(sleep_duration: float = 0.0):
@@ -71,10 +76,10 @@ async def never_called_async_function():
 tracker_types = [TrackerType.PROMETHEUS, TrackerType.OPENTELEMETRY]
 
 
-@pytest.fixture(scope="class", params=tracker_types)
+@pytest.fixture(params=tracker_types)
 def setup_tracker_type(request):
     """Force the use of a specific metrics tracker"""
-    set_tracker(request.param)
+    init(tracker=request.param.value)
 
 
 @pytest.mark.usefixtures("setup_tracker_type")
@@ -253,7 +258,7 @@ class TestDecoratorClass:
             wrapped_function(status_code=404)
 
         assert HTTP_ERROR_TEXT in str(exception.value)
-        assert exception.value.response == 404
+        assert exception.value.response.status_code == 404
 
         # get the metrics
         blob = generate_latest()
@@ -308,7 +313,7 @@ class TestDecoratorClass:
             await wrapped_function(status_code=404)
 
         assert HTTP_ERROR_TEXT in str(exception.value)
-        assert exception.value.response == 404
+        assert exception.value.response.status_code == 404
 
         # get the metrics
         blob = generate_latest()

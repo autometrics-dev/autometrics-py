@@ -1,19 +1,22 @@
 import time
-from typing import Optional
+from typing import Dict, Optional, Mapping
 
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.metrics import (
-    Meter,
     Counter,
     Histogram,
     UpDownCounter,
     set_meter_provider,
 )
+from opentelemetry.semconv.resource import ResourceAttributes
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.view import View, ExplicitBucketHistogramAggregation
-from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from opentelemetry.sdk.metrics.export import MetricReader
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.util.types import AttributeValue
 
-from .exemplar import get_exemplar
-from .tracker import Result
+from ..exemplar import get_exemplar
+from .types import Result
 from ..objectives import Objective, ObjectiveLatency
 from ..constants import (
     CONCURRENCY_NAME,
@@ -31,6 +34,18 @@ from ..constants import (
 )
 from ..settings import get_settings
 
+LabelValue = AttributeValue
+Attributes = Dict[str, LabelValue]
+
+
+def get_resource_attrs() -> Attributes:
+    attrs: Attributes = {}
+    if get_settings()["service_name"] is not None:
+        attrs[ResourceAttributes.SERVICE_NAME] = get_settings()["service_name"]
+    if get_settings()["version"] is not None:
+        attrs[ResourceAttributes.SERVICE_VERSION] = get_settings()["version"]
+    return attrs
+
 
 class OpenTelemetryTracker:
     """Tracker for OpenTelemetry."""
@@ -40,8 +55,7 @@ class OpenTelemetryTracker:
     __up_down_counter_build_info_instance: UpDownCounter
     __up_down_counter_concurrency_instance: UpDownCounter
 
-    def __init__(self):
-        exporter = PrometheusMetricReader("")
+    def __init__(self, reader: Optional[MetricReader] = None):
         view = View(
             name=HISTOGRAM_NAME,
             description=HISTOGRAM_DESCRIPTION,
@@ -50,7 +64,13 @@ class OpenTelemetryTracker:
                 boundaries=get_settings()["histogram_buckets"]
             ),
         )
-        meter_provider = MeterProvider(metric_readers=[exporter], views=[view])
+        resource = Resource.create(get_resource_attrs())
+        readers = [reader or PrometheusMetricReader("")]
+        meter_provider = MeterProvider(
+            views=[view],
+            resource=resource,
+            metric_readers=readers,
+        )
         set_meter_provider(meter_provider)
         meter = meter_provider.get_meter(name="autometrics")
         self.__counter_instance = meter.create_counter(
@@ -106,12 +126,10 @@ class OpenTelemetryTracker:
         self,
         function: str,
         module: str,
-        start_time: float,
+        duration: float,
         objective: Optional[Objective],
         exemplar: Optional[dict],
     ):
-        duration = time.time() - start_time
-
         objective_name = "" if objective is None else objective.name
         latency = None if objective is None else objective.latency
         percentile = ""
@@ -165,7 +183,7 @@ class OpenTelemetryTracker:
 
     def finish(
         self,
-        start_time: float,
+        duration: float,
         function: str,
         module: str,
         caller_module: str,
@@ -175,7 +193,6 @@ class OpenTelemetryTracker:
         track_concurrency: Optional[bool] = False,
     ):
         """Finish tracking metrics for a function call."""
-
         exemplar = None
         # Currently, exemplars are only supported by prometheus-client
         # https://github.com/autometrics-dev/autometrics-py/issues/41
@@ -190,7 +207,7 @@ class OpenTelemetryTracker:
             exemplar,
             result,
         )
-        self.__histogram(function, module, start_time, objective, exemplar)
+        self.__histogram(function, module, duration, objective, exemplar)
         if track_concurrency:
             self.__up_down_counter_concurrency_instance.add(
                 -1.0,

@@ -1,36 +1,36 @@
-from prometheus_client.exposition import generate_latest
 import pytest
+
+from prometheus_client.exposition import generate_latest
 
 from .opentelemetry import OpenTelemetryTracker
 from .prometheus import PrometheusTracker
+from .tracker import get_tracker
 
-from .tracker import get_tracker, default_tracker
-
-from ..init import init
+from ..initialization import init
 
 
-def test_default_tracker(monkeypatch):
-    """Test the default tracker type."""
+@pytest.fixture(
+    params=[
+        (None, OpenTelemetryTracker),
+        ("prometheus", PrometheusTracker),
+        ("PROMETHEUS", PrometheusTracker),
+        ("something_else", OpenTelemetryTracker),
+    ]
+)
+def tracker_var(request):
+    return request.param
 
-    monkeypatch.delenv("AUTOMETRICS_TRACKER", raising=False)
+
+def test_default_tracker(monkeypatch, tracker_var):
+    """Test that the default tracker is set correctly."""
+    (env_value, Tracker) = tracker_var
+    if env_value is not None:
+        monkeypatch.setenv("AUTOMETRICS_TRACKER", env_value)
+    else:
+        monkeypatch.delenv("AUTOMETRICS_TRACKER", raising=False)
     init()
-    tracker = default_tracker()
-    assert isinstance(tracker, OpenTelemetryTracker)
-
-    monkeypatch.setenv("AUTOMETRICS_TRACKER", "prometheus")
-    init()
-    tracker = default_tracker()
-    assert isinstance(tracker, PrometheusTracker)
-    monkeypatch.setenv("AUTOMETRICS_TRACKER", "PROMETHEUS")
-    init()
-    tracker = default_tracker()
-    assert isinstance(tracker, PrometheusTracker)
-
-    # Should use open telemetry when the tracker is not recognized
-    monkeypatch.setenv("AUTOMETRICS_TRACKER", "something_else")
-    init()
-    tracker = default_tracker()
-    assert isinstance(tracker, OpenTelemetryTracker)
+    tracker = get_tracker()
+    assert isinstance(tracker, Tracker)
 
 
 def test_init_prometheus_tracker_set_build_info(monkeypatch):
@@ -53,7 +53,6 @@ def test_init_prometheus_tracker_set_build_info(monkeypatch):
     blob = generate_latest()
     assert blob is not None
     data = blob.decode("utf-8")
-    print(data)
 
     prom_build_info = f"""build_info{{branch="{branch}",commit="{commit}",service_name="autometrics",version="{version}"}} 1.0"""
     assert prom_build_info in data

@@ -23,8 +23,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: poetry
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root --with dev,examples
+      - name: Install dependencies (cpython)
+        if: ${{ matrix.python-version  != 'pypy3.10' }}
+        run: poetry install --no-interaction --no-root --with dev,examples --all-extras
+      - name: Install dependencies (pypy)
+        if: ${{ matrix.python-version == 'pypy3.10' }}
+        run: poetry install --no-interaction --no-root --with dev,examples --extras=exporter-otlp-proto-http
       - name: Check code formatting
         run: poetry run black .
       - name: Lint lib code

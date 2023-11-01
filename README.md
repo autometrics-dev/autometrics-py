@@ -29,65 +29,76 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 ## Quickstart
 
 1. Add `autometrics` to your project's dependencies:
-    ```shell
-    pip install autometrics
-    ```
+
+   ```shell
+   pip install autometrics
+   ```
 
 2. Instrument your functions with the `@autometrics` decorator
 
-    ```python
-    from autometrics import autometrics
+   ```python
+   from autometrics import autometrics
 
-    @autometrics
-    def my_function():
-      # ...
-    ```
+   @autometrics
+   def my_function():
+     # ...
+   ```
 
-3. Export the metrics for Prometheus
-    ```python
-    # This example uses FastAPI, but you can use any web framework
-    from fastapi import FastAPI, Response
-    from prometheus_client import generate_latest
-    
-    # Set up a metrics endpoint for Prometheus to scrape
-    #   `generate_latest` returns metrics data in the Prometheus text format
-    @app.get("/metrics")
-    def metrics():
-        return Response(generate_latest())
-    ```
+3. Configure autometrics by calling the `init` function:
 
-4. Run Prometheus locally with the [Autometrics CLI](https://docs.autometrics.dev/local-development#getting-started-with-am) or [configure it manually](https://github.com/autometrics-dev#5-configuring-prometheus) to scrape your metrics endpoint
-    ```sh
-     # Replace `8080` with the port that your app runs on
-     am start :8080 
-    ```
-  
-5. (Optional) If you have Grafana, import the [Autometrics dashboards](https://github.com/autometrics-dev/autometrics-shared#dashboards) for an overview and detailed view of all the function metrics you've collected
+```python
+from autometrics import init
+
+init(tracker="prometheus", service_name="my-service")
+```
+
+4. Export the metrics for Prometheus
+
+   ```python
+   # This example uses FastAPI, but you can use any web framework
+   from fastapi import FastAPI, Response
+   from prometheus_client import generate_latest
+
+   # Set up a metrics endpoint for Prometheus to scrape
+   #   `generate_latest` returns metrics data in the Prometheus text format
+   @app.get("/metrics")
+   def metrics():
+       return Response(generate_latest())
+   ```
+
+5. Run Prometheus locally with the [Autometrics CLI](https://docs.autometrics.dev/local-development#getting-started-with-am) or [configure it manually](https://github.com/autometrics-dev#5-configuring-prometheus) to scrape your metrics endpoint
+
+   ```sh
+    # Replace `8080` with the port that your app runs on
+    am start :8080
+   ```
+
+6. (Optional) If you have Grafana, import the [Autometrics dashboards](https://github.com/autometrics-dev/autometrics-shared#dashboards) for an overview and detailed view of all the function metrics you've collected
 
 ## Using `autometrics-py`
 
 - You can import the library in your code and use the decorator for any function:
 
-    ```py
-    from autometrics import autometrics
+  ```python
+  from autometrics import autometrics
 
-    @autometrics
-    def sayHello:
-      return "hello"
+  @autometrics
+  def sayHello:
+    return "hello"
 
-    ```
+  ```
 
 - To show tooltips over decorated functions in VSCode, with links to Prometheus queries, try installing [the VSCode extension](https://marketplace.visualstudio.com/items?itemName=Fiberplane.autometrics).
 
-    > **Note**: We cannot support tooltips without a VSCode extension due to behavior of the [static analyzer](https://github.com/davidhalter/jedi/issues/1921) used in VSCode.
+  > **Note**: We cannot support tooltips without a VSCode extension due to behavior of the [static analyzer](https://github.com/davidhalter/jedi/issues/1921) used in VSCode.
 
-- You can also track the number of concurrent calls to a function by using the `track_concurrency` argument: `@autometrics(track_concurrency=True)`. 
+- You can also track the number of concurrent calls to a function by using the `track_concurrency` argument: `@autometrics(track_concurrency=True)`.
 
-    > **Note**: Concurrency tracking is only supported when you set with the environment variable `AUTOMETRICS_TRACKER=prometheus`.
+  > **Note**: Concurrency tracking is only supported when you set with the environment variable `AUTOMETRICS_TRACKER=prometheus`.
 
 - To access the PromQL queries for your decorated functions, run `help(yourfunction)` or `print(yourfunction.__doc__)`.
 
-    > For these queries to work, include a `.env` file in your project with your prometheus endpoint `PROMETHEUS_URL=your endpoint`. If this is not defined, the default endpoint will be `http://localhost:9090/`
+  > For these queries to work, include a `.env` file in your project with your prometheus endpoint `PROMETHEUS_URL=your endpoint`. If this is not defined, the default endpoint will be `http://localhost:9090/`
 
 ## Dashboards
 
@@ -119,15 +130,15 @@ The library uses the concept of Service-Level Objectives (SLOs) to define the ac
 
 In order to receive alerts, **you need to add a special set of rules to your Prometheus setup**. These are configured automatically when you use the [Autometrics CLI](https://docs.autometrics.dev/local-development#getting-started-with-am) to run Prometheus.
 
-> Already running Prometheus yourself? [Read about how to load the autometrics alerting rules into Prometheus here](https://github.com/autometrics-dev/autometrics-shared#prometheus-recording--alerting-rules). 
+> Already running Prometheus yourself? [Read about how to load the autometrics alerting rules into Prometheus here](https://github.com/autometrics-dev/autometrics-shared#prometheus-recording--alerting-rules).
 
 Once the alerting rules are in Prometheus, you're ready to go.
 
-To use autometrics SLOs and alerts, create one or multiple `Objective`s based on the function(s) success rate and/or latency, as shown above. 
+To use autometrics SLOs and alerts, create one or multiple `Objective`s based on the function(s) success rate and/or latency, as shown above.
 
 The `Objective` can be passed as an argument to the `autometrics` decorator, which will include the given function in that objective.
 
-The example above used a success rate objective. (I.e., we wanted to be alerted when the error rate started to increase.) 
+The example above used a success rate objective. (I.e., we wanted to be alerted when the error rate started to increase.)
 
 You can also create an objective for the latency of your functions like so:
 
@@ -191,8 +202,7 @@ Autometrics makes it easy to identify if a specific version or commit introduced
 >
 > autometrics-py will track support for build_info using the OpenTelemetry tracker via [this issue](https://github.com/autometrics-dev/autometrics-py/issues/38)
 
-
-The library uses a separate metric (`build_info`) to track the version and, optionally, the git commit of your service. 
+The library uses a separate metric (`build_info`) to track the version and, optionally, the git commit of your service.
 
 It then writes queries that group metrics by the `version`, `commit` and `branch` labels so you can spot correlations between code changes and potential issues.
 
@@ -230,7 +240,62 @@ exemplar collection by setting `AUTOMETRICS_EXEMPLARS=true`. You also need to en
 
 ## Exporting metrics
 
-After collecting metrics with Autometrics, you need to export them to Prometheus. You can either add a separate route to your server and use the `generate_latest` function from the `prometheus_client` package, or you can use the `start_http_server` function from the same package to start a separate server that will expose the metrics. Autometrics also re-exports the `start_http_server` function with a preselected port 9464 for compatibility with other Autometrics packages.
+There are multiple ways to export metrics from your application, depending on your setup. You can see examples of how to do this in the [examples/export_metrics](https://github.com/autometrics-dev/autometrics-py/tree/main/examples/export_metrics) directory.
+
+If you want to export metrics to Prometheus, you have two options in case of both `opentelemetry` and `prometheus` trackers:
+
+1. Create a route inside your app and respond with `generate_latest()`
+
+```python
+# This example uses FastAPI, but you can use any web framework
+from fastapi import FastAPI, Response
+from prometheus_client import generate_latest
+
+# Set up a metrics endpoint for Prometheus to scrape
+@app.get("/metrics")
+def metrics():
+    return Response(generate_latest())
+```
+
+2. Specify `prometheus` as the exporter type, and a separate server will be started to expose metrics from your app:
+
+```python
+exporter = {
+    "type": "prometheus",
+    "address": "localhost",
+    "port": 9464
+}
+init(tracker="prometheus", service_name="my-service", exporter=exporter)
+```
+
+For the OpenTelemetry tracker, you have more options, including a custom metric reader. You can specify the exporter type to be `otlp-proto-http` or `otlp-proto-grpc`, and metrics will be exported to a remote OpenTelemetry collector via the specified protocol. You will need to install the respective extra dependency in order for this to work, which you can do when you install autometrics:
+
+```sh
+pip install autometrics[exporter-otlp-proto-http]
+pip install autometrics[exporter-otlp-proto-grpc]
+```
+
+After installing it you can configure the exporter as follows:
+
+```python
+exporter = {
+    "type": "otlp-proto-grpc",
+    "address": "http://localhost:4317",
+    "insecure": True
+}
+init(tracker="opentelemetry", service_name="my-service", exporter=exporter)
+```
+
+To use a custom metric reader you can specify the exporter type to be `otel-custom` and provide a custom metric reader:
+
+```python
+my_custom_metric_reader = PrometheusMetricReader("")
+exporter = {
+    "type": "otel-custom",
+    "reader": my_custom_metric_reader
+}
+init(tracker="opentelemetry", service_name="my-service", exporter=exporter)
+```
 
 ## Development of the package
 
@@ -255,7 +320,7 @@ Code in this repository is:
 In order to run these tools locally you have to install them, you can install them using poetry:
 
 ```sh
-poetry install --with dev
+poetry install --with dev --all-extras
 ```
 
 After that you can run the tools individually
