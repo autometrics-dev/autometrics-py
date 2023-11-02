@@ -65,7 +65,7 @@ class OpenTelemetryTracker:
             ),
         )
         resource = Resource.create(get_resource_attrs())
-        readers = [reader or PrometheusMetricReader("")]
+        readers = [reader or PrometheusMetricReader()]
         meter_provider = MeterProvider(
             views=[view],
             resource=resource,
