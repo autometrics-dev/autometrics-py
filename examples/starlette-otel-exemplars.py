@@ -24,7 +24,7 @@ tracer = trace.get_tracer(__name__)
 
 # Exemplars support requires some additional configuration on autometrics,
 # so we need to initialize it with the proper settings
-init(tracker="prometheus", enable_exemplars=True, service_name="starlette-example")
+init(tracker="prometheus", enable_exemplars=True, service_name="starlette")
 
 
 # We need to add tracer decorator before autometrics so that we see the spans

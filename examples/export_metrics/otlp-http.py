@@ -12,7 +12,7 @@ init(
         "type": "otlp-proto-http",
         "push_interval": 1000,
     },
-    service_name="my-service",
+    service_name="otlp-exporter",
 )
 
 

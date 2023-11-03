@@ -86,7 +86,7 @@ def get_pretty_flower(flower_name: str):
     return f"A {flower_name} is pretty"
 
 
-init(service_name="fastapi-example")
+init(service_name="fastapi")
 
 
 if __name__ == "__main__":

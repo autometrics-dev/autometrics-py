@@ -13,7 +13,7 @@ init(
         "type": "prometheus",
         "port": 9464,
     },
-    service_name="my-service",
+    service_name="prom-exporter",
 )
 
 

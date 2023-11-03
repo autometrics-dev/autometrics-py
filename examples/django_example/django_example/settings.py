@@ -17,8 +17,7 @@ init(
     branch="main",
     commit="67a1b3a",
     version="0.1.0",
-    tracker="prometheus",
-    service_name="django-example",
+    service_name="django",
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
