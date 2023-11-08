@@ -60,6 +60,7 @@ def test_init_prometheus_tracker_set_build_info(monkeypatch):
     monkeypatch.delenv("AUTOMETRICS_VERSION", raising=False)
     monkeypatch.delenv("AUTOMETRICS_COMMIT", raising=False)
     monkeypatch.delenv("AUTOMETRICS_BRANCH", raising=False)
+    monkeypatch.delenv("AUTOMETRICS_TRACKER", raising=False)
 
 
 def test_init_otel_tracker_set_build_info(monkeypatch):
@@ -67,17 +68,16 @@ def test_init_otel_tracker_set_build_info(monkeypatch):
     Test that init_tracker (for an OTEL tracker) calls set_build_info using env vars.
     Note that the OTEL collector translates metrics to Prometheus.
     """
-    pytest.skip(
-        "Skipping test because OTEL collector does not create a gauge when it translates UpDownCounter to Prometheus"
-    )
 
     commit = "a29a178"
     version = "0.0.1"
     branch = "main"
+    tracker = "opentelemetry"
 
     monkeypatch.setenv("AUTOMETRICS_COMMIT", commit)
     monkeypatch.setenv("AUTOMETRICS_VERSION", version)
     monkeypatch.setenv("AUTOMETRICS_BRANCH", branch)
+    monkeypatch.setenv("AUTOMETRICS_TRACKER", tracker)
     init()
 
     otel_tracker = get_tracker()
@@ -87,9 +87,10 @@ def test_init_otel_tracker_set_build_info(monkeypatch):
     assert blob is not None
     data = blob.decode("utf-8")
 
-    prom_build_info = f"""build_info{{branch="{branch}",commit="{commit}",service_name="autometrics",version="{version}",service_name="autometrics"}} 1.0"""
-    assert prom_build_info in data
+    otel_build_info = f"""build_info{{branch="{branch}",commit="{commit}",repository_provider="github",repository_url="git@github.com:autometrics-dev/autometrics-py.git",service_name="autometrics",version="{version}"}} 1.0"""
+    assert otel_build_info in data
 
     monkeypatch.delenv("AUTOMETRICS_VERSION", raising=False)
     monkeypatch.delenv("AUTOMETRICS_COMMIT", raising=False)
     monkeypatch.delenv("AUTOMETRICS_BRANCH", raising=False)
+    monkeypatch.delenv("AUTOMETRICS_TRACKER", raising=False)

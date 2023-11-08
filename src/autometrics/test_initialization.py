@@ -13,7 +13,6 @@ def test_init():
     """Test that the default settings are set correctly"""
     init()
     settings = get_settings()
-    print(settings)
     assert settings == {
         "histogram_buckets": [
             0.005,
