@@ -71,7 +71,7 @@ def init_settings(**overrides: Unpack[AutometricsOptions]) -> AutometricsSetting
     repository_provider: Optional[str] = overrides.get(
         "repository_provider", os.getenv("AUTOMETRICS_REPOSITORY_PROVIDER")
     )
-    if repository_provider is None:
+    if repository_provider is None and repository_url is not None:
         repository_provider = extract_repository_provider(repository_url)
 
     config: AutometricsSettings = {
