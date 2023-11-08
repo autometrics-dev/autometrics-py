@@ -61,11 +61,14 @@ def start_http_server(
     start_wsgi_server(port, addr, registry)
 
 
-def read_repository_url_from_fs():
+def read_repository_url_from_fs() -> Optional[str]:
     """Read the repository url from git config."""
-    with open(".git/config", "r") as f:
-        git_config = f.read()
-        return get_repository_url(git_config)
+    try:
+        with open(".git/config", "r") as f:
+            git_config = f.read()
+            return get_repository_url(git_config)
+    except:
+        return None
 
 
 def get_repository_url(git_config: str) -> Optional[str]:
@@ -119,7 +122,7 @@ def extract_repository_provider(url: str) -> Optional[str]:
     # https and ssh. urlparse can handle first type
     # so we try that first
     parsed_url = urlparse(url)
-    if parsed_url.scheme == "https":
+    if parsed_url.scheme == "https" and parsed_url.hostname:
         return get_provider_by_hostname(parsed_url.hostname)
     # if that fails, we try the second type, but we will need to
     # append the scheme to the url for urlparse to work

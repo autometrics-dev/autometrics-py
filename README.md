@@ -19,30 +19,30 @@ See [Why Autometrics?](https://github.com/autometrics-dev#why-autometrics) for m
 - 💡 Writes Prometheus queries so you can understand the data generated without
   knowing PromQL
 - 🔗 Create links to live Prometheus charts directly into each function's docstring
-- [🔍 Identify commits](#build-info) that introduced errors or increased latency
-- [🚨 Define alerts](#alerts--slos) using SLO best practices directly in your source code
-- [📊 Grafana dashboards](#dashboards) work out of the box to visualize the performance of instrumented functions & SLOs
-- [⚙️ Configurable](#settings) metric collection library (`opentelemetry` or `prometheus`)
-- [📍 Attach exemplars](#exemplars) to connect metrics with traces
+- 🔍 [Identify commits](#build-info) that introduced errors or increased latency
+- 🚨 [Define alerts](#alerts--slos) using SLO best practices directly in your source code
+- 📊 [Grafana dashboards](#dashboards) work out of the box to visualize the performance of instrumented functions & SLOs
+- ⚙️ [Configurable](#settings) metric collection library (`opentelemetry` or `prometheus`)
+- 📍 [Attach exemplars](#exemplars) to connect metrics with traces
 - ⚡ Minimal runtime overhead
 
 ## Quickstart
 
 1. Add `autometrics` to your project's dependencies:
 
-   ```shell
-   pip install autometrics
-   ```
+```shell
+pip install autometrics
+```
 
 2. Instrument your functions with the `@autometrics` decorator
 
-   ```python
-   from autometrics import autometrics
+```python
+from autometrics import autometrics
 
-   @autometrics
-   def my_function():
-     # ...
-   ```
+@autometrics
+def my_function():
+  # ...
+```
 
 3. Configure autometrics by calling the `init` function:
 
@@ -54,24 +54,24 @@ init(tracker="prometheus", service_name="my-service")
 
 4. Export the metrics for Prometheus
 
-   ```python
-   # This example uses FastAPI, but you can use any web framework
-   from fastapi import FastAPI, Response
-   from prometheus_client import generate_latest
+```python
+# This example uses FastAPI, but you can use any web framework
+from fastapi import FastAPI, Response
+from prometheus_client import generate_latest
 
-   # Set up a metrics endpoint for Prometheus to scrape
-   #   `generate_latest` returns metrics data in the Prometheus text format
-   @app.get("/metrics")
-   def metrics():
-       return Response(generate_latest())
-   ```
+# Set up a metrics endpoint for Prometheus to scrape
+#   `generate_latest` returns metrics data in the Prometheus text format
+@app.get("/metrics")
+def metrics():
+    return Response(generate_latest())
+```
 
 5. Run Prometheus locally with the [Autometrics CLI](https://docs.autometrics.dev/local-development#getting-started-with-am) or [configure it manually](https://github.com/autometrics-dev#5-configuring-prometheus) to scrape your metrics endpoint
 
-   ```sh
-    # Replace `8080` with the port that your app runs on
-    am start :8080
-   ```
+```sh
+# Replace `8080` with the port that your app runs on
+am start :8080
+```
 
 6. (Optional) If you have Grafana, import the [Autometrics dashboards](https://github.com/autometrics-dev/autometrics-shared#dashboards) for an overview and detailed view of all the function metrics you've collected
 
@@ -79,14 +79,14 @@ init(tracker="prometheus", service_name="my-service")
 
 - You can import the library in your code and use the decorator for any function:
 
-  ```python
-  from autometrics import autometrics
+```python
+from autometrics import autometrics
 
-  @autometrics
-  def sayHello:
-    return "hello"
+@autometrics
+def sayHello:
+  return "hello"
 
-  ```
+```
 
 - To show tooltips over decorated functions in VSCode, with links to Prometheus queries, try installing [the VSCode extension](https://marketplace.visualstudio.com/items?itemName=Fiberplane.autometrics).
 
@@ -174,7 +174,7 @@ Autometrics makes use of a number of environment variables to configure its beha
 - `histogram_buckets` - Configure the buckets used for latency histograms. Default is `[0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1.0, 2.5, 5.0, 7.5, 10.0]`.
 - `enable_exemplars` - Enable [exemplar collection](#exemplars). Default is `False`.
 - `service_name` - Configure the [service name](#service-name).
-- `version`, `commit`, `branch` - Used to configure [build_info](#build-info).
+- `version`, `commit`, `branch`, `repository_url`, `repository_provider` - Used to configure [build_info](#build-info).
 
 Below is an example of initializing autometrics with build information, as well as the `prometheus` tracker. (Note that you can also accomplish the same confiugration with environment variables.)
 
@@ -202,17 +202,21 @@ Autometrics makes it easy to identify if a specific version or commit introduced
 >
 > autometrics-py will track support for build_info using the OpenTelemetry tracker via [this issue](https://github.com/autometrics-dev/autometrics-py/issues/38)
 
-The library uses a separate metric (`build_info`) to track the version and, optionally, the git commit of your service.
+The library uses a separate metric (`build_info`) to track the version and git metadata of your code - repository url, provider name, commit and branch.
 
-It then writes queries that group metrics by the `version`, `commit` and `branch` labels so you can spot correlations between code changes and potential issues.
+It then writes queries that group metrics by the set labels so you can spot correlations between code changes and potential issues.
 
 Configure these labels by setting the following environment variables:
 
-| Label     | Run-Time Environment Variables        | Default value |
-| --------- | ------------------------------------- | ------------- |
-| `version` | `AUTOMETRICS_VERSION`                 | `""`          |
-| `commit`  | `AUTOMETRICS_COMMIT` or `COMMIT_SHA`  | `""`          |
-| `branch`  | `AUTOMETRICS_BRANCH` or `BRANCH_NAME` | `""`          |
+| Label                 | Run-Time Environment Variables        | Default value |
+| --------------------- | ------------------------------------- | ------------- |
+| `version`             | `AUTOMETRICS_VERSION`                 | `""`          |
+| `commit`              | `AUTOMETRICS_COMMIT` or `COMMIT_SHA`  | `""`          |
+| `branch`              | `AUTOMETRICS_BRANCH` or `BRANCH_NAME` | `""`          |
+| `repository_url`      | `AUTOMETRICS_REPOSITORY_URL`          | `""`\*        |
+| `repository_provider` | `AUTOMETRICS_REPOSITORY_PROVIDER`     | `""`\*        |
+
+\* Autometrics will attempt to automagically infer these values from git config inside working directory. To disable this behavior, explicitly set the corresponding setting or environment variable to `""`.
 
 This follows the method outlined in [Exposing the software version to Prometheus](https://www.robustperception.io/exposing-the-software-version-to-prometheus/).
 

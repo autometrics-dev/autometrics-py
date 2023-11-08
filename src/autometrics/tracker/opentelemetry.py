@@ -27,6 +27,8 @@ from ..constants import (
     HISTOGRAM_NAME,
     BUILD_INFO_NAME,
     BUILD_INFO_DESCRIPTION,
+    REPOSITORY_PROVIDER,
+    REPOSITORY_URL,
     SERVICE_NAME,
     OBJECTIVE_NAME,
     OBJECTIVE_PERCENTILE,
@@ -161,6 +163,8 @@ class OpenTelemetryTracker:
                     "version": version,
                     "branch": branch,
                     SERVICE_NAME: get_settings()["service_name"],
+                    REPOSITORY_URL: get_settings()["repository_url"],
+                    REPOSITORY_PROVIDER: get_settings()["repository_provider"],
                 },
             )
 

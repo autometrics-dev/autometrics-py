@@ -13,6 +13,7 @@ def test_init():
     """Test that the default settings are set correctly"""
     init()
     settings = get_settings()
+    print(settings)
     assert settings == {
         "histogram_buckets": [
             0.005,
@@ -37,6 +38,8 @@ def test_init():
         "commit": "",
         "branch": "",
         "version": "",
+        "repository_url": "git@github.com:autometrics-dev/autometrics-py.git",
+        "repository_provider": "github",
     }
     tracker = get_tracker()
     assert isinstance(tracker, OpenTelemetryTracker)
@@ -77,6 +80,8 @@ def test_init_custom():
         "commit": "123456",
         "branch": "main",
         "version": "1.0.0",
+        "repository_url": "git@github.com:autometrics-dev/autometrics-py.git",
+        "repository_provider": "github",
     }
     tracker = get_tracker()
     assert isinstance(tracker, PrometheusTracker)
@@ -117,6 +122,8 @@ def test_init_env_vars(monkeypatch):
         "commit": "123456",
         "branch": "main",
         "version": "1.0.0",
+        "repository_url": "git@github.com:autometrics-dev/autometrics-py.git",
+        "repository_provider": "github",
     }
 
 
@@ -160,6 +167,8 @@ def test_init_with_exporter():
         "commit": "",
         "branch": "",
         "version": "",
+        "repository_url": "git@github.com:autometrics-dev/autometrics-py.git",
+        "repository_provider": "github",
     }
     tracker = get_tracker()
     assert isinstance(tracker, PrometheusTracker)
@@ -173,3 +182,10 @@ def test_init_exporter_validation():
                 "type": "otel-custom",
             },
         )
+
+
+def test_init_repo_meta_suppress_detection():
+    init(repository_url="", repository_provider="")
+    settings = get_settings()
+    assert settings["repository_provider"] is ""
+    assert settings["repository_url"] is ""
