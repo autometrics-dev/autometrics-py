@@ -6,6 +6,8 @@ from ..constants import (
     COUNTER_NAME_PROMETHEUS,
     HISTOGRAM_NAME_PROMETHEUS,
     CONCURRENCY_NAME_PROMETHEUS,
+    REPOSITORY_PROVIDER_PROMETHEUS,
+    REPOSITORY_URL_PROMETHEUS,
     SERVICE_NAME_PROMETHEUS,
     BUILD_INFO_NAME,
     COUNTER_DESCRIPTION,
@@ -60,7 +62,14 @@ class PrometheusTracker:
     prom_gauge_build_info = Gauge(
         BUILD_INFO_NAME,
         BUILD_INFO_DESCRIPTION,
-        [COMMIT_KEY, VERSION_KEY, BRANCH_KEY, SERVICE_NAME_PROMETHEUS],
+        [
+            COMMIT_KEY,
+            VERSION_KEY,
+            BRANCH_KEY,
+            SERVICE_NAME_PROMETHEUS,
+            REPOSITORY_URL_PROMETHEUS,
+            REPOSITORY_PROVIDER_PROMETHEUS,
+        ],
     )
     prom_gauge_concurrency = Gauge(
         CONCURRENCY_NAME_PROMETHEUS,
@@ -138,8 +147,15 @@ class PrometheusTracker:
         if not self._has_set_build_info:
             self._has_set_build_info = True
             service_name = get_settings()["service_name"]
+            repository_url = get_settings()["repository_url"]
+            repository_provider = get_settings()["repository_provider"]
             self.prom_gauge_build_info.labels(
-                commit, version, branch, service_name
+                commit,
+                version,
+                branch,
+                service_name,
+                repository_url,
+                repository_provider,
             ).set(1)
 
     def start(

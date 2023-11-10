@@ -6,6 +6,7 @@ from typing_extensions import Unpack
 from .tracker.types import TrackerType
 from .exposition import ExporterOptions
 from .objectives import ObjectiveLatency
+from .utils import extract_repository_provider, read_repository_url_from_fs
 
 
 class AutometricsSettings(TypedDict):
@@ -19,6 +20,8 @@ class AutometricsSettings(TypedDict):
     commit: str
     version: str
     branch: str
+    repository_url: str
+    repository_provider: str
 
 
 class AutometricsOptions(TypedDict, total=False):
@@ -32,6 +35,8 @@ class AutometricsOptions(TypedDict, total=False):
     commit: str
     version: str
     branch: str
+    repository_url: str
+    repository_provider: str
 
 
 def get_objective_boundaries():
@@ -51,10 +56,23 @@ def init_settings(**overrides: Unpack[AutometricsOptions]) -> AutometricsSetting
         if tracker_setting.lower() == "prometheus"
         else TrackerType.OPENTELEMETRY
     )
+
     exporter: Optional[ExporterOptions] = None
     exporter_option = overrides.get("exporter")
     if exporter_option:
         exporter = cast(ExporterOptions, exporter_option)
+
+    repository_url: Optional[str] = overrides.get(
+        "repository_url", os.getenv("AUTOMETRICS_REPOSITORY_URL")
+    )
+    if repository_url is None:
+        repository_url = read_repository_url_from_fs()
+
+    repository_provider: Optional[str] = overrides.get(
+        "repository_provider", os.getenv("AUTOMETRICS_REPOSITORY_PROVIDER")
+    )
+    if repository_provider is None and repository_url is not None:
+        repository_provider = extract_repository_provider(repository_url)
 
     config: AutometricsSettings = {
         "histogram_buckets": overrides.get("histogram_buckets")
@@ -78,6 +96,8 @@ def init_settings(**overrides: Unpack[AutometricsOptions]) -> AutometricsSetting
             "branch", os.getenv("AUTOMETRICS_BRANCH", os.getenv("BRANCH_NAME", ""))
         ),
         "version": overrides.get("version", os.getenv("AUTOMETRICS_VERSION", "")),
+        "repository_url": repository_url or "",
+        "repository_provider": repository_provider or "",
     }
     validate_settings(config)
 
