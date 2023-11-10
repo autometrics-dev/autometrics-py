@@ -204,7 +204,7 @@ Autometrics makes it easy to identify if a specific version or commit introduced
 
 The library uses a separate metric (`build_info`) to track the version and git metadata of your code - repository url, provider name, commit and branch.
 
-It then writes queries that group metrics by the set labels so you can spot correlations between code changes and potential issues.
+It then writes queries that group metrics by these metadata, so you can spot correlations between code changes and potential issues.
 
 Configure these labels by setting the following environment variables:
 
