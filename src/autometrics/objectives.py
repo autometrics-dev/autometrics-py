@@ -1,4 +1,7 @@
+import logging
+
 from enum import Enum
+from re import match
 from typing import Optional, Tuple
 
 
@@ -89,3 +92,9 @@ class Objective:
         self.name = name
         self.success_rate = success_rate
         self.latency = latency
+
+        # Check that name only contains alphanumeric characters and hyphens
+        if match(r"^[\w-]+$", name) is None:
+            logging.getLogger().warning(
+                f"Objective name '{name}' contains invalid characters. Only alphanumeric characters and hyphens are allowed."
+            )
