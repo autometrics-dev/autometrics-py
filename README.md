@@ -216,7 +216,7 @@ Configure these labels by setting the following environment variables:
 | `repository_url`      | `AUTOMETRICS_REPOSITORY_URL`          | `""`\*        |
 | `repository_provider` | `AUTOMETRICS_REPOSITORY_PROVIDER`     | `""`\*        |
 
-\* Autometrics will attempt to automagically infer these values from git config inside working directory. To disable this behavior, explicitly set the corresponding setting or environment variable to `""`.
+\* Autometrics will attempt to automagically infer these values from the git config inside your working directory. To disable this behavior, explicitly set the corresponding setting or environment variable to `""`.
 
 This follows the method outlined in [Exposing the software version to Prometheus](https://www.robustperception.io/exposing-the-software-version-to-prometheus/).
 
