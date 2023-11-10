@@ -4,7 +4,6 @@ import pytest
 
 from ..decorator import autometrics
 from ..initialization import init
-from ..utils import get_function_name, get_module_name
 
 
 @autometrics(track_concurrency=True)
@@ -15,9 +14,6 @@ async def sleep(time: float):
 @pytest.mark.asyncio
 async def test_concurrency_tracking_prometheus(monkeypatch):
     init(tracker="prometheus")
-
-    func_name = get_function_name(sleep)
-    module_name = get_module_name(sleep)
 
     # Create a 200ms async task
     loop = asyncio.get_event_loop()

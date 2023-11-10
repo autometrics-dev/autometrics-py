@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Added support for `record_error_if` and `record_success_if`
 - Added OTLP exporters for OpenTelemetry tracker (#89)
+- Added `repository_url` and `repository_provider` labels to `build_info` (#97)
 
 ### Changed
 
@@ -35,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Security
 
 - Updated FastAPI and Pydantic dependencies in the examples group (#89)
+- Updated dependencies in dev and examples groups (#97)
 
 ## [0.9](https://github.com/autometrics-dev/autometrics-py/releases/tag/0.8) - 2023-07-24
 
