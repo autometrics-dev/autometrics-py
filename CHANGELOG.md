@@ -19,6 +19,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - [💥 Breaking change] `init` function is now required to be called before using autometrics (#89)
 - Prometheus exporters are now configured via `init` function (#89)
+- Updated examples to call `init` function (#94)
+- Updated `docker compose` / `tilt` config in repo to include grafana with our dashboards (#94)
 
 ### Deprecated
 
