@@ -19,6 +19,7 @@ from ..exemplar import get_exemplar
 from .types import Result
 from ..objectives import Objective, ObjectiveLatency
 from ..constants import (
+    AUTOMETRICS_VERSION,
     CONCURRENCY_NAME,
     CONCURRENCY_DESCRIPTION,
     COUNTER_DESCRIPTION,
@@ -33,6 +34,7 @@ from ..constants import (
     OBJECTIVE_NAME,
     OBJECTIVE_PERCENTILE,
     OBJECTIVE_LATENCY_THRESHOLD,
+    SPEC_VERSION,
 )
 from ..settings import get_settings
 
@@ -165,6 +167,7 @@ class OpenTelemetryTracker:
                     SERVICE_NAME: get_settings()["service_name"],
                     REPOSITORY_URL: get_settings()["repository_url"],
                     REPOSITORY_PROVIDER: get_settings()["repository_provider"],
+                    AUTOMETRICS_VERSION: SPEC_VERSION,
                 },
             )
 
