@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "autometrics"
-version = "0.9"
+version = "1.0.0"
 description = "Easily add metrics to your system – and actually understand them using automatically customized Prometheus queries"
 authors = ["Fiberplane <info@fiberplane.com>"]
 license = "MIT OR Apache-2.0"
@@ -71,7 +71,6 @@ mypy = "^1.5.1"
 twine = "4.0.2"
 
 
-
 [tool.poetry.group.examples]
 optional = true
 
@@ -112,7 +111,6 @@ webencodings = "0.5.1"
 zipp = "3.15.0"
 locust = "^2.15.1"
 django-stubs = "4.2.3"
-
 
 
 [tool.poetry.group.development.dependencies]
