@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Prometheus exporters are now configured via `init` function (#89)
 - Updated examples to call `init` function (#94)
 - Updated `docker compose` / `tilt` config in repo to include grafana with our dashboards (#94)
+- `Objective`s will now emit a warning when name contains characters other than alphanumeric and dash (#99)
 
 ### Deprecated
 
