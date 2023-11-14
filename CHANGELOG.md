@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added support for `record_error_if` and `record_success_if`
 - Added OTLP exporters for OpenTelemetry tracker (#89)
 - Added `repository_url` and `repository_provider` labels to `build_info` (#97)
+- Added `autometrics.version` label to `build_info` (#101)
 
 ### Changed
 
