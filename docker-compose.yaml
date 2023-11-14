@@ -1,35 +1,3 @@
-version: "3.9"
-
-volumes:
-  app-logs:
-
-services:
-  am:
-    image: autometrics/am:latest
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    ports:
-      - "6789:6789"
-      - "9090:9090"
-    container_name: am
-    command: "start http://otel-collector:9464/metrics host.docker.internal:9464"
-    environment:
-      - LISTEN_ADDRESS=0.0.0.0:6789
-    restart: unless-stopped
-    volumes:
-      - app-logs:/var/log
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./configs/otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    ports:
-      - "4317:4317"
-      - "4318:4318"
-      - "8888:8888" # expose container metrics in prometheus format
-      - "55680:55680"
-      - "55679:55679"
-    restart: unless-stopped
-  push-gateway:
-    image: ghcr.io/zapier/prom-aggregation-gateway:latest
+include:
+  - configs/compose/infra.yaml
+  - configs/compose/examples.yaml

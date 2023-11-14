@@ -1,0 +1,712 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "target": {
+            "limit": 100,
+            "matchAny": false,
+            "tags": [],
+            "type": "dashboard"
+          },
+          "type": "dashboard"
+        }
+      ]
+    },
+    "description": "",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 21,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 10,
+        "panels": [],
+        "repeat": "success_rate_objective",
+        "repeatDirection": "h",
+        "title": "`$success_rate_objective` Success Rate Objective (Target: $success_rate_objective_percentile%)",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "max": 1,
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "semi-dark-orange",
+                  "value": 0.9
+                },
+                {
+                  "color": "semi-dark-yellow",
+                  "value": 0.95
+                },
+                {
+                  "color": "semi-dark-green",
+                  "value": 0.99
+                }
+              ]
+            },
+            "unit": "percentunit"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 7,
+          "x": 0,
+          "y": 1
+        },
+        "id": 12,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "/^Value$/",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "10.1.5",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "editorMode": "code",
+            "exemplar": false,
+            "expr": "1 - (\n  sum(\n    rate(\n      {\n        __name__=~\"function_calls(_count)?(_total)?\", \n        objective_name=\"$success_rate_objective\", \n        result=\"error\"\n      }[$__range])\n    ) or on() vector(0)\n  ) / (\n    sum(\n      rate(\n        {\n          __name__=~\"function_calls(_count)?(_total)?\", \n          objective_name=\"$success_rate_objective\"\n        }[$__range]\n      )\n    )  )",
+            "format": "table",
+            "hide": false,
+            "instant": true,
+            "legendFormat": "__auto",
+            "range": false,
+            "refId": "A"
+          }
+        ],
+        "title": "Success Rate",
+        "transformations": [],
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "semi-dark-yellow",
+                  "value": 0.9
+                },
+                {
+                  "color": "semi-dark-orange",
+                  "value": 0.95
+                },
+                {
+                  "color": "semi-dark-green",
+                  "value": 0.99
+                }
+              ]
+            },
+            "unit": "percentunit"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 7,
+          "x": 7,
+          "y": 1
+        },
+        "id": 16,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "/^Value$/",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "10.1.5",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "editorMode": "code",
+            "exemplar": false,
+            "expr": "1 - (\n  sum(\n    rate(\n      {\n        __name__=~\"function_calls(_count)?(_total)?\", \n        objective_name=\"$success_rate_objective\", \n        result=\"error\"\n      }[$__range]\n    )\n  ) or on() vector(0)\n) / (\n  sum(\n    rate(\n      {\n        __name__=~\"function_calls(_count)?(_total)?\", \n        objective_name=\"$success_rate_objective\"\n      }[$__range]\n    )\n  ))",
+            "format": "table",
+            "instant": true,
+            "legendFormat": "__auto",
+            "range": false,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": "30d",
+        "title": "30-day Success Rate",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "continuous-GrYlRd",
+              "seriesBy": "max"
+            },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "noValue": "0",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "percentunit"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 10,
+          "x": 14,
+          "y": 1
+        },
+        "id": 15,
+        "options": {
+          "legend": {
+            "calcs": [
+              "min",
+              "max"
+            ],
+            "displayMode": "table",
+            "placement": "bottom",
+            "showLegend": true,
+            "sortBy": "Max",
+            "sortDesc": true
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "editorMode": "code",
+            "expr": "(\n  sum by (function, module, service_name, version, commit) (\n    rate(\n      {\n        __name__=~\"function_calls(_count)?(_total)?\", \n        objective_name=\"$success_rate_objective\", \n        result=\"error\"\n      }[$__rate_interval]\n    )\n    * on(instance, job) group_left(version, commit) (last_over_time(build_info[$__rate_interval]) or on (instance, job) up)\n  ) >= 0\n) / (\n  sum by (function, module, service_name, version, commit) (\n    rate(\n      {\n        __name__=~\"function_calls(_count)?(_total)?\", \n        objective_name=\"$success_rate_objective\"\n      }[$__rate_interval]\n    )\n    * on(instance, job) group_left(version, commit) (last_over_time(build_info[$__rate_interval]) or on (instance, job) up)\n  ))",
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Error Rate by Function",
+        "type": "timeseries"
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 9
+        },
+        "id": 18,
+        "panels": [],
+        "repeat": "latency_objective",
+        "repeatDirection": "h",
+        "title": "`$latency_objective` Latency Objective (Target: $latency_objective_percentile% ≤ $latency_objective_latency_threshold sec)",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "max": 1,
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "semi-dark-yellow",
+                  "value": 0.9
+                },
+                {
+                  "color": "semi-dark-orange",
+                  "value": 0.95
+                },
+                {
+                  "color": "semi-dark-green",
+                  "value": 0.99
+                }
+              ]
+            },
+            "unit": "percentunit"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 7,
+          "x": 0,
+          "y": 10
+        },
+        "id": 20,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "10.1.5",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "editorMode": "code",
+            "exemplar": false,
+            "expr": "(\n  sum(\n    rate(\n      {__name__=~\"function_calls_duration(_seconds)?_bucket\", \n        objective_name=\"$latency_objective\", \n        le=\"$latency_objective_latency_threshold\"\n      }[$__range]\n    )\n  ) or on() vector(0)\n) / (\n  sum(\n    rate(\n      {__name__=~\"function_calls_duration(_seconds)?_count\", \n        objective_name=\"$latency_objective\"\n      }[$__range]\n    )\n  ))",
+            "format": "table",
+            "instant": true,
+            "legendFormat": "__auto",
+            "range": false,
+            "refId": "A"
+          }
+        ],
+        "title": "% of requests under ${latency_objective_latency_threshold}s",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "max": 1,
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "semi-dark-yellow",
+                  "value": 0.9
+                },
+                {
+                  "color": "semi-dark-orange",
+                  "value": 0.95
+                },
+                {
+                  "color": "semi-dark-green",
+                  "value": 0.99
+                }
+              ]
+            },
+            "unit": "percentunit"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 7,
+          "x": 7,
+          "y": 10
+        },
+        "id": 23,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "10.1.5",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "editorMode": "code",
+            "exemplar": false,
+            "expr": "(\n  sum(\n    rate(\n      {__name__=~\"function_calls_duration(_seconds)?_bucket\", \n        objective_name=\"$latency_objective\", \n        le=\"$latency_objective_latency_threshold\"\n      }[$__range]\n    )\n  ) or on() vector(0)\n) / (\n  sum(\n    rate(\n      {__name__=~\"function_calls_duration(_seconds)?_count\", \n        objective_name=\"$latency_objective\"\n      }[$__range]\n    )\n  ))",
+            "format": "table",
+            "instant": true,
+            "legendFormat": "__auto",
+            "range": false,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": "30d",
+        "title": "30-day % of requests under ${latency_objective_latency_threshold}s",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "continuous-GrYlRd",
+              "seriesBy": "max"
+            },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "axisSoftMax": 1,
+              "axisSoftMin": 0,
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "noValue": "0",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "percentunit"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 10,
+          "x": 14,
+          "y": 10
+        },
+        "id": 22,
+        "options": {
+          "legend": {
+            "calcs": [
+              "max"
+            ],
+            "displayMode": "table",
+            "placement": "bottom",
+            "showLegend": true,
+            "sortBy": "Max",
+            "sortDesc": true
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "editorMode": "code",
+            "expr": "(\n  1 - (\n    sum by (function, module, service_name, version, commit) (\n      rate(\n        {__name__=~\"function_calls_duration(_seconds)?_bucket\", \n          objective_name=\"$latency_objective\", \n          le=\"$latency_objective_latency_threshold\"\n        }[$__rate_interval]\n      )\n      * on(instance, job) group_left(version, commit) (last_over_time(build_info[$__rate_interval]) or on (instance, job) up)\n    ) / (\n      sum by (function, module, service_name, version, commit) (\n        rate(\n          {__name__=~\"function_calls_duration(_seconds)?_count\", \n            objective_name=\"$latency_objective\"\n          }[$__rate_interval]\n        )\n        * on(instance, job) group_left(version, commit) (last_over_time(build_info[$__rate_interval]) or on (instance, job) up)\n      )    )\n  )\n)",
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "% of requests exceeding ${latency_objective_latency_threshold}s",
+        "type": "timeseries"
+      }
+    ],
+    "refresh": "5m",
+    "revision": 1,
+    "schemaVersion": 38,
+    "style": "dark",
+    "tags": [
+      "autometrics"
+    ],
+    "templating": {
+      "list": [
+        {
+          "current": {},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "definition": "label_values({__name__=~\"function_calls(_count)?(_total)?\"}, objective_name)",
+          "hide": 2,
+          "includeAll": false,
+          "label": "",
+          "multi": false,
+          "name": "success_rate_objective",
+          "options": [],
+          "query": {
+            "query": "label_values({__name__=~\"function_calls(_count)?(_total)?\"}, objective_name)",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        },
+        {
+          "current": {},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "definition": "label_values(function_calls_duration_count, objective_name)",
+          "hide": 2,
+          "includeAll": false,
+          "multi": false,
+          "name": "latency_objective",
+          "options": [],
+          "query": {
+            "query": "label_values(function_calls_duration_count, objective_name)",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        },
+        {
+          "current": {},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "definition": "label_values({__name__=~\"function_calls(_count)?(_total)?\", objective_name=\"$success_rate_objective\"}, objective_percentile)",
+          "hide": 2,
+          "includeAll": false,
+          "multi": false,
+          "name": "success_rate_objective_percentile",
+          "options": [],
+          "query": {
+            "query": "label_values({__name__=~\"function_calls(_count)?(_total)?\", objective_name=\"$success_rate_objective\"}, objective_percentile)",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        },
+        {
+          "current": {},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "definition": "label_values({__name__=~\"function_calls_duration(_seconds)?_bucket\", objective_name=\"$latency_objective\"}, objective_percentile)",
+          "hide": 2,
+          "includeAll": false,
+          "multi": false,
+          "name": "latency_objective_percentile",
+          "options": [],
+          "query": {
+            "query": "label_values({__name__=~\"function_calls_duration(_seconds)?_bucket\", objective_name=\"$latency_objective\"}, objective_percentile)",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        },
+        {
+          "current": {
+            "selected": false,
+            "text": "0.25",
+            "value": "0.25"
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "definition": "label_values({__name__=~\"function_calls_duration(_seconds)?_bucket\", objective_name=\"$latency_objective\"}, objective_latency_threshold)",
+          "hide": 2,
+          "includeAll": false,
+          "multi": false,
+          "name": "latency_objective_latency_threshold",
+          "options": [],
+          "query": {
+            "query": "label_values({__name__=~\"function_calls_duration(_seconds)?_bucket\", objective_name=\"$latency_objective\"}, objective_latency_threshold)",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        }
+      ]
+    },
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Autometrics Service-Level Objectives (SLOs)",
+    "uid": "autometrics-objectives",
+    "version": 1,
+    "weekStart": ""
+  }

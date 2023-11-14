@@ -1,5 +1,4 @@
-from prometheus_client import start_http_server
-from autometrics import autometrics
+from autometrics import autometrics, init
 import time
 import random
 
@@ -34,8 +33,9 @@ def destiny():
         return f"Destiny is calling simba. simba says: {simba()}"
 
 
-# Start an HTTP server on port 8080 using the Prometheus client library, which exposes our metrics to prometheus
-start_http_server(8080)
+# Initialize autometrics and start an HTTP server on port 8080 using
+# the Prometheus client library, which exposes our metrics to prometheus
+init(exporter={"type": "prometheus", "port": 8080})
 
 print(f"Try this PromQL query in your Prometheus dashboard:\n")
 print(

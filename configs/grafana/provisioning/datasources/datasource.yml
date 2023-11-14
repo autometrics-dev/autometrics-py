@@ -1,0 +1,12 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    # Use the name and container port from docker compose
+    url: http://am:9090/prometheus
+    basicAuth: false
+    isDefault: true
+    editable: true

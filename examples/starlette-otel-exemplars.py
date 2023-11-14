@@ -24,7 +24,7 @@ tracer = trace.get_tracer(__name__)
 
 # Exemplars support requires some additional configuration on autometrics,
 # so we need to initialize it with the proper settings
-init(tracker="prometheus", enable_exemplars=True)
+init(tracker="prometheus", enable_exemplars=True, service_name="starlette")
 
 
 # We need to add tracer decorator before autometrics so that we see the spans
@@ -54,7 +54,7 @@ app = applications.Starlette(
 )
 
 if __name__ == "__main__":
-    uvicorn.run(app, port=8080)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
 
 # Start the app and make some requests to http://127.0.0.1:8080/, you should see the spans in the console.
 # With autometrics extension installed, you can now hover over the hello handler

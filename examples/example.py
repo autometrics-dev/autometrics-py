@@ -1,7 +1,6 @@
 import time
 import random
-from prometheus_client import start_http_server
-from autometrics import autometrics
+from autometrics import autometrics, init
 from autometrics.objectives import Objective, ObjectiveLatency, ObjectivePercentile
 
 
@@ -63,8 +62,9 @@ print(ops.add.__doc__)
 # Show the docstring (with links to prometheus metrics) for the `div_unhandled` method
 print(div_unhandled.__doc__)
 
-# Start an HTTP server on port 8080 using the Prometheus client library, which exposes our metrics to prometheus
-start_http_server(8080)
+# Initialize autometrics and start an HTTP server on port 8080 using
+# the Prometheus client library, which exposes our metrics to prometheus
+init(exporter={"type": "prometheus", "port": 8080})
 
 # Enter an infinite loop (with a 2 second sleep period), calling the "div_handled", "add", and "div_unhandled" methods,
 # in order to generate metrics.
