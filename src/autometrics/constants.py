@@ -1,5 +1,7 @@
 """Constants used by autometrics"""
 
+SPEC_VERSION = "1.0.0"
+
 COUNTER_NAME = "function.calls"
 HISTOGRAM_NAME = "function.calls.duration"
 CONCURRENCY_NAME = "function.calls.concurrent"
@@ -8,6 +10,7 @@ BUILD_INFO_NAME = "build_info"
 SERVICE_NAME = "service.name"
 REPOSITORY_URL = "repository.url"
 REPOSITORY_PROVIDER = "repository.provider"
+AUTOMETRICS_VERSION = "autometrics.version"
 
 
 COUNTER_NAME_PROMETHEUS = COUNTER_NAME.replace(".", "_")
@@ -16,6 +19,7 @@ CONCURRENCY_NAME_PROMETHEUS = CONCURRENCY_NAME.replace(".", "_")
 SERVICE_NAME_PROMETHEUS = SERVICE_NAME.replace(".", "_")
 REPOSITORY_URL_PROMETHEUS = REPOSITORY_URL.replace(".", "_")
 REPOSITORY_PROVIDER_PROMETHEUS = REPOSITORY_PROVIDER.replace(".", "_")
+AUTOMETRICS_VERSION_PROMETHEUS = AUTOMETRICS_VERSION.replace(".", "_")
 
 COUNTER_DESCRIPTION = "Autometrics counter for tracking function calls"
 HISTOGRAM_DESCRIPTION = "Autometrics histogram for tracking function call duration"

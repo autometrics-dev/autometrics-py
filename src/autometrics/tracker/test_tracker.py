@@ -54,7 +54,7 @@ def test_init_prometheus_tracker_set_build_info(monkeypatch):
     assert blob is not None
     data = blob.decode("utf-8")
 
-    prom_build_info = f"""build_info{{branch="{branch}",commit="{commit}",repository_provider="github",repository_url="git@github.com:autometrics-dev/autometrics-py.git",service_name="autometrics",version="{version}"}} 1.0"""
+    prom_build_info = f"""build_info{{autometrics_version="1.0.0",branch="{branch}",commit="{commit}",repository_provider="github",repository_url="git@github.com:autometrics-dev/autometrics-py.git",service_name="autometrics",version="{version}"}} 1.0"""
     assert prom_build_info in data
 
     monkeypatch.delenv("AUTOMETRICS_VERSION", raising=False)
@@ -87,7 +87,7 @@ def test_init_otel_tracker_set_build_info(monkeypatch):
     assert blob is not None
     data = blob.decode("utf-8")
 
-    otel_build_info = f"""build_info{{branch="{branch}",commit="{commit}",repository_provider="github",repository_url="git@github.com:autometrics-dev/autometrics-py.git",service_name="autometrics",version="{version}"}} 1.0"""
+    otel_build_info = f"""build_info{{autometrics_version="1.0.0",branch="{branch}",commit="{commit}",repository_provider="github",repository_url="git@github.com:autometrics-dev/autometrics-py.git",service_name="autometrics",version="{version}"}} 1.0"""
     assert otel_build_info in data
 
     monkeypatch.delenv("AUTOMETRICS_VERSION", raising=False)

@@ -3,6 +3,7 @@ from typing import Optional
 from prometheus_client import Counter, Histogram, Gauge
 
 from ..constants import (
+    AUTOMETRICS_VERSION_PROMETHEUS,
     COUNTER_NAME_PROMETHEUS,
     HISTOGRAM_NAME_PROMETHEUS,
     CONCURRENCY_NAME_PROMETHEUS,
@@ -18,6 +19,7 @@ from ..constants import (
     OBJECTIVE_PERCENTILE_PROMETHEUS,
     OBJECTIVE_LATENCY_THRESHOLD_PROMETHEUS,
     COMMIT_KEY,
+    SPEC_VERSION,
     VERSION_KEY,
     BRANCH_KEY,
 )
@@ -69,6 +71,7 @@ class PrometheusTracker:
             SERVICE_NAME_PROMETHEUS,
             REPOSITORY_URL_PROMETHEUS,
             REPOSITORY_PROVIDER_PROMETHEUS,
+            AUTOMETRICS_VERSION_PROMETHEUS,
         ],
     )
     prom_gauge_concurrency = Gauge(
@@ -156,6 +159,7 @@ class PrometheusTracker:
                 service_name,
                 repository_url,
                 repository_provider,
+                SPEC_VERSION,
             ).set(1)
 
     def start(
