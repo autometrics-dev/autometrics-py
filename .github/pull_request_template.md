@@ -9,6 +9,6 @@
 - [ ] Create test cases
 - [ ] Update changelog
 <!-- Use these for release PRs:
-- [ ] Update package version in `pyprojevt.toml`
+- [ ] Update package version in `pyproject.toml`
 - [ ] Update spec version in `constants.py`
 - [ ] Move changes to a new section in `CHANGELOG.md` -->
