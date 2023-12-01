@@ -12,18 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Added support for `record_error_if` and `record_success_if`
-- Added OTLP exporters for OpenTelemetry tracker (#89)
-- Added `repository_url` and `repository_provider` labels to `build_info` (#97)
-- Added `autometrics.version` label to `build_info` (#101)
+-
 
 ### Changed
 
-- [💥 Breaking change] `init` function is now required to be called before using autometrics (#89)
-- Prometheus exporters are now configured via `init` function (#89)
-- Updated examples to call `init` function (#94)
-- Updated `docker compose` / `tilt` config in repo to include grafana with our dashboards (#94)
-- `Objective`s will now emit a warning when name contains characters other than alphanumeric and dash (#99)
+-
 
 ### Deprecated
 
@@ -39,10 +32,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Security
 
+-
+
+## [1.0.0] (https://github.com/autometrics-dev/autometrics-py/releases/tag/1.0.0) - 2023-11-14
+
+### Added
+
+- Added support for `record_error_if` and `record_success_if`
+- Added OTLP exporters for OpenTelemetry tracker (#89)
+- Added `repository_url` and `repository_provider` labels to `build_info` (#97)
+- Added `autometrics.version` label to `build_info` (#101)
+
+### Changed
+
+- [💥 Breaking change] `init` function is now required to be called before using autometrics (#89)
+- Prometheus exporters are now configured via `init` function (#89)
+- Updated examples to call `init` function (#94)
+- Updated `docker compose` / `tilt` config in repo to include grafana with our dashboards (#94)
+- `Objective`s will now emit a warning when name contains characters other than alphanumeric and dash (#99)
+
+### Security
+
 - Updated FastAPI and Pydantic dependencies in the examples group (#89)
 - Updated dependencies in dev and examples groups (#97)
 
-## [0.9](https://github.com/autometrics-dev/autometrics-py/releases/tag/0.8) - 2023-07-24
+## [0.9](https://github.com/autometrics-dev/autometrics-py/releases/tag/0.9) - 2023-09-24
 
 ### Added
 
